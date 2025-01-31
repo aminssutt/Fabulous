@@ -15,20 +15,28 @@ const appointmentSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    required: true
+    required: true,
+    validate: {
+      validator: function(date) {
+        return date.getDay() !== 0;
+      },
+      message: 'Les rendez-vous ne sont pas possibles le dimanche'
+    }
   },
   time: {
     type: String,
-    required: true
+    required: true,
+    validate: {
+      validator: function(time) {
+        const hour = parseInt(time.split(':')[0]);
+        return hour >= 9 && hour <= 17;
+      },
+      message: 'Les rendez-vous sont possibles uniquement entre 9h et 17h'
+    }
   },
   message: {
     type: String,
     required: true
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'confirmed', 'cancelled'],
-    default: 'pending'
   },
   createdAt: {
     type: Date,
@@ -36,55 +44,107 @@ const appointmentSchema = new mongoose.Schema({
   }
 });
 
-// Méthode statique pour vérifier la disponibilité d'un créneau
+// Méthode pour vérifier la disponibilité d'un créneau
 appointmentSchema.statics.isTimeSlotAvailable = async function(date, time) {
   const startOfDay = new Date(date);
   startOfDay.setHours(0, 0, 0, 0);
   
   const endOfDay = new Date(date);
   endOfDay.setHours(23, 59, 59, 999);
-  
+
+  // Vérifier si c'est un dimanche
+  if (startOfDay.getDay() === 0) {
+    return false;
+  }
+
+  // Vérifier si la date est dans le passé
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (startOfDay < today) {
+    return false;
+  }
+
+  // Vérifier si le créneau est déjà pris
   const existingAppointment = await this.findOne({
     date: {
       $gte: startOfDay,
       $lte: endOfDay
     },
-    time: time,
-    status: { $ne: 'cancelled' }
+    time: time
   });
-  
+
   return !existingAppointment;
 };
 
-// Méthode statique pour obtenir les créneaux disponibles pour une date donnée
+// Méthode pour obtenir tous les créneaux avec leur disponibilité
 appointmentSchema.statics.getAvailableTimeSlots = async function(date) {
-  const allTimeSlots = [];
-  
-  // Générer les créneaux de 30 minutes entre 9h et 18h
-  for (let hour = 9; hour <= 18; hour++) {
-    for (let minute of ['00', '30']) {
-      if (hour === 18 && minute === '30') continue;
-      allTimeSlots.push(`${hour.toString().padStart(2, '0')}:${minute}`);
-    }
-  }
-  
-  const startOfDay = new Date(date);
+  const requestedDate = new Date(date);
+  const startOfDay = new Date(requestedDate);
   startOfDay.setHours(0, 0, 0, 0);
   
-  const endOfDay = new Date(date);
+  const endOfDay = new Date(requestedDate);
   endOfDay.setHours(23, 59, 59, 999);
-  
+
+  // Si c'est un dimanche, retourner tous les créneaux comme non disponibles
+  if (requestedDate.getDay() === 0) {
+    return {
+      slots: this.generateAllTimeSlots().map(time => ({
+        time,
+        available: false,
+        reason: 'Les rendez-vous ne sont pas possibles le dimanche'
+      })),
+      message: 'Les rendez-vous ne sont pas possibles le dimanche'
+    };
+  }
+
+  // Vérifier si la date est dans le passé
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (requestedDate < today) {
+    return {
+      slots: this.generateAllTimeSlots().map(time => ({
+        time,
+        available: false,
+        reason: 'Cette date est déjà passée'
+      })),
+      message: 'Impossible de prendre un rendez-vous dans le passé'
+    };
+  }
+
+  // Récupérer tous les rendez-vous pour cette date
   const bookedAppointments = await this.find({
     date: {
       $gte: startOfDay,
       $lte: endOfDay
-    },
-    status: { $ne: 'cancelled' }
+    }
   }).select('time');
-  
-  const bookedTimeSlots = bookedAppointments.map(apt => apt.time);
-  
-  return allTimeSlots.filter(time => !bookedTimeSlots.includes(time));
+
+  const bookedTimeSlots = new Set(bookedAppointments.map(apt => apt.time));
+
+  // Générer tous les créneaux avec leur disponibilité
+  const slots = this.generateAllTimeSlots().map(time => ({
+    time,
+    available: !bookedTimeSlots.has(time),
+    reason: bookedTimeSlots.has(time) ? 'Créneau déjà réservé' : null
+  }));
+
+  const availableCount = slots.filter(slot => slot.available).length;
+
+  return {
+    slots,
+    message: availableCount > 0 
+      ? `${availableCount} créneaux disponibles`
+      : 'Aucun créneau disponible pour cette date'
+  };
+};
+
+// Méthode utilitaire pour générer tous les créneaux horaires
+appointmentSchema.statics.generateAllTimeSlots = function() {
+  const timeSlots = [];
+  for (let hour = 9; hour <= 17; hour++) {
+    timeSlots.push(`${hour.toString().padStart(2, '0')}:00`);
+  }
+  return timeSlots;
 };
 
 module.exports = mongoose.model('Appointment', appointmentSchema);

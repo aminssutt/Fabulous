@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faClock, faUser, faEnvelope, faPhone, faComment } from '@fortawesome/free-solid-svg-icons';
@@ -153,10 +153,37 @@ const IconWrapper = styled.span`
 
 const API_URL = 'http://localhost:5000';
 
-const TimeOption = styled.option`
-  background: ${props => props.theme.colors.background};
-  color: ${props => props.$isAvailable ? props.theme.colors.primary : 'rgba(255, 255, 255, 0.3)'};
+const TimeSlotList = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  margin-bottom: 1.5rem;
+`;
+
+const TimeSlotButton = styled.button`
+  width: 100%;
+  padding: 10px;
+  background: ${props => props.$isSelected ? props.theme.colors.primary : 'rgba(255, 255, 255, 0.05)'};
+  color: ${props => {
+    if (!props.$isAvailable) return 'rgba(255, 255, 255, 0.3)';
+    return props.$isSelected ? props.theme.colors.background : props.theme.colors.text;
+  }};
+  border: 1px solid ${props => props.$isSelected ? props.theme.colors.primary : 'rgba(212, 175, 55, 0.2)'};
+  border-radius: 5px;
+  font-size: 1rem;
   cursor: ${props => props.$isAvailable ? 'pointer' : 'not-allowed'};
+  transition: all 0.3s ease;
+  opacity: ${props => props.$isAvailable ? 1 : 0.5};
+
+  &:hover {
+    background: ${props => props.$isAvailable && !props.$isSelected ? 'rgba(212, 175, 55, 0.1)' : ''};
+    transform: ${props => props.$isAvailable ? 'translateY(-2px)' : 'none'};
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 `;
 
 function Appointment() {
@@ -169,27 +196,28 @@ function Appointment() {
     message: ''
   });
 
+  const [availableSlots, setAvailableSlots] = useState([]);
   const [status, setStatus] = useState({
     submitting: false,
     message: '',
     success: false
   });
 
-  // Générer tous les créneaux horaires de 9h à 18h
-  const generateTimeSlots = () => {
-    const slots = [];
-    for (let hour = 9; hour <= 17; hour++) {
-      const formattedHour = hour.toString().padStart(2, '0');
-      slots.push(`${formattedHour}:00`);
+  useEffect(() => {
+    if (formData.date) {
+      fetchAvailableSlots(formData.date);
     }
-    return slots;
-  };
+  }, [formData.date]);
 
-  // Simuler les créneaux non disponibles (à remplacer par la vraie logique plus tard)
-  const isSlotAvailable = (time) => {
-    // Pour l'exemple, les créneaux de 12h et 13h sont non disponibles
-    const unavailableSlots = ['12:00', '13:00'];
-    return !unavailableSlots.includes(time);
+  const fetchAvailableSlots = async (date) => {
+    try {
+      const response = await fetch(`${API_URL}/api/available-slots?date=${date}`);
+      const data = await response.json();
+      setAvailableSlots(data.slots || []);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des créneaux:', error);
+      setAvailableSlots([]);
+    }
   };
 
   const handleChange = (e) => {
@@ -197,6 +225,13 @@ function Appointment() {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleTimeSelect = (time) => {
+    setFormData(prev => ({
+      ...prev,
+      time
     }));
   };
 
@@ -246,23 +281,20 @@ function Appointment() {
     }
   };
 
-  const timeSlots = generateTimeSlots();
-
   return (
     <AppointmentSection id="appointment">
       <Container>
         <Title>Prendre Rendez-vous</Title>
         <Subtitle>
-          Planifiez une consultation personnalisée pour discuter de votre projet d'intérieur
+          Réservez votre moment de bien-être dès maintenant
         </Subtitle>
-
         <Form onSubmit={handleSubmit}>
           <FormGroup>
             <Label>
               <IconWrapper>
                 <FontAwesomeIcon icon={faUser} />
               </IconWrapper>
-              Nom complet
+              Nom
             </Label>
             <Input
               type="text"
@@ -270,7 +302,6 @@ function Appointment() {
               value={formData.name}
               onChange={handleChange}
               required
-              placeholder="Votre nom"
             />
           </FormGroup>
 
@@ -287,7 +318,6 @@ function Appointment() {
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="votre@email.com"
             />
           </FormGroup>
 
@@ -304,7 +334,6 @@ function Appointment() {
               value={formData.phone}
               onChange={handleChange}
               required
-              placeholder="Votre numéro de téléphone"
             />
           </FormGroup>
 
@@ -313,7 +342,7 @@ function Appointment() {
               <IconWrapper>
                 <FontAwesomeIcon icon={faCalendar} />
               </IconWrapper>
-              Date souhaitée
+              Date
             </Label>
             <Input
               type="date"
@@ -325,32 +354,30 @@ function Appointment() {
             />
           </FormGroup>
 
-          <FormGroup>
-            <Label>
-              <IconWrapper>
-                <FontAwesomeIcon icon={faClock} />
-              </IconWrapper>
-              Heure souhaitée
-            </Label>
-            <TimeSelect
-              name="time"
-              value={formData.time}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Sélectionnez une heure</option>
-              {timeSlots.map(time => (
-                <TimeOption 
-                  key={time} 
-                  value={time}
-                  $isAvailable={isSlotAvailable(time)}
-                  disabled={!isSlotAvailable(time)}
-                >
-                  {time}
-                </TimeOption>
-              ))}
-            </TimeSelect>
-          </FormGroup>
+          {formData.date && (
+            <FormGroup>
+              <Label>
+                <IconWrapper>
+                  <FontAwesomeIcon icon={faClock} />
+                </IconWrapper>
+                Heure
+              </Label>
+              <TimeSlotList>
+                {availableSlots.map((slot) => (
+                  <TimeSlotButton
+                    key={slot.time}
+                    type="button"
+                    onClick={() => slot.available && handleTimeSelect(slot.time)}
+                    $isAvailable={slot.available}
+                    $isSelected={formData.time === slot.time}
+                    title={!slot.available ? slot.reason : ''}
+                  >
+                    {slot.time}
+                  </TimeSlotButton>
+                ))}
+              </TimeSlotList>
+            </FormGroup>
+          )}
 
           <FormGroup>
             <Label>
@@ -364,12 +391,14 @@ function Appointment() {
               value={formData.message}
               onChange={handleChange}
               required
-              placeholder="Décrivez brièvement votre projet..."
             />
           </FormGroup>
 
-          <SubmitButton type="submit" disabled={status.submitting}>
-            {status.submitting ? 'Envoi en cours...' : 'Demander un rendez-vous'}
+          <SubmitButton 
+            type="submit" 
+            disabled={status.submitting}
+          >
+            {status.submitting ? 'Envoi en cours...' : 'Prendre Rendez-vous'}
           </SubmitButton>
 
           {status.message && (

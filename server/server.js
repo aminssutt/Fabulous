@@ -7,30 +7,18 @@ require('dotenv').config();
 const app = express();
 const Appointment = require('./models/Appointment');
 
-// Configuration de CORS
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true
+  origin: process.env.CLIENT_URL || 'http://localhost:3000'
 }));
 
 app.use(express.json());
 
-// Connexion à MongoDB avec options supplémentaires
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/fabulous', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000,
-  retryWrites: true
-})
-.then(() => {
-  console.log('Connecté à MongoDB');
-})
-.catch((err) => {
-  console.error('Erreur de connexion à MongoDB:', err);
-  console.log('Assurez-vous que MongoDB est installé et en cours d\'exécution');
-});
+// Connexion MongoDB
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/fabulous')
+.then(() => console.log('Connecté à MongoDB'))
+.catch((err) => console.error('Erreur de connexion à MongoDB:', err));
 
-// Configuration de Nodemailer
+// Configuration Nodemailer
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -39,224 +27,148 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Templates d'emails
+const formatDate = (date) => {
+  const options = { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric'
+  };
+  return new Date(date).toLocaleDateString('fr-FR', options);
+};
+
+// Templates d'emails simplifiés
 const clientEmailTemplate = (data) => `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      line-height: 1.6;
-      color: #333;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .header {
-      background-color: #D4AF37;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    .content {
-      padding: 20px;
-      background-color: #f9f9f9;
-    }
-    .footer {
-      text-align: center;
-      padding: 20px;
-      color: #666;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>Confirmation de Rendez-vous</h1>
-    </div>
-    <div class="content">
-      <p>Cher(e) ${data.name},</p>
-      <p>Nous avons bien reçu votre demande de rendez-vous. Voici les détails :</p>
-      <ul>
-        <li><strong>Date :</strong> ${new Date(data.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</li>
-        <li><strong>Heure :</strong> ${data.time}</li>
-        <li><strong>Message :</strong> ${data.message}</li>
-      </ul>
-      <p>Nous vous contacterons prochainement pour confirmer ce rendez-vous.</p>
-    </div>
-    <div class="footer">
-      <p>Merci de nous faire confiance !</p>
-      <p>L'équipe Fabulous</p>
-    </div>
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+  <h1 style="color: #D4AF37; text-align: center; font-size: 24px; margin-bottom: 30px;">Confirmation de Rendez-vous</h1>
+  <p style="color: #333; font-size: 16px; line-height: 1.6;">Bonjour ${data.name},</p>
+  <div style="background-color: #fff; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <p style="color: #333; font-size: 16px; margin: 10px 0;">
+      <strong>Date :</strong> ${formatDate(data.date)}
+    </p>
+    <p style="color: #333; font-size: 16px; margin: 10px 0;">
+      <strong>Heure :</strong> ${data.time}
+    </p>
   </div>
-</body>
-</html>
-`;
+  <p style="color: #666; font-size: 14px;">${data.message}</p>
+  <p style="color: #333; font-style: italic; margin-top: 30px;">Nous vous contacterons bientôt pour confirmer.</p>
+  <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+    <p style="color: #D4AF37; font-weight: bold;">L'équipe Fabulous</p>
+  </div>
+</div>`;
 
 const adminEmailTemplate = (data) => `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      line-height: 1.6;
-      color: #333;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .header {
-      background-color: #D4AF37;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    .content {
-      padding: 20px;
-      background-color: #f9f9f9;
-    }
-    .details {
-      background-color: #fff;
-      padding: 15px;
-      border-radius: 5px;
-      margin: 20px 0;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>Nouvelle Demande de Rendez-vous</h1>
-    </div>
-    <div class="content">
-      <p>Une nouvelle demande de rendez-vous a été reçue.</p>
-      <div class="details">
-        <h3>Informations du client :</h3>
-        <ul>
-          <li><strong>Nom :</strong> ${data.name}</li>
-          <li><strong>Email :</strong> ${data.email}</li>
-          <li><strong>Téléphone :</strong> ${data.phone}</li>
-          <li><strong>Date :</strong> ${new Date(data.date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</li>
-          <li><strong>Heure :</strong> ${data.time}</li>
-        </ul>
-        <h3>Message :</h3>
-        <p>${data.message}</p>
-      </div>
-    </div>
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+  <h1 style="color: #D4AF37; text-align: center;">Nouveau Rendez-vous</h1>
+  <div style="background-color: #fff; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <ul style="list-style: none; padding: 0;">
+      <li style="margin: 10px 0;"><strong>Nom :</strong> ${data.name}</li>
+      <li style="margin: 10px 0;"><strong>Email :</strong> ${data.email}</li>
+      <li style="margin: 10px 0;"><strong>Téléphone :</strong> ${data.phone}</li>
+      <li style="margin: 10px 0;"><strong>Date :</strong> ${formatDate(data.date)}</li>
+      <li style="margin: 10px 0;"><strong>Heure :</strong> ${data.time}</li>
+    </ul>
   </div>
-</body>
-</html>
-`;
+  <p style="color: #666; font-size: 14px; margin-top: 20px;">Message : ${data.message}</p>
+</div>`;
 
-// Route pour les rendez-vous
+// Routes
 app.post('/api/appointment', async (req, res) => {
   try {
     const appointmentData = req.body;
-    console.log('Données reçues:', appointmentData);
-
-    // Convertir la date en objet Date
     appointmentData.date = new Date(appointmentData.date);
 
-    // Vérifier si le créneau est disponible
-    const isAvailable = await Appointment.isTimeSlotAvailable(
-      appointmentData.date,
-      appointmentData.time
-    );
-    console.log('Créneau disponible:', isAvailable);
+    // Vérifier si c'est un dimanche
+    if (appointmentData.date.getDay() === 0) {
+      return res.status(400).json({
+        error: 'Les rendez-vous ne sont pas possibles le dimanche'
+      });
+    }
 
+    // Vérifier si la date est dans le passé
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (appointmentData.date < today) {
+      return res.status(400).json({
+        error: 'Impossible de prendre un rendez-vous dans le passé'
+      });
+    }
+
+    // Vérifier la disponibilité du créneau
+    const isAvailable = await Appointment.isTimeSlotAvailable(appointmentData.date, appointmentData.time);
     if (!isAvailable) {
-      return res.status(409).json({
-        error: 'Ce créneau n\'est plus disponible. Veuillez en choisir un autre.'
+      return res.status(400).json({ 
+        error: 'Ce créneau n\'est plus disponible. Veuillez en choisir un autre.' 
       });
     }
 
-    // Créer et sauvegarder le rendez-vous
+    // Sauvegarder le rendez-vous
     const appointment = new Appointment(appointmentData);
-    console.log('Rendez-vous à sauvegarder:', appointment);
+    await appointment.save();
 
-    try {
-      await appointment.save();
-      console.log('Rendez-vous sauvegardé avec succès');
-    } catch (saveError) {
-      console.error('Erreur lors de la sauvegarde:', saveError);
-      return res.status(500).json({
-        error: `Erreur lors de la sauvegarde: ${saveError.message}`
-      });
-    }
-
-    // Envoyer l'email de confirmation au client
-    try {
-      await transporter.sendMail({
+    // Envoyer les emails
+    await Promise.all([
+      transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: appointmentData.email,
-        subject: 'Confirmation de votre rendez-vous - Fabulous',
+        subject: 'Confirmation de rendez-vous - Fabulous',
         html: clientEmailTemplate(appointmentData)
-      });
-      console.log('Email de confirmation envoyé au client');
-    } catch (emailError) {
-      console.error('Erreur lors de l\'envoi de l\'email au client:', emailError);
-      // On continue même si l'email échoue
-    }
-
-    // Envoyer l'email de notification à l'administrateur
-    try {
-      await transporter.sendMail({
+      }),
+      transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: process.env.EMAIL_USER,
-        subject: 'Nouvelle demande de rendez-vous',
+        subject: 'Nouveau rendez-vous',
         html: adminEmailTemplate(appointmentData)
-      });
-      console.log('Email de notification envoyé à l\'administrateur');
-    } catch (emailError) {
-      console.error('Erreur lors de l\'envoi de l\'email à l\'administrateur:', emailError);
-      // On continue même si l'email échoue
-    }
+      })
+    ]);
 
     res.status(201).json({ 
-      message: 'Rendez-vous enregistré et emails envoyés avec succès',
+      message: 'Rendez-vous enregistré avec succès',
       appointment: appointment.toObject()
     });
 
   } catch (error) {
-    console.error('Erreur détaillée:', error);
-    console.error('Stack trace:', error.stack);
+    console.error('Erreur:', error);
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        error: Object.values(error.errors).map(err => err.message).join(', ')
+      });
+    }
     res.status(500).json({ 
-      error: 'Une erreur est survenue lors du traitement de votre demande',
-      details: error.message
+      error: 'Une erreur est survenue lors de la prise de rendez-vous' 
     });
   }
 });
 
-// Route pour les créneaux disponibles
 app.get('/api/available-slots', async (req, res) => {
   try {
     const { date } = req.query;
-    
     if (!date) {
-      return res.status(400).json({ error: 'La date est requise' });
+      return res.status(400).json({ 
+        error: 'Veuillez spécifier une date',
+        slots: []
+      });
     }
 
-    // Récupérer les créneaux disponibles pour la date donnée
-    const availableSlots = await Appointment.getAvailableTimeSlots(new Date(date));
+    const result = await Appointment.getAvailableTimeSlots(date);
     
-    res.json({ availableSlots });
+    res.json({ 
+      date: formatDate(date),
+      slots: result.slots.map(slot => ({
+        ...slot,
+        formattedTime: `${slot.time}`,
+        status: slot.available ? 'disponible' : 'indisponible'
+      })),
+      message: result.message
+    });
   } catch (error) {
-    console.error('Erreur lors de la récupération des créneaux:', error);
+    console.error('Erreur:', error);
     res.status(500).json({ 
-      error: 'Une erreur est survenue lors de la récupération des créneaux disponibles' 
+      error: 'Une erreur est survenue lors de la récupération des créneaux disponibles',
+      slots: []
     });
   }
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Serveur démarré sur le port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));
