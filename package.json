@@ -1,0 +1,14 @@
+﻿{
+  "name": "fabulous-app",
+  "version": "1.0.0",
+  "description": "Fabulous Appointment Management System",
+  "scripts": {
+    "install-all": "cd client && npm install && cd ../server && npm install",
+    "client": "cd client && npm start",
+    "server": "cd server && npm run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
