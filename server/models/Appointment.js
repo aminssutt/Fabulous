@@ -21,11 +21,6 @@ const appointmentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  projectType: {
-    type: String,
-    required: true,
-    enum: ['Résidentiel', 'Commercial', 'Bureau', 'Autre']
-  },
   message: {
     type: String,
     required: true
@@ -63,9 +58,15 @@ appointmentSchema.statics.isTimeSlotAvailable = async function(date, time) {
 
 // Méthode statique pour obtenir les créneaux disponibles pour une date donnée
 appointmentSchema.statics.getAvailableTimeSlots = async function(date) {
-  const allTimeSlots = [
-    '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'
-  ];
+  const allTimeSlots = [];
+  
+  // Générer les créneaux de 30 minutes entre 9h et 18h
+  for (let hour = 9; hour <= 18; hour++) {
+    for (let minute of ['00', '30']) {
+      if (hour === 18 && minute === '30') continue;
+      allTimeSlots.push(`${hour.toString().padStart(2, '0')}:${minute}`);
+    }
+  }
   
   const startOfDay = new Date(date);
   startOfDay.setHours(0, 0, 0, 0);

@@ -1,42 +1,11 @@
 import React, { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faCalendarAlt, 
-  faEnvelope, 
-  faPhone, 
-  faUser,
-  faHome,
-  faComments
-} from '@fortawesome/free-solid-svg-icons';
-
-const fadeInUp = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
+import { faCalendar, faClock, faUser, faEnvelope, faPhone, faComment } from '@fortawesome/free-solid-svg-icons';
 
 const AppointmentSection = styled.section`
-  background-color: ${props => props.theme.colors.background};
   padding: 6rem 0;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(26, 26, 26, 0) 100%);
-    pointer-events: none;
-  }
+  background-color: ${props => props.theme.colors.background};
 `;
 
 const Container = styled.div`
@@ -45,179 +14,149 @@ const Container = styled.div`
   padding: 0 2rem;
 `;
 
-const SectionTitle = styled.div`
+const Title = styled.h2`
+  color: ${props => props.theme.colors.primary};
   text-align: center;
-  margin-bottom: 4rem;
-  animation: ${fadeInUp} 1s ease;
-
-  h2 {
-    color: ${props => props.theme.colors.primary};
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-  }
-
-  p {
-    color: ${props => props.theme.colors.text};
-    max-width: 600px;
-    margin: 0 auto;
-    opacity: 0.9;
-  }
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
 `;
 
-const FormContainer = styled.div`
-  max-width: 800px;
-  margin: 0 auto;
-  background: rgba(255, 255, 255, 0.02);
-  padding: 3rem;
-  border-radius: 15px;
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  animation: ${fadeInUp} 1s ease;
-  animation-delay: 200ms;
-
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: 2rem;
-  }
+const Subtitle = styled.p`
+  color: ${props => props.theme.colors.text};
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 3rem;
+  opacity: 0.8;
 `;
 
 const Form = styled.form`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
+  max-width: 600px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 2rem;
+  border-radius: 15px;
+  border: 1px solid rgba(212, 175, 55, 0.1);
 `;
 
-const InputGroup = styled.div`
-  position: relative;
+const FormGroup = styled.div`
+  margin-bottom: 1.5rem;
+`;
 
-  .icon {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: ${props => props.theme.colors.primary};
-    opacity: 0.8;
-    transition: all 0.3s ease;
-  }
-
-  &:focus-within .icon {
-    opacity: 1;
-    transform: translateY(-50%) scale(1.1);
-  }
+const Label = styled.label`
+  display: block;
+  color: ${props => props.theme.colors.text};
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 1rem 1rem 1rem 3rem;
+  padding: 0.8rem;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  border-radius: 8px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 5px;
   color: ${props => props.theme.colors.text};
   font-size: 1rem;
   transition: all 0.3s ease;
 
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+  &:focus {
+    border-color: ${props => props.theme.colors.primary};
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
   }
 
+  &::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+  }
+`;
+
+const TimeSelect = styled.select`
+  width: 100%;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 5px;
+  color: ${props => props.theme.colors.text};
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
   &:focus {
-    outline: none;
     border-color: ${props => props.theme.colors.primary};
-    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
+  }
+
+  option {
+    background: ${props => props.theme.colors.background};
+    color: ${props => props.theme.colors.text};
   }
 `;
 
 const TextArea = styled.textarea`
   width: 100%;
-  padding: 1rem 1rem 1rem 3rem;
+  padding: 0.8rem;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  border-radius: 8px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 5px;
   color: ${props => props.theme.colors.text};
   font-size: 1rem;
-  min-height: 150px;
-  grid-column: 1 / -1;
+  min-height: 120px;
   resize: vertical;
   transition: all 0.3s ease;
 
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-  }
-
   &:focus {
-    outline: none;
     border-color: ${props => props.theme.colors.primary};
-    background: rgba(255, 255, 255, 0.1);
-  }
-`;
-
-const Select = styled.select`
-  width: 100%;
-  padding: 1rem 1rem 1rem 3rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  border-radius: 8px;
-  color: ${props => props.theme.colors.text};
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  appearance: none;
-
-  option {
-    background: ${props => props.theme.colors.secondary};
-    color: ${props => props.theme.colors.text};
-  }
-
-  &:focus {
     outline: none;
-    border-color: ${props => props.theme.colors.primary};
-    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
   }
 `;
 
 const SubmitButton = styled.button`
-  grid-column: 1 / -1;
+  width: 100%;
+  padding: 1rem;
   background: ${props => props.theme.colors.primary};
-  color: ${props => props.theme.colors.secondary};
-  padding: 1rem 2rem;
+  color: ${props => props.theme.colors.background};
   border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
+  border-radius: 5px;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 2px solid ${props => props.theme.colors.primary};
 
   &:hover {
-    background: transparent;
-    color: ${props => props.theme.colors.primary};
     transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
   }
 
   &:disabled {
     opacity: 0.7;
     cursor: not-allowed;
-    transform: none;
   }
 `;
 
-const SuccessMessage = styled.div`
+const Message = styled.div`
   text-align: center;
-  color: #4CAF50;
   margin-top: 1rem;
-  font-weight: 500;
-  animation: ${fadeInUp} 0.5s ease;
+  padding: 1rem;
+  border-radius: 5px;
+  color: ${props => props.$success ? '#4CAF50' : '#f44336'};
+  background: ${props => props.$success ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)'};
+  border: 1px solid ${props => props.$success ? '#4CAF50' : '#f44336'};
 `;
 
-const ErrorMessage = styled.div`
-  text-align: center;
-  color: #f44336;
-  margin-top: 1rem;
-  font-weight: 500;
-  animation: ${fadeInUp} 0.5s ease;
+const IconWrapper = styled.span`
+  margin-right: 0.5rem;
+  opacity: 0.8;
+`;
+
+const API_URL = 'http://localhost:5000';
+
+const TimeOption = styled.option`
+  background: ${props => props.theme.colors.background};
+  color: ${props => props.$isAvailable ? props.theme.colors.primary : 'rgba(255, 255, 255, 0.3)'};
+  cursor: ${props => props.$isAvailable ? 'pointer' : 'not-allowed'};
 `;
 
 function Appointment() {
@@ -225,16 +164,33 @@ function Appointment() {
     name: '',
     email: '',
     phone: '',
-    projectType: '',
     date: '',
+    time: '',
     message: ''
   });
 
   const [status, setStatus] = useState({
     submitting: false,
-    success: false,
-    error: false
+    message: '',
+    success: false
   });
+
+  // Générer tous les créneaux horaires de 9h à 18h
+  const generateTimeSlots = () => {
+    const slots = [];
+    for (let hour = 9; hour <= 17; hour++) {
+      const formattedHour = hour.toString().padStart(2, '0');
+      slots.push(`${formattedHour}:00`);
+    }
+    return slots;
+  };
+
+  // Simuler les créneaux non disponibles (à remplacer par la vraie logique plus tard)
+  const isSlotAvailable = (time) => {
+    // Pour l'exemple, les créneaux de 12h et 13h sont non disponibles
+    const unavailableSlots = ['12:00', '13:00'];
+    return !unavailableSlots.includes(time);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -246,154 +202,182 @@ function Appointment() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus({ submitting: true, success: false, error: false });
+    setStatus({ submitting: true, message: '', success: false });
 
     try {
-      // Simuler un appel API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setStatus({
-        submitting: false,
-        success: true,
-        error: false
+      console.log('Envoi de la demande de rendez-vous:', formData);
+      const response = await fetch(`${API_URL}/api/appointment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
       });
 
-      // Réinitialiser le formulaire
+      const data = await response.json();
+      console.log('Réponse reçue:', data);
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Une erreur est survenue');
+      }
+
+      setStatus({
+        submitting: false,
+        message: 'Votre demande de rendez-vous a été envoyée avec succès ! Vous allez recevoir un email de confirmation.',
+        success: true
+      });
+
       setFormData({
         name: '',
         email: '',
         phone: '',
-        projectType: '',
         date: '',
+        time: '',
         message: ''
       });
 
-      // Réinitialiser le message de succès après 5 secondes
-      setTimeout(() => {
-        setStatus(prev => ({ ...prev, success: false }));
-      }, 5000);
-
     } catch (error) {
+      console.error('Erreur lors de l\'envoi du formulaire:', error);
       setStatus({
         submitting: false,
-        success: false,
-        error: true
+        message: error.message || 'Une erreur est survenue. Veuillez réessayer.',
+        success: false
       });
-
-      // Réinitialiser le message d'erreur après 5 secondes
-      setTimeout(() => {
-        setStatus(prev => ({ ...prev, error: false }));
-      }, 5000);
     }
   };
+
+  const timeSlots = generateTimeSlots();
 
   return (
     <AppointmentSection id="appointment">
       <Container>
-        <SectionTitle>
-          <h2>Prendre Rendez-vous</h2>
-          <p>
-            Planifiez une consultation pour discuter de votre projet 
-            d'aménagement intérieur et donnez vie à vos idées.
-          </p>
-        </SectionTitle>
+        <Title>Prendre Rendez-vous</Title>
+        <Subtitle>
+          Planifiez une consultation personnalisée pour discuter de votre projet d'intérieur
+        </Subtitle>
 
-        <FormContainer>
-          <Form onSubmit={handleSubmit}>
-            <InputGroup>
-              <FontAwesomeIcon icon={faUser} className="icon" />
-              <Input
-                type="text"
-                name="name"
-                placeholder="Votre nom"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </InputGroup>
+        <Form onSubmit={handleSubmit}>
+          <FormGroup>
+            <Label>
+              <IconWrapper>
+                <FontAwesomeIcon icon={faUser} />
+              </IconWrapper>
+              Nom complet
+            </Label>
+            <Input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              placeholder="Votre nom"
+            />
+          </FormGroup>
 
-            <InputGroup>
-              <FontAwesomeIcon icon={faEnvelope} className="icon" />
-              <Input
-                type="email"
-                name="email"
-                placeholder="Votre email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </InputGroup>
+          <FormGroup>
+            <Label>
+              <IconWrapper>
+                <FontAwesomeIcon icon={faEnvelope} />
+              </IconWrapper>
+              Email
+            </Label>
+            <Input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              placeholder="votre@email.com"
+            />
+          </FormGroup>
 
-            <InputGroup>
-              <FontAwesomeIcon icon={faPhone} className="icon" />
-              <Input
-                type="tel"
-                name="phone"
-                placeholder="Votre téléphone"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-              />
-            </InputGroup>
+          <FormGroup>
+            <Label>
+              <IconWrapper>
+                <FontAwesomeIcon icon={faPhone} />
+              </IconWrapper>
+              Téléphone
+            </Label>
+            <Input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+              placeholder="Votre numéro de téléphone"
+            />
+          </FormGroup>
 
-            <InputGroup>
-              <FontAwesomeIcon icon={faHome} className="icon" />
-              <Select
-                name="projectType"
-                value={formData.projectType}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Type de projet</option>
-                <option value="residential">Résidentiel</option>
-                <option value="commercial">Commercial</option>
-                <option value="renovation">Rénovation</option>
-                <option value="consultation">Consultation</option>
-              </Select>
-            </InputGroup>
+          <FormGroup>
+            <Label>
+              <IconWrapper>
+                <FontAwesomeIcon icon={faCalendar} />
+              </IconWrapper>
+              Date souhaitée
+            </Label>
+            <Input
+              type="date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              required
+              min={new Date().toISOString().split('T')[0]}
+            />
+          </FormGroup>
 
-            <InputGroup>
-              <FontAwesomeIcon icon={faCalendarAlt} className="icon" />
-              <Input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                required
-              />
-            </InputGroup>
-
-            <InputGroup>
-              <FontAwesomeIcon icon={faComments} className="icon" />
-              <TextArea
-                name="message"
-                placeholder="Décrivez votre projet..."
-                value={formData.message}
-                onChange={handleChange}
-                required
-              />
-            </InputGroup>
-
-            <SubmitButton 
-              type="submit" 
-              disabled={status.submitting}
+          <FormGroup>
+            <Label>
+              <IconWrapper>
+                <FontAwesomeIcon icon={faClock} />
+              </IconWrapper>
+              Heure souhaitée
+            </Label>
+            <TimeSelect
+              name="time"
+              value={formData.time}
+              onChange={handleChange}
+              required
             >
-              {status.submitting ? 'Envoi en cours...' : 'Envoyer la demande'}
-            </SubmitButton>
-          </Form>
+              <option value="">Sélectionnez une heure</option>
+              {timeSlots.map(time => (
+                <TimeOption 
+                  key={time} 
+                  value={time}
+                  $isAvailable={isSlotAvailable(time)}
+                  disabled={!isSlotAvailable(time)}
+                >
+                  {time}
+                </TimeOption>
+              ))}
+            </TimeSelect>
+          </FormGroup>
 
-          {status.success && (
-            <SuccessMessage>
-              Votre demande a été envoyée avec succès ! Nous vous contacterons bientôt.
-            </SuccessMessage>
-          )}
+          <FormGroup>
+            <Label>
+              <IconWrapper>
+                <FontAwesomeIcon icon={faComment} />
+              </IconWrapper>
+              Message
+            </Label>
+            <TextArea
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              required
+              placeholder="Décrivez brièvement votre projet..."
+            />
+          </FormGroup>
 
-          {status.error && (
-            <ErrorMessage>
-              Une erreur est survenue. Veuillez réessayer plus tard.
-            </ErrorMessage>
+          <SubmitButton type="submit" disabled={status.submitting}>
+            {status.submitting ? 'Envoi en cours...' : 'Demander un rendez-vous'}
+          </SubmitButton>
+
+          {status.message && (
+            <Message $success={status.success}>
+              {status.message}
+            </Message>
           )}
-        </FormContainer>
+        </Form>
       </Container>
     </AppointmentSection>
   );
