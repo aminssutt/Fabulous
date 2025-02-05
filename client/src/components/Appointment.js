@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faClock, faUser, faEnvelope, faPhone, faComment } from '@fortawesome/free-solid-svg-icons';
+import { API_URL } from '../config';
 
 const AppointmentSection = styled.section`
   padding: 6rem 0;
@@ -150,8 +151,6 @@ const IconWrapper = styled.span`
   margin-right: 0.5rem;
   opacity: 0.8;
 `;
-
-const API_URL = 'http://localhost:5000';
 
 const TimeSlotList = styled.div`
   display: grid;
