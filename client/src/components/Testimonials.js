@@ -366,11 +366,11 @@ function Testimonials() {
 
   const settings = {
     dots: true,
-    infinite: true,
+    infinite: reviews.length > 1,
     speed: 500,
-    slidesToShow: 2,
+    slidesToShow: Math.min(2, reviews.length),
     slidesToScroll: 1,
-    autoplay: true,
+    autoplay: reviews.length > 1,
     autoplaySpeed: 5000,
     pauseOnHover: true,
     responsive: [

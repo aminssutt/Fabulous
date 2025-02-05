@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
@@ -15,9 +17,10 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  origin: '*',  // Permettre toutes les origines en développement
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type']
+  origin: '*',  // En développement, on autorise toutes les origines
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 app.use(express.json());
@@ -213,6 +216,203 @@ const sendEmails = async (appointmentData) => {
     throw error;
   }
 };
+
+// Configuration pour l'authentification admin
+const ADMIN_EMAIL = 'fabulouscreationsd@gmail.com';
+const ADMIN_PASSWORD = 'fabulousfah1';
+const VERIFICATION_TOKENS = new Map();
+
+// Route pour la connexion admin
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Vérifier les identifiants
+    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+      return res.status(401).json({
+        message: "Email ou mot de passe incorrect"
+      });
+    }
+
+    // Si les identifiants sont corrects, générer un token unique
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const expirationTime = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+    // Stocker le token avec sa date d'expiration
+    VERIFICATION_TOKENS.set(verificationToken, {
+      email,
+      expirationTime
+    });
+
+    // Préparer l'email de vérification
+    const verificationLink = `${process.env.CLIENT_URL}/admin/verify/${verificationToken}`;
+    const emailTemplate = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Vérification de connexion admin</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px; border-radius: 8px;">
+          <h2 style="color: #D4AF37; text-align: center;">Vérification de connexion admin</h2>
+          <p>Une tentative de connexion a été effectuée sur votre compte administrateur.</p>
+          <p>Si c'est bien vous, cliquez sur le lien ci-dessous pour vous connecter :</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verificationLink}" 
+               style="background-color: #D4AF37; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+              Vérifier la connexion
+            </a>
+          </div>
+          <p style="color: #666; font-size: 14px;">Ce lien expirera dans 15 minutes.</p>
+          <p style="color: #666; font-size: 14px;">Si vous n'êtes pas à l'origine de cette tentative de connexion, ignorez cet email.</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Envoyer l'email de vérification
+    await transporter.sendMail({
+      from: {
+        name: 'Fabulous Admin',
+        address: process.env.EMAIL_USER
+      },
+      to: {
+        name: 'Admin',
+        address: email
+      },
+      subject: 'Vérification de connexion admin - Fabulous',
+      html: emailTemplate
+    });
+
+    res.json({
+      message: "Un email de vérification a été envoyé"
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de la connexion admin:', error);
+    res.status(500).json({
+      message: "Une erreur s'est produite lors de la connexion"
+    });
+  }
+});
+
+// Route pour vérifier le token
+app.post('/api/admin/verify', (req, res) => {
+  try {
+    const { token } = req.body;
+    const tokenData = VERIFICATION_TOKENS.get(token);
+
+    if (!tokenData) {
+      return res.status(400).json({
+        message: "Token invalide ou expiré"
+      });
+    }
+
+    if (Date.now() > tokenData.expirationTime) {
+      VERIFICATION_TOKENS.delete(token);
+      return res.status(400).json({
+        message: "Le token a expiré"
+      });
+    }
+
+    // Générer un JWT pour la session
+    const sessionToken = jwt.sign(
+      { email: tokenData.email },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
+
+    // Supprimer le token de vérification
+    VERIFICATION_TOKENS.delete(token);
+
+    res.json({
+      token: sessionToken,
+      message: "Connexion réussie"
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de la vérification du token:', error);
+    res.status(500).json({
+      message: "Une erreur s'est produite lors de la vérification"
+    });
+  }
+});
+
+// Middleware pour protéger les routes admin
+const authenticateAdmin = (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({
+        message: "Token manquant"
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    if (decoded.email !== ADMIN_EMAIL) {
+      return res.status(403).json({
+        message: "Accès non autorisé"
+      });
+    }
+
+    req.adminEmail = decoded.email;
+    next();
+  } catch (error) {
+    res.status(401).json({
+      message: "Token invalide"
+    });
+  }
+};
+
+// Route protégée pour récupérer les rendez-vous
+app.get('/api/admin/appointments', authenticateAdmin, async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const appointments = await Appointment.find({
+      date: { $gte: currentDate }
+    }).sort({ date: 1, time: 1 });
+
+    res.json(appointments);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des rendez-vous:', error);
+    res.status(500).json({
+      message: "Une erreur s'est produite lors de la récupération des rendez-vous"
+    });
+  }
+});
+
+// Route protégée pour récupérer tous les avis
+app.get('/api/admin/reviews', authenticateAdmin, async (req, res) => {
+  try {
+    const reviews = await Review.find()
+      .sort({ createdAt: -1 });
+
+    res.json(reviews);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des avis:', error);
+    res.status(500).json({
+      message: "Une erreur s'est produite lors de la récupération des avis"
+    });
+  }
+});
+
+// Route protégée pour supprimer un avis
+app.delete('/api/admin/reviews/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Review.findByIdAndDelete(id);
+
+    res.json({
+      message: "Avis supprimé avec succès"
+    });
+  } catch (error) {
+    console.error('Erreur lors de la suppression de l\'avis:', error);
+    res.status(500).json({
+      message: "Une erreur s'est produite lors de la suppression de l'avis"
+    });
+  }
+});
 
 // Routes
 app.post('/api/appointment', async (req, res) => {
