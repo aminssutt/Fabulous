@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import Slider from 'react-slick';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,6 +14,26 @@ const fadeInUp = keyframes`
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+`;
+
+const slideIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`;
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 `;
 
@@ -112,8 +132,9 @@ const TestimonialCard = styled.div`
   position: relative;
   border: 1px solid rgba(212, 175, 55, 0.1);
   transition: all 0.3s ease;
-  animation: ${fadeInUp} 1s ease;
+  animation: ${slideIn} 0.6s ease forwards;
   animation-delay: ${props => props.$delay}ms;
+  opacity: 0;
 
   &:hover {
     transform: translateY(-5px);
@@ -187,42 +208,162 @@ const Rating = styled.div`
   }
 `;
 
-const testimonials = [
-  {
-    id: 1,
-    content: "Fabulous a transformé notre maison en un véritable havre de paix. Leur attention aux détails et leur créativité ont dépassé toutes nos attentes.",
-    name: "Sophie Martin",
-    position: "Propriétaire",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
-    rating: 5
-  },
-  {
-    id: 2,
-    content: "Un travail exceptionnel pour notre boutique. L'espace est maintenant parfaitement optimisé et nos clients adorent le nouveau design.",
-    name: "Marc Dubois",
-    position: "Gérant de boutique",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150",
-    rating: 5
-  },
-  {
-    id: 3,
-    content: "Professionnalisme et créativité au rendez-vous. Notre salon est méconnaissable et tellement plus fonctionnel maintenant.",
-    name: "Julie Leroux",
-    position: "Cliente particulière",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150",
-    rating: 5
-  },
-  {
-    id: 4,
-    content: "Une collaboration exceptionnelle. Ils ont su capturer notre vision et la transformer en réalité. Le résultat est époustouflant.",
-    name: "Thomas Bernard",
-    position: "Propriétaire",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150",
-    rating: 5
+const Form = styled.form`
+  max-width: 600px;
+  margin: 4rem auto;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 2rem;
+  border-radius: 15px;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+`;
+
+const FormGroup = styled.div`
+  margin-bottom: 1.5rem;
+`;
+
+const Label = styled.label`
+  display: block;
+  color: ${props => props.theme.colors.text};
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 5px;
+  color: ${props => props.theme.colors.text};
+  font-size: 1rem;
+  transition: all 0.3s ease;
+
+  &:focus {
+    border-color: ${props => props.theme.colors.primary};
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
   }
-];
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 5px;
+  color: ${props => props.theme.colors.text};
+  font-size: 1rem;
+  min-height: 120px;
+  resize: vertical;
+  transition: all 0.3s ease;
+
+  &:focus {
+    border-color: ${props => props.theme.colors.primary};
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
+  }
+`;
+
+const RatingContainer = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+`;
+
+const StarButton = styled.button`
+  background: none;
+  border: none;
+  color: ${props => props.$isSelected ? props.theme.colors.primary : 'rgba(255, 255, 255, 0.3)'};
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: ${props => props.theme.colors.primary};
+  }
+`;
+
+const SubmitButton = styled.button`
+  width: 100%;
+  padding: 1rem;
+  background: ${props => props.theme.colors.primary};
+  color: ${props => props.theme.colors.background};
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+`;
+
+const Message = styled.div`
+  text-align: center;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 5px;
+  color: ${props => props.$success ? '#4CAF50' : '#f44336'};
+  background: ${props => props.$success ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)'};
+  border: 1px solid ${props => props.$success ? '#4CAF50' : '#f44336'};
+`;
+
+const AddReviewForm = styled(Form)`
+  margin-top: 2rem;
+`;
+
+const EmailVerification = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+`;
+
+const EmailInput = styled(Input)`
+  max-width: 400px;
+  margin: 0 auto;
+`;
+
+const VerifyButton = styled(SubmitButton)`
+  max-width: 200px;
+  margin: 1rem auto;
+`;
+
+const FormTransition = styled.div`
+  animation: ${fadeIn} 0.5s ease forwards;
+  opacity: 0;
+  animation-delay: ${props => props.$delay}ms;
+`;
+
+const API_URL = 'http://localhost:5000';
 
 function Testimonials() {
+  const [reviews, setReviews] = useState([]);
+  const [emailVerification, setEmailVerification] = useState({
+    email: '',
+    verified: false,
+    checking: false,
+    error: ''
+  });
+  const [formData, setFormData] = useState({
+    name: '',
+    rating: 0,
+    comment: '',
+    email: ''
+  });
+  const [status, setStatus] = useState({
+    submitting: false,
+    message: '',
+    success: false
+  });
+  const [sliderKey, setSliderKey] = useState(0);
+
   const settings = {
     dots: true,
     infinite: true,
@@ -243,49 +384,267 @@ function Testimonials() {
     ]
   };
 
+  useEffect(() => {
+    fetchReviews();
+  }, []);
+
+  const fetchReviews = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/reviews`);
+      const data = await response.json();
+      const sortedReviews = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setReviews(sortedReviews);
+      setSliderKey(prev => prev + 1);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des avis:', error);
+    }
+  };
+
+  const verifyEmail = async (e) => {
+    e.preventDefault();
+    setEmailVerification(prev => ({ ...prev, checking: true, error: '' }));
+
+    try {
+      const response = await fetch(`${API_URL}/api/appointments/verify-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: emailVerification.email })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setTimeout(() => {
+          setEmailVerification(prev => ({
+            ...prev,
+            verified: true,
+            checking: false,
+            error: ''
+          }));
+          setFormData(prev => ({
+            ...prev,
+            email: emailVerification.email,
+            name: data.name || ''
+          }));
+        }, 500);
+      } else {
+        setEmailVerification(prev => ({
+          ...prev,
+          verified: false,
+          checking: false,
+          error: data.message || "Une erreur s'est produite"
+        }));
+      }
+    } catch (error) {
+      setEmailVerification(prev => ({
+        ...prev,
+        verified: false,
+        checking: false,
+        error: "Une erreur s'est produite lors de la vérification"
+      }));
+    }
+  };
+
+  const handleEmailChange = (e) => {
+    setEmailVerification(prev => ({
+      ...prev,
+      email: e.target.value,
+      verified: false,
+      error: ''
+    }));
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleRatingClick = (rating) => {
+    setFormData(prev => ({
+      ...prev,
+      rating
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus({ submitting: true, message: '', success: false });
+
+    try {
+      const response = await fetch(`${API_URL}/api/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setStatus({
+          submitting: false,
+          message: 'Votre avis a été ajouté avec succès !',
+          success: true
+        });
+
+        setTimeout(() => {
+          setFormData({
+            name: '',
+            rating: 0,
+            comment: '',
+            email: ''
+          });
+          setEmailVerification({
+            email: '',
+            verified: false,
+            checking: false,
+            error: ''
+          });
+          fetchReviews();
+        }, 1500);
+      } else {
+        setStatus({
+          submitting: false,
+          message: data.message || "Une erreur s'est produite",
+          success: false
+        });
+      }
+    } catch (error) {
+      setStatus({
+        submitting: false,
+        message: "Une erreur s'est produite lors de l'envoi",
+        success: false
+      });
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('fr-FR', options);
+  };
+
   return (
     <TestimonialsSection id="testimonials">
       <Container>
         <SectionTitle>
           <h2>Témoignages</h2>
-          <p>
-            Découvrez ce que nos clients disent de notre travail et de leur 
-            expérience avec Fabulous Design.
-          </p>
+          <p>Découvrez ce que nos clients pensent de nos services</p>
         </SectionTitle>
 
-        <Slider {...settings}>
-          {testimonials.map((testimonial, index) => (
-            <div key={testimonial.id}>
-              <TestimonialCard $delay={index * 200}>
-                <QuoteIcon className="quote-icon">
-                  <FontAwesomeIcon icon={faQuoteRight} />
-                </QuoteIcon>
-                <TestimonialContent>
-                  {testimonial.content}
-                </TestimonialContent>
-                <ClientInfo>
-                  <ClientImage>
-                    <img src={testimonial.image} alt={testimonial.name} />
-                  </ClientImage>
-                  <ClientDetails>
-                    <h4>{testimonial.name}</h4>
-                    <p>{testimonial.position}</p>
-                    <Rating>
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <FontAwesomeIcon 
-                          key={i} 
-                          icon={faStar} 
-                          className="star" 
-                        />
-                      ))}
-                    </Rating>
-                  </ClientDetails>
-                </ClientInfo>
-              </TestimonialCard>
-            </div>
+        <Slider {...settings} key={sliderKey}>
+          {reviews.map((review, index) => (
+            <TestimonialCard key={review._id || index} $delay={index * 200}>
+              <QuoteIcon className="quote-icon">
+                <FontAwesomeIcon icon={faQuoteRight} />
+              </QuoteIcon>
+              <TestimonialContent>{review.comment}</TestimonialContent>
+              <ClientInfo>
+                <ClientDetails>
+                  <h4>{review.name}</h4>
+                  <Rating>
+                    {[...Array(5)].map((_, i) => (
+                      <FontAwesomeIcon
+                        key={i}
+                        icon={faStar}
+                        className="star"
+                        style={{ color: i < review.rating ? '#D4AF37' : '#666' }}
+                      />
+                    ))}
+                  </Rating>
+                  <p>{formatDate(review.createdAt)}</p>
+                </ClientDetails>
+              </ClientInfo>
+            </TestimonialCard>
           ))}
         </Slider>
+
+        <SectionTitle style={{ marginTop: '4rem' }}>
+          <h2>Partagez votre expérience</h2>
+          <p>Votre avis compte pour nous</p>
+        </SectionTitle>
+
+        {!emailVerification.verified ? (
+          <FormTransition $delay={200}>
+            <Form onSubmit={verifyEmail}>
+              <FormGroup>
+                <Label>Adresse email utilisée lors de votre rendez-vous</Label>
+                <EmailInput
+                  type="email"
+                  value={emailVerification.email}
+                  onChange={handleEmailChange}
+                  placeholder="Votre email"
+                  required
+                />
+              </FormGroup>
+              <VerifyButton
+                type="submit"
+                disabled={emailVerification.checking}
+              >
+                {emailVerification.checking ? 'Vérification...' : 'Vérifier'}
+              </VerifyButton>
+              {emailVerification.error && (
+                <Message $success={false}>{emailVerification.error}</Message>
+              )}
+            </Form>
+          </FormTransition>
+        ) : (
+          <FormTransition $delay={200}>
+            <AddReviewForm onSubmit={handleSubmit}>
+              <FormGroup>
+                <Label>Nom</Label>
+                <Input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label>Note</Label>
+                <RatingContainer>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <StarButton
+                      key={star}
+                      type="button"
+                      onClick={() => handleRatingClick(star)}
+                      $isSelected={formData.rating >= star}
+                    >
+                      <FontAwesomeIcon icon={faStar} />
+                    </StarButton>
+                  ))}
+                </RatingContainer>
+              </FormGroup>
+              <FormGroup>
+                <Label>Commentaire</Label>
+                <TextArea
+                  name="comment"
+                  value={formData.comment}
+                  onChange={handleChange}
+                  required
+                  minLength={10}
+                  maxLength={500}
+                  placeholder="Partagez votre expérience avec nous..."
+                />
+              </FormGroup>
+              <SubmitButton
+                type="submit"
+                disabled={status.submitting}
+              >
+                {status.submitting ? 'Envoi en cours...' : 'Envoyer mon avis'}
+              </SubmitButton>
+              {status.message && (
+                <Message $success={status.success}>{status.message}</Message>
+              )}
+            </AddReviewForm>
+          </FormTransition>
+        )}
       </Container>
     </TestimonialsSection>
   );

@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const app = express();
 const Appointment = require('./models/Appointment');
+const Review = require('./models/Review');
 
 // Middleware de logging
 app.use((req, res, next) => {
@@ -325,6 +326,111 @@ app.get('/api/available-slots', async (req, res) => {
       error: 'Une erreur est survenue lors de la récupération des créneaux disponibles',
       slots: []
     });
+  }
+});
+
+// Route pour vérifier l'email des rendez-vous passés
+app.post('/api/appointments/verify-email', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email requis' });
+    }
+
+    // Récupérer la date actuelle
+    const currentDate = new Date();
+
+    // Rechercher les rendez-vous passés pour cet email
+    const pastAppointments = await Appointment.find({
+      email: email,
+      date: { $lt: currentDate }
+    }).sort({ date: -1 });
+
+    if (pastAppointments.length === 0) {
+      return res.status(404).json({
+        message: "Aucun rendez-vous passé trouvé pour cet email. Vous devez avoir eu un rendez-vous pour pouvoir laisser un avis."
+      });
+    }
+
+    // Vérifier si la personne a déjà laissé un avis
+    const existingReview = await Review.findOne({ email: email });
+    if (existingReview) {
+      return res.status(400).json({
+        message: "Vous avez déjà laissé un avis. Merci de votre participation !"
+      });
+    }
+
+    // Retourner les informations du client
+    return res.status(200).json({
+      message: "Email vérifié avec succès",
+      name: pastAppointments[0].name
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de la vérification de l\'email:', error);
+    res.status(500).json({ message: "Une erreur s'est produite lors de la vérification" });
+  }
+});
+
+// Modifier la route POST des avis pour inclure la vérification
+app.post('/api/reviews', async (req, res) => {
+  try {
+    const { name, rating, comment, email } = req.body;
+
+    // Vérifier si l'email existe et a un rendez-vous passé
+    const currentDate = new Date();
+    const pastAppointment = await Appointment.findOne({
+      email: email,
+      date: { $lt: currentDate }
+    });
+
+    if (!pastAppointment) {
+      return res.status(403).json({
+        message: "Vous devez avoir eu un rendez-vous pour pouvoir laisser un avis"
+      });
+    }
+
+    // Vérifier si la personne a déjà laissé un avis
+    const existingReview = await Review.findOne({ email: email });
+    if (existingReview) {
+      return res.status(400).json({
+        message: "Vous avez déjà laissé un avis"
+      });
+    }
+
+    // Créer le nouvel avis
+    const review = new Review({
+      name,
+      rating,
+      comment,
+      email // Stocké mais non affiché publiquement
+    });
+
+    await review.save();
+    
+    // Ne pas renvoyer l'email dans la réponse
+    const { email: _, ...reviewWithoutEmail } = review.toObject();
+    res.status(201).json(reviewWithoutEmail);
+
+  } catch (error) {
+    console.error('Erreur lors de la création de l\'avis:', error);
+    res.status(500).json({ message: "Une erreur s'est produite lors de l'enregistrement de l'avis" });
+  }
+});
+
+// Route pour récupérer tous les avis
+app.get('/api/reviews', async (req, res) => {
+  try {
+    // Récupérer tous les avis approuvés, triés par date décroissante
+    const reviews = await Review.find({ isApproved: true })
+      .sort({ createdAt: -1 })
+      .select('-email'); // Exclure l'email des résultats
+
+    res.json(reviews);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des avis:', error);
+    res.status(500).json({ message: "Une erreur s'est produite lors de la récupération des avis" });
   }
 });
 

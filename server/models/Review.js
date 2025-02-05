@@ -3,7 +3,12 @@ const mongoose = require('mongoose');
 const reviewSchema = new mongoose.Schema({
   name: {
     type: String,
-    default: 'Anonyme'
+    required: true
+  },
+  email: {
+    type: String,
+    required: true,
+    select: false // Ne pas inclure par défaut dans les requêtes
   },
   rating: {
     type: Number,
@@ -30,5 +35,8 @@ const reviewSchema = new mongoose.Schema({
     default: true
   }
 });
+
+// Index unique sur l'email pour empêcher les doublons
+reviewSchema.index({ email: 1 }, { unique: true });
 
 module.exports = mongoose.model('Review', reviewSchema); 
