@@ -645,6 +645,16 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
+// Route protégée pour récupérer tous les projets (admin)
+app.get('/api/admin/projects', authenticateAdmin, async (req, res) => {
+  try {
+    const projects = await Project.find().sort({ createdAt: -1 });
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ message: "Une erreur s'est produite lors de la récupération des projets" });
+  }
+});
+
 // Route protégée pour ajouter un projet
 app.post('/api/admin/projects', authenticateAdmin, async (req, res) => {
   try {

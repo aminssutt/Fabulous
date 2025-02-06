@@ -176,15 +176,15 @@ function Portfolio() {
         </FilterContainer>
 
         <ProjectsGrid>
-          {filteredProjects.map(project => (
-            <ProjectCard key={project.id}>
+            {filteredProjects.map(project => (
+            <ProjectCard key={project._id}>
               <ProjectImage src={project.image} alt={project.title} />
               <ProjectOverlay className="overlay">
-                <ProjectTitle>{project.title}</ProjectTitle>
-                <ProjectDescription>{project.description}</ProjectDescription>
+              <ProjectTitle>{project.title}</ProjectTitle>
+              <ProjectDescription>{project.description}</ProjectDescription>
               </ProjectOverlay>
             </ProjectCard>
-          ))}
+            ))}
         </ProjectsGrid>
       </Container>
     </PortfolioSection>

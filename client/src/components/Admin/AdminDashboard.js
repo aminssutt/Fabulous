@@ -354,20 +354,23 @@ function AdminDashboard() {
     if (!token) return;
 
     try {
-        let endpoint;
-        if (activeTab === 'calendar') {
-        endpoint = 'appointments';
-        } else if (activeTab === 'reviews') {
-        endpoint = 'reviews';
-        } else if (activeTab === 'projects') {
-        endpoint = 'projects';
-        }
-        
-        const response = await fetch(`${API_URL}/api/admin/${endpoint}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      let endpoint;
+      let headers = {
+        'Content-Type': 'application/json'
+      };
+
+      if (activeTab === 'calendar') {
+        endpoint = 'admin/appointments';
+        headers['Authorization'] = `Bearer ${token}`;
+      } else if (activeTab === 'reviews') {
+        endpoint = 'admin/reviews';
+        headers['Authorization'] = `Bearer ${token}`;
+      } else if (activeTab === 'projects') {
+        endpoint = 'projects'; // Public endpoint for projects
+      }
+      
+      const response = await fetch(`${API_URL}/api/${endpoint}`, {
+        headers: headers
       });
 
       if (response.ok) {
@@ -379,8 +382,7 @@ function AdminDashboard() {
         } else if (activeTab === 'projects') {
           setProjects(data);
         }
-      } else if (response.status === 401) {
-        // Token invalide ou expiré
+      } else if (response.status === 401 && activeTab !== 'projects') {
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminTokenExpiry');
         navigate('/admin');
