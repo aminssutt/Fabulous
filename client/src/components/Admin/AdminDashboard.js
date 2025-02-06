@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faTrash, faCalendarWeek, faComments, faSignOutAlt, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faTrash, faCalendarWeek, faComments, faSignOutAlt, faChevronLeft, faChevronRight, faImages } from '@fortawesome/free-solid-svg-icons';
 
 const DashboardContainer = styled.div`
   min-height: 100vh;
@@ -192,6 +192,99 @@ const ReviewText = styled.p`
   line-height: 1.6;
 `;
 
+const ProjectsContainer = styled.div`
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 15px;
+  padding: 2rem;
+`;
+
+const ProjectForm = styled.form`
+  margin-bottom: 2rem;
+  display: grid;
+  gap: 1rem;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 5px;
+  color: ${props => props.theme.colors.text};
+  font-size: 1rem;
+
+  &:focus {
+    border-color: ${props => props.theme.colors.primary};
+    outline: none;
+  }
+`;
+
+const Select = styled.select`
+  width: 100%;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 5px;
+  color: ${props => props.theme.colors.text};
+  font-size: 1rem;
+
+  &:focus {
+    border-color: ${props => props.theme.colors.primary};
+    outline: none;
+  }
+
+  option {
+    background: ${props => props.theme.colors.background};
+    color: ${props => props.theme.colors.text};
+  }
+`;
+
+const ProjectCard = styled.div`
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+`;
+
+const ProjectImage = styled.img`
+  width: 150px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 5px;
+`;
+
+const ProjectInfo = styled.div`
+  flex: 1;
+`;
+
+const ProjectTitle = styled.h3`
+  color: ${props => props.theme.colors.primary};
+  margin: 0 0 0.5rem 0;
+`;
+
+const ProjectDescription = styled.p`
+  color: ${props => props.theme.colors.text};
+  margin: 0 0 0.5rem 0;
+`;
+
+const ProjectCategory = styled.span`
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: rgba(212, 175, 55, 0.1);
+  border-radius: 15px;
+  color: ${props => props.theme.colors.primary};
+  font-size: 0.9rem;
+`;
+
+const SubmitButton = styled(NavButton)`
+  width: 100%;
+  justify-content: center;
+`;
+
 const DeleteButton = styled.button`
   background: none;
   border: none;
@@ -214,6 +307,13 @@ function AdminDashboard() {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [appointments, setAppointments] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [projectForm, setProjectForm] = useState({
+    title: '',
+    description: '',
+    category: 'residential',
+    image: ''
+  });
 
   useEffect(() => {
     // Vérifier la validité de la session
@@ -254,8 +354,16 @@ function AdminDashboard() {
     if (!token) return;
 
     try {
-      const endpoint = activeTab === 'calendar' ? 'appointments' : 'reviews';
-      const response = await fetch(`${API_URL}/api/admin/${endpoint}`, {
+        let endpoint;
+        if (activeTab === 'calendar') {
+        endpoint = 'appointments';
+        } else if (activeTab === 'reviews') {
+        endpoint = 'reviews';
+        } else if (activeTab === 'projects') {
+        endpoint = 'projects';
+        }
+        
+        const response = await fetch(`${API_URL}/api/admin/${endpoint}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -266,8 +374,10 @@ function AdminDashboard() {
         const data = await response.json();
         if (activeTab === 'calendar') {
           setAppointments(data);
-        } else {
+        } else if (activeTab === 'reviews') {
           setReviews(data);
+        } else if (activeTab === 'projects') {
+          setProjects(data);
         }
       } else if (response.status === 401) {
         // Token invalide ou expiré
@@ -357,6 +467,58 @@ function AdminDashboard() {
 
   const timeSlots = Array.from({ length: 9 }, (_, i) => `${i + 9}:00`);
 
+  const handleProjectSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('adminToken');
+    
+    try {
+      const response = await fetch(`${API_URL}/api/admin/projects`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(projectForm)
+      });
+
+      if (response.ok) {
+        const newProject = await response.json();
+        setProjects([newProject, ...projects]);
+        setProjectForm({
+          title: '',
+          description: '',
+          category: 'residential',
+          image: ''
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du projet:', error);
+    }
+  };
+
+  const handleProjectDelete = async (projectId) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
+      return;
+    }
+
+    const token = localStorage.getItem('adminToken');
+    try {
+      const response = await fetch(`${API_URL}/api/admin/projects/${projectId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        setProjects(projects.filter(project => project._id !== projectId));
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression du projet:', error);
+    }
+  };
+
   return (
     <DashboardContainer>
       <Header>
@@ -369,13 +531,20 @@ function AdminDashboard() {
             <FontAwesomeIcon icon={faCalendarWeek} />
             Emploi du temps
           </NavButton>
-          <NavButton
+            <NavButton
             $active={activeTab === 'reviews'}
             onClick={() => setActiveTab('reviews')}
-          >
+            >
             <FontAwesomeIcon icon={faComments} />
             Avis
-          </NavButton>
+            </NavButton>
+            <NavButton
+            $active={activeTab === 'projects'}
+            onClick={() => setActiveTab('projects')}
+            >
+            <FontAwesomeIcon icon={faImages} />
+            Projets
+            </NavButton>
           <NavButton
             $isHome
             onClick={handleHomeClick}
@@ -451,8 +620,60 @@ function AdminDashboard() {
             </ReviewCard>
           ))}
         </ReviewsContainer>
-      )}
-    </DashboardContainer>
+        )}
+        {activeTab === 'projects' && (
+        <ProjectsContainer>
+          <ProjectForm onSubmit={handleProjectSubmit}>
+          <Input
+            type="text"
+            placeholder="Titre du projet"
+            value={projectForm.title}
+            onChange={(e) => setProjectForm({...projectForm, title: e.target.value})}
+            required
+          />
+          <Input
+            type="text"
+            placeholder="Description"
+            value={projectForm.description}
+            onChange={(e) => setProjectForm({...projectForm, description: e.target.value})}
+            required
+          />
+          <Select
+            value={projectForm.category}
+            onChange={(e) => setProjectForm({...projectForm, category: e.target.value})}
+            required
+          >
+            <option value="residential">Résidentiel</option>
+            <option value="commercial">Commercial</option>
+          </Select>
+          <Input
+            type="url"
+            placeholder="URL de l'image"
+            value={projectForm.image}
+            onChange={(e) => setProjectForm({...projectForm, image: e.target.value})}
+            required
+          />
+          <SubmitButton type="submit">Ajouter le projet</SubmitButton>
+          </ProjectForm>
+
+          {projects.map((project) => (
+          <ProjectCard key={project._id}>
+            <ProjectImage src={project.image} alt={project.title} />
+            <ProjectInfo>
+            <ProjectTitle>{project.title}</ProjectTitle>
+            <ProjectDescription>{project.description}</ProjectDescription>
+            <ProjectCategory>
+              {project.category === 'residential' ? 'Résidentiel' : 'Commercial'}
+            </ProjectCategory>
+            </ProjectInfo>
+            <DeleteButton onClick={() => handleProjectDelete(project._id)}>
+            <FontAwesomeIcon icon={faTrash} />
+            </DeleteButton>
+          </ProjectCard>
+          ))}
+        </ProjectsContainer>
+        )}
+      </DashboardContainer>
   );
 }
 

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { API_URL } from '../config';
 
 const PortfolioSection = styled.section`
   background-color: ${props => props.theme.colors.background};
@@ -120,53 +121,26 @@ const ProjectDescription = styled.p`
   line-height: 1.6;
 `;
 
-const projects = [
-  {
-    id: 1,
-    title: "Villa Moderne",
-    description: "Rénovation complète d'une villa contemporaine avec des touches de luxe et d'élégance.",
-    category: "residential",
-    image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2000"
-  },
-  {
-    id: 2,
-    title: "Bureau Créatif",
-    description: "Design d'un espace de travail moderne favorisant la créativité et la collaboration.",
-    category: "commercial",
-    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2000"
-  },
-  {
-    id: 3,
-    title: "Appartement Luxueux",
-    description: "Aménagement d'un appartement haut de gamme avec des finitions premium.",
-    category: "residential",
-    image: "https://images.unsplash.com/photo-1600607687644-c7171b42498b?q=80&w=2000"
-  },
-  {
-    id: 4,
-    title: "Restaurant Élégant",
-    description: "Création d'une ambiance sophistiquée pour une expérience gastronomique unique.",
-    category: "commercial",
-    image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2000"
-  },
-  {
-    id: 5,
-    title: "Loft Industriel",
-    description: "Transformation d'un espace industriel en loft moderne et chaleureux.",
-    category: "residential",
-    image: "https://images.unsplash.com/photo-1600607687644-c7171b42498b?q=80&w=2000"
-  },
-  {
-    id: 6,
-    title: "Boutique de Mode",
-    description: "Design d'une boutique alliant élégance et fonctionnalité.",
-    category: "commercial",
-    image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2000"
-  }
-];
-
 function Portfolio() {
   const [activeFilter, setActiveFilter] = useState('all');
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/projects`);
+        if (response.ok) {
+          const data = await response.json();
+          setProjects(data);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des projets:', error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
 
   const filteredProjects = activeFilter === 'all' 
     ? projects 

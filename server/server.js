@@ -9,6 +9,7 @@ require('dotenv').config();
 const app = express();
 const Appointment = require('./models/Appointment');
 const Review = require('./models/Review');
+const Project = require('./models/Project');
 
 // Middleware de logging
 app.use((req, res, next) => {
@@ -631,6 +632,39 @@ app.get('/api/reviews', async (req, res) => {
   } catch (error) {
     console.error('Erreur lors de la récupération des avis:', error);
     res.status(500).json({ message: "Une erreur s'est produite lors de la récupération des avis" });
+  }
+});
+
+// Route protégée pour récupérer tous les projets
+app.get('/api/projects', async (req, res) => {
+  try {
+    const projects = await Project.find().sort({ createdAt: -1 });
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ message: "Une erreur s'est produite lors de la récupération des projets" });
+  }
+});
+
+// Route protégée pour ajouter un projet
+app.post('/api/admin/projects', authenticateAdmin, async (req, res) => {
+  try {
+    const projectData = req.body;
+    const project = new Project(projectData);
+    await project.save();
+    res.status(201).json(project);
+  } catch (error) {
+    res.status(500).json({ message: "Une erreur s'est produite lors de l'ajout du projet" });
+  }
+});
+
+// Route protégée pour supprimer un projet
+app.delete('/api/admin/projects/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Project.findByIdAndDelete(id);
+    res.json({ message: "Projet supprimé avec succès" });
+  } catch (error) {
+    res.status(500).json({ message: "Une erreur s'est produite lors de la suppression du projet" });
   }
 });
 
