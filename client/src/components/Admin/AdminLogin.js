@@ -185,12 +185,15 @@ function AdminLogin() {
       if (response.ok) {
         setStatus({
           state: 'waiting',
-          message: 'Un email de vérification a été envoyé. Veuillez vérifier votre boîte de réception pour finaliser la connexion.'
+          message: 'Un code de vérification a été envoyé par email. Veuillez vérifier votre boîte de réception pour finaliser la connexion.'
         });
 
         // Stocker les identifiants temporairement
         sessionStorage.setItem('pendingAdminEmail', formData.email);
         sessionStorage.setItem('pendingAdminAuth', 'true');
+        
+        // Rediriger vers la page de vérification
+        navigate('/admin/verify');
       } else {
         setStatus({
           state: 'error',

@@ -184,7 +184,7 @@ function Contact() {
           </InfoItem>
           <InfoItem>
             <FontAwesomeIcon icon={faMapMarkerAlt} />
-            <span>123 Rue de la Beauté, Paris</span>
+            <span>13 Rue Cortambert, 75016 PARIS</span>
           </InfoItem>
         </ContactInfo>
 

@@ -221,7 +221,7 @@ const sendEmails = async (appointmentData) => {
 // Configuration pour l'authentification admin
 const ADMIN_EMAIL = 'fabulouscreationsd@gmail.com';
 const ADMIN_PASSWORD = 'fabulousfah1';
-const VERIFICATION_TOKENS = new Map();
+const VERIFICATION_CODES = new Map();
 
 // Route pour la connexion admin
 app.post('/api/admin/login', async (req, res) => {
@@ -235,37 +235,35 @@ app.post('/api/admin/login', async (req, res) => {
       });
     }
 
-    // Si les identifiants sont corrects, générer un token unique
-    const verificationToken = crypto.randomBytes(32).toString('hex');
+    // Générer un code à 6 chiffres
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expirationTime = Date.now() + 15 * 60 * 1000; // 15 minutes
 
-    // Stocker le token avec sa date d'expiration
-    VERIFICATION_TOKENS.set(verificationToken, {
+    // Stocker le code avec sa date d'expiration
+    VERIFICATION_CODES.set(verificationCode, {
       email,
       expirationTime
     });
 
     // Préparer l'email de vérification
-    const verificationLink = `${process.env.CLIENT_URL}/admin/verify/${verificationToken}`;
     const emailTemplate = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <title>Vérification de connexion admin</title>
+        <title>Code de vérification admin</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px; border-radius: 8px;">
-          <h2 style="color: #D4AF37; text-align: center;">Vérification de connexion admin</h2>
+          <h2 style="color: #D4AF37; text-align: center;">Code de vérification admin</h2>
           <p>Une tentative de connexion a été effectuée sur votre compte administrateur.</p>
-          <p>Si c'est bien vous, cliquez sur le lien ci-dessous pour vous connecter :</p>
+          <p>Voici votre code de vérification :</p>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationLink}" 
-               style="background-color: #D4AF37; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
-              Vérifier la connexion
-            </a>
+            <div style="background-color: #D4AF37; color: #fff; padding: 20px; font-size: 24px; font-weight: bold; letter-spacing: 5px; border-radius: 4px;">
+              ${verificationCode}
+            </div>
           </div>
-          <p style="color: #666; font-size: 14px;">Ce lien expirera dans 15 minutes.</p>
+          <p style="color: #666; font-size: 14px;">Ce code expirera dans 15 minutes.</p>
           <p style="color: #666; font-size: 14px;">Si vous n'êtes pas à l'origine de cette tentative de connexion, ignorez cet email.</p>
         </div>
       </body>
@@ -282,12 +280,12 @@ app.post('/api/admin/login', async (req, res) => {
         name: 'Admin',
         address: email
       },
-      subject: 'Vérification de connexion admin - Fabulous',
+      subject: 'Code de vérification admin - Fabulous',
       html: emailTemplate
     });
 
     res.json({
-      message: "Un email de vérification a été envoyé"
+      message: "Un code de vérification a été envoyé par email"
     });
 
   } catch (error) {
@@ -298,34 +296,34 @@ app.post('/api/admin/login', async (req, res) => {
   }
 });
 
-// Route pour vérifier le token
-app.post('/api/admin/verify', (req, res) => {
+// Route pour vérifier le code
+app.post('/api/admin/verify-code', (req, res) => {
   try {
-    const { token } = req.body;
-    const tokenData = VERIFICATION_TOKENS.get(token);
+    const { code, email } = req.body;
+    const codeData = VERIFICATION_CODES.get(code);
 
-    if (!tokenData) {
+    if (!codeData || codeData.email !== email) {
       return res.status(400).json({
-        message: "Token invalide ou expiré"
+        message: "Code invalide"
       });
     }
 
-    if (Date.now() > tokenData.expirationTime) {
-      VERIFICATION_TOKENS.delete(token);
+    if (Date.now() > codeData.expirationTime) {
+      VERIFICATION_CODES.delete(code);
       return res.status(400).json({
-        message: "Le token a expiré"
+        message: "Le code a expiré"
       });
     }
 
     // Générer un JWT pour la session
     const sessionToken = jwt.sign(
-      { email: tokenData.email },
+      { email: codeData.email },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
 
-    // Supprimer le token de vérification
-    VERIFICATION_TOKENS.delete(token);
+    // Supprimer le code de vérification
+    VERIFICATION_CODES.delete(code);
 
     res.json({
       token: sessionToken,
@@ -333,7 +331,7 @@ app.post('/api/admin/verify', (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la vérification du token:', error);
+    console.error('Erreur lors de la vérification du code:', error);
     res.status(500).json({
       message: "Une erreur s'est produite lors de la vérification"
     });

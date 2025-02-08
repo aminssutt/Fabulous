@@ -215,17 +215,24 @@ const Form = styled.form`
   padding: 2rem;
   border-radius: 15px;
   border: 1px solid rgba(212, 175, 55, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 `;
 
 const FormGroup = styled.div`
   margin-bottom: 1.5rem;
+  width: 100%;
+  text-align: center;
 `;
 
 const Label = styled.label`
   display: block;
   color: ${props => props.theme.colors.text};
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  text-align: center;
 `;
 
 const Input = styled.input`
@@ -328,11 +335,29 @@ const EmailVerification = styled.div`
 const EmailInput = styled(Input)`
   max-width: 400px;
   margin: 0 auto;
+  text-align: center;
+  font-size: 1.1rem;
+  
+  &::placeholder {
+    text-align: center;
+  }
 `;
 
 const VerifyButton = styled(SubmitButton)`
   max-width: 200px;
-  margin: 1rem auto;
+  margin: 1.5rem auto 0;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+    background: linear-gradient(
+      to right,
+      #BF953F,
+      #B38728
+    );
+  }
 `;
 
 const FormTransition = styled.div`

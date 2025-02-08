@@ -22,7 +22,7 @@ function App() {
         <GlobalStyle />
         <Routes>
           <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/verify/:token" element={<AdminVerify />} />
+          <Route path="/admin/verify" element={<AdminVerify />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/" element={
             <>
