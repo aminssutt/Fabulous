@@ -56,6 +56,10 @@ const TestimonialsSection = styled.section`
 
   .slick-slide {
     padding: 1rem;
+
+    @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+      padding: 0.5rem;
+    }
   }
 
   .slick-dots {
@@ -69,6 +73,10 @@ const TestimonialsSection = styled.section`
 
     li.slick-active button:before {
       opacity: 1;
+    }
+
+    @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+      bottom: -40px;
     }
   }
 
@@ -87,6 +95,10 @@ const TestimonialsSection = styled.section`
     &:before {
       color: ${props => props.theme.colors.primary};
       font-size: 20px;
+    }
+
+    @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+      display: none !important;
     }
   }
 
@@ -145,6 +157,11 @@ const TestimonialCard = styled.div`
       transform: rotate(15deg);
     }
   }
+
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    padding: 2rem;
+    margin: 0 0.5rem;
+  }
 `;
 
 const QuoteIcon = styled.div`
@@ -163,6 +180,12 @@ const TestimonialContent = styled.p`
   line-height: 1.8;
   margin-bottom: 2rem;
   font-style: italic;
+
+  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
 `;
 
 const ClientInfo = styled.div`
@@ -369,6 +392,17 @@ const FormTransition = styled.div`
 const API_URL = 'http://localhost:5000';
 
 function Testimonials() {
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [reviews, setReviews] = useState([]);
   const [emailVerification, setEmailVerification] = useState({
     email: '',
@@ -393,7 +427,7 @@ function Testimonials() {
     dots: true,
     infinite: reviews.length > 1,
     speed: 500,
-    slidesToShow: Math.min(2, reviews.length),
+    slidesToShow: windowWidth <= 768 ? 1 : 2,
     slidesToScroll: 1,
     autoplay: reviews.length > 1,
     autoplaySpeed: 5000,
@@ -570,6 +604,9 @@ function Testimonials() {
               </QuoteIcon>
               <TestimonialContent>{review.comment}</TestimonialContent>
               <ClientInfo>
+                <ClientImage>
+                  <img src={review.image} alt={review.name} />
+                </ClientImage>
                 <ClientDetails>
                   <h4>{review.name}</h4>
                   <Rating>

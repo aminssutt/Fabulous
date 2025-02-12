@@ -6,10 +6,44 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+// Import des middlewares de sécurité
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
+
 const app = express();
 const Appointment = require('./models/Appointment');
 const Review = require('./models/Review');
 const Project = require('./models/Project');
+
+// Configuration des limiteurs de requêtes
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 tentatives maximum
+  message: {
+    error: 'Trop de tentatives de connexion. Veuillez réessayer dans 15 minutes.'
+  }
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 heure
+  max: 100, // 100 requêtes par IP
+  message: {
+    error: 'Trop de requêtes depuis cette IP. Veuillez réessayer dans une heure.'
+  }
+});
+
+// Application des middlewares de sécurité
+app.use(helmet()); // Sécurité des en-têtes HTTP
+app.use(mongoSanitize()); // Protection contre les injections NoSQL
+app.use(xss()); // Protection contre les attaques XSS
+app.use(hpp()); // Protection contre la pollution des paramètres HTTP
+
+// Application des limiteurs de requêtes
+app.use('/api/admin/login', loginLimiter); // Limite les tentatives de connexion
+app.use('/api', apiLimiter); // Limite générale pour toutes les routes API
 
 // Middleware de logging
 app.use((req, res, next) => {
@@ -18,7 +52,7 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  origin: '*',  // En développement, on autorise toutes les origines
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

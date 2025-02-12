@@ -43,6 +43,10 @@ const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
+
+  @media (max-width: 768px) {
+    padding: 0 1rem;
+  }
 `;
 
 const SectionTitle = styled.div`
@@ -54,6 +58,14 @@ const SectionTitle = styled.div`
     color: ${props => props.theme.colors.primary};
     font-size: 2.5rem;
     margin-bottom: 1rem;
+
+    @media (max-width: 768px) {
+      font-size: 2rem;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 1.8rem;
+    }
   }
 
   p {
@@ -61,6 +73,11 @@ const SectionTitle = styled.div`
     max-width: 600px;
     margin: 0 auto;
     opacity: 0.9;
+    
+    @media (max-width: 768px) {
+      font-size: 0.9rem;
+      padding: 0 1rem;
+    }
   }
 `;
 
@@ -68,6 +85,16 @@ const ServicesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 `;
 
 const ServiceCard = styled.div`
@@ -80,6 +107,14 @@ const ServiceCard = styled.div`
   animation: ${fadeInUp} 1s ease;
   animation-delay: ${props => props.$delay}ms;
   border: 1px solid rgba(212, 175, 55, 0.1);
+
+  @media (max-width: 768px) {
+    padding: 2rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 1.5rem;
+  }
 
   &::before {
     content: '';
@@ -97,6 +132,10 @@ const ServiceCard = styled.div`
     transform: translateY(-10px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 
+    @media (max-width: 768px) {
+      transform: translateY(-5px);
+    }
+
     &::before {
       opacity: 1;
     }
@@ -113,6 +152,10 @@ const IconWrapper = styled.div`
   color: ${props => props.theme.colors.primary};
   margin-bottom: 1.5rem;
   
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
+
   .icon {
     transition: all 0.3s ease;
   }
@@ -122,12 +165,24 @@ const ServiceTitle = styled.h3`
   color: ${props => props.theme.colors.primary};
   font-size: 1.5rem;
   margin-bottom: 1rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.2rem;
+  }
 `;
 
 const ServiceDescription = styled.p`
   color: ${props => props.theme.colors.text};
   line-height: 1.6;
   opacity: 0.9;
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
 `;
 
 const services = [

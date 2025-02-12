@@ -13,6 +13,10 @@ const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
+  
+  @media (max-width: 768px) {
+    padding: 0 1rem;
+  }
 `;
 
 const Title = styled.h2`
@@ -20,6 +24,14 @@ const Title = styled.h2`
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 1rem;
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.8rem;
+  }
 `;
 
 const Subtitle = styled.p`
@@ -37,6 +49,14 @@ const Form = styled.form`
   padding: 2rem;
   border-radius: 15px;
   border: 1px solid rgba(212, 175, 55, 0.1);
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 1rem;
+  }
 `;
 
 const FormGroup = styled.div`
@@ -69,6 +89,11 @@ const Input = styled.input`
   &::-webkit-calendar-picker-indicator {
     filter: invert(1);
     cursor: pointer;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.6rem;
+    font-size: 0.9rem;
   }
 `;
 
@@ -112,6 +137,12 @@ const TextArea = styled.textarea`
     outline: none;
     box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
   }
+
+  @media (max-width: 480px) {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+    min-height: 100px;
+  }
 `;
 
 const SubmitButton = styled.button`
@@ -135,6 +166,11 @@ const SubmitButton = styled.button`
     opacity: 0.7;
     cursor: not-allowed;
   }
+
+  @media (max-width: 480px) {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
 `;
 
 const Message = styled.div`
@@ -157,6 +193,11 @@ const TimeSlotList = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 10px;
   margin-bottom: 1.5rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+  }
 `;
 
 const TimeSlotButton = styled.button`
@@ -182,6 +223,11 @@ const TimeSlotButton = styled.button`
   &:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+  }
+
+  @media (max-width: 480px) {
+    padding: 8px;
+    font-size: 0.9rem;
   }
 `;
 

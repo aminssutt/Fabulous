@@ -4,8 +4,21 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAward, faPaintBrush, faGem } from '@fortawesome/free-solid-svg-icons';
 
 const AboutSection = styled.section`
-  background-color: ${props => props.theme.colors.secondary};
+  background-color: ${props => props.theme.colors.background};
   padding: 6rem 0;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(26, 26, 26, 0) 100%);
+    pointer-events: none;
+  }
 `;
 
 const Container = styled.div`
