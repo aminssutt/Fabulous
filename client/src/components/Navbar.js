@@ -70,19 +70,21 @@ const NavLinks = styled.div`
     top: 60px;
     left: 0;
     right: 0;
-    height: ${props => (props.$isOpen ? 'calc(100vh - 60px)' : '0')};
+    height: calc(100vh - 60px);
     background-color: rgba(26, 26, 26, 0.98);
-    padding: ${props => (props.$isOpen ? '2rem' : '0')};
+    padding: 2rem;
     gap: 1.5rem;
     box-shadow: ${props => props.theme.shadows.medium};
     backdrop-filter: blur(10px);
     transform: ${props => (props.$isOpen ? 'translateY(0)' : 'translateY(-100%)')};
+    visibility: ${props => (props.$isOpen ? 'visible' : 'hidden')};
     opacity: ${props => (props.$isOpen ? '1' : '0')};
-    transition: ${props => props.theme.transitions.standard};
-    overflow: hidden;
+    transition: all 0.3s ease-in-out;
     z-index: 999;
   }
 `;
+
+
 
 const NavLink = styled(Link)`
   color: ${props => props.theme.colors.text};

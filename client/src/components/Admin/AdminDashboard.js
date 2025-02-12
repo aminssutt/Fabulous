@@ -8,6 +8,18 @@ const DashboardContainer = styled.div`
   min-height: 100vh;
   background-color: ${props => props.theme.colors.background};
   padding: 2rem;
+
+  @media (max-width: 1024px) {
+    padding: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.5rem;
+  }
 `;
 
 const Header = styled.header`
@@ -15,16 +27,35 @@ const Header = styled.header`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 const Title = styled.h1`
   color: ${props => props.theme.colors.primary};
   font-size: 2rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
 `;
 
 const Nav = styled.nav`
   display: flex;
   gap: 1rem;
+
+  @media (max-width: 1024px) {
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 `;
 
 const NavButton = styled.button`
@@ -52,6 +83,17 @@ const NavButton = styled.button`
       color: ${props.theme.colors.background};
     }
   `}
+
+  @media (max-width: 1024px) {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 768px) {
+    flex: 1 1 auto;
+    min-width: 120px;
+    margin: 0.25rem;
+  }
 `;
 
 const Calendar = styled.div`
@@ -97,6 +139,18 @@ const WeekGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 1rem;
+
+  @media (max-width: 1024px) {
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const DayColumn = styled.div`
@@ -150,6 +204,10 @@ const ReviewsContainer = styled.div`
   border: 1px solid rgba(212, 175, 55, 0.1);
   border-radius: 15px;
   padding: 2rem;
+
+  @media (max-width: 480px) {
+    padding: 1rem;
+  }
 `;
 
 const ReviewCard = styled.div`
@@ -161,7 +219,13 @@ const ReviewCard = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 1rem;
+  }
 `;
+
 
 const ReviewContent = styled.div`
   flex: 1;
@@ -197,6 +261,10 @@ const ProjectsContainer = styled.div`
   border: 1px solid rgba(212, 175, 55, 0.1);
   border-radius: 15px;
   padding: 2rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 const ProjectForm = styled.form`
@@ -248,6 +316,15 @@ const ProjectCard = styled.div`
   margin-bottom: 1rem;
   display: flex;
   gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    
+    img {
+      width: 100%;
+      height: 200px;
+    }
+  }
 `;
 
 const ProjectImage = styled.img`
@@ -284,6 +361,9 @@ const SubmitButton = styled(NavButton)`
   width: 100%;
   justify-content: center;
 `;
+
+
+
 
 const DeleteButton = styled.button`
   background: none;
@@ -521,6 +601,9 @@ function AdminDashboard() {
     }
   };
 
+
+
+
   return (
     <DashboardContainer>
       <Header>
@@ -605,24 +688,25 @@ function AdminDashboard() {
             ))}
           </WeekGrid>
         </Calendar>
-      ) : (
+        ) : activeTab === 'reviews' && (
         <ReviewsContainer>
           {reviews.map((review) => (
-            <ReviewCard key={review._id}>
-              <ReviewContent>
-                <ReviewHeader>
-                  <ReviewAuthor>{review.name}</ReviewAuthor>
-                  <ReviewDate>{formatDate(review.createdAt)}</ReviewDate>
-                </ReviewHeader>
-                <ReviewText>{review.comment}</ReviewText>
-              </ReviewContent>
-              <DeleteButton onClick={() => handleDeleteReview(review._id)}>
-                <FontAwesomeIcon icon={faTrash} />
-              </DeleteButton>
-            </ReviewCard>
+          <ReviewCard key={review._id}>
+            <ReviewContent>
+            <ReviewHeader>
+              <ReviewAuthor>{review.name}</ReviewAuthor>
+              <ReviewDate>{formatDate(review.createdAt)}</ReviewDate>
+            </ReviewHeader>
+            <ReviewText>{review.comment}</ReviewText>
+            </ReviewContent>
+            <DeleteButton onClick={() => handleDeleteReview(review._id)}>
+            <FontAwesomeIcon icon={faTrash} />
+            </DeleteButton>
+          </ReviewCard>
           ))}
         </ReviewsContainer>
         )}
+
         {activeTab === 'projects' && (
         <ProjectsContainer>
           <ProjectForm onSubmit={handleProjectSubmit}>
