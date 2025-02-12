@@ -253,14 +253,22 @@ const sendEmails = async (appointmentData) => {
 };
 
 // Configuration pour l'authentification admin
-const ADMIN_EMAIL = 'fabulouscreationsd@gmail.com';
-const ADMIN_PASSWORD = 'fabulousfah1';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const VERIFICATION_CODES = new Map();
 
 // Route pour la connexion admin
 app.post('/api/admin/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Vérifier que les variables d'environnement sont définies
+    if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+      console.error('Variables d\'environnement manquantes pour l\'authentification admin');
+      return res.status(500).json({
+        message: "Erreur de configuration du serveur"
+      });
+    }
 
     // Vérifier les identifiants
     if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
