@@ -16,35 +16,6 @@ fabulous/
 	├── server.js        # Serveur Express
 	└── .env            # Variables d'environnement
 ```
-
-## Configuration et Sécurité
-
-### Gestion des fichiers sensibles
-
-1. Ne jamais commiter les fichiers .env :
-   ```bash
-   # Si les fichiers .env sont déjà suivis par Git
-   git rm --cached .env
-   git rm --cached .env.production
-   git rm --cached server/.env
-   git rm --cached server/.env.production
-   git rm --cached client/.env
-   git rm --cached client/.env.production
-   ```
-
-2. Avant de faire un commit :
-   - Vérifier qu'aucun fichier sensible n'est stagé : `git status`
-   - Utiliser `git add` spécifiquement pour les fichiers à commiter
-   - Ne pas utiliser `git add .` pour éviter d'ajouter accidentellement des fichiers sensibles
-
-3. Pour un nouveau clone du projet :
-   - Copier les fichiers .env.example vers .env
-   - Remplir les variables avec les bonnes valeurs
-   ```bash
-   cp server/.env.example server/.env
-   cp client/.env.example client/.env
-   ```
-
 ### Variables d'environnement requises
 
 #### Serveur
@@ -92,8 +63,6 @@ Cela démarrera :
 - Vérification des créneaux disponibles
 - Envoi d'emails de confirmation
 - Interface utilisateur réactive
-
-Site web one-page moderne pour l'architecte d'intérieur Fabulous, construit avec React.
 
 ## 🚀 Fonctionnalités
 
