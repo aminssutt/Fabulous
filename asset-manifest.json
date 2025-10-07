@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Fabulous/static/css/main.6c3a8384.css",
+    "main.js": "/Fabulous/static/js/main.048baede.js",
+    "index.html": "/Fabulous/index.html",
+    "main.6c3a8384.css.map": "/Fabulous/static/css/main.6c3a8384.css.map",
+    "main.048baede.js.map": "/Fabulous/static/js/main.048baede.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6c3a8384.css",
+    "static/js/main.048baede.js"
+  ]
+}
