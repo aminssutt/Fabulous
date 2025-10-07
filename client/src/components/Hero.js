@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-scroll';
+// Removed scroll link to appointment (feature removed)
 
 const HeroSection = styled.section`
   height: 100vh;
@@ -125,60 +125,6 @@ const Subtitle = styled.p`
   }
 `;
 
-const CTAButton = styled(Link)`
-  display: inline-block;
-  background-color: ${props => props.theme.colors.primary};
-  color: ${props => props.theme.colors.background};
-  padding: 1.2rem 3rem;
-  border-radius: 50px;
-  font-size: 1.2rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: ${props => props.theme.transitions.standard};
-  border: 2px solid ${props => props.theme.colors.primary};
-  font-family: ${props => props.theme.fonts.secondary};
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 300%;
-    height: 300%;
-    background: rgba(255, 255, 255, 0.1);
-    transform: translate(-50%, -50%) rotate(45deg) scale(0);
-    transition: ${props => props.theme.transitions.slow};
-    z-index: -1;
-  }
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: ${props => props.theme.shadows.large};
-    background-color: transparent;
-    color: ${props => props.theme.colors.primary};
-
-    &::before {
-      transform: translate(-50%, -50%) rotate(45deg) scale(1);
-    }
-  }
-
-  @media (max-width: ${props => props.theme.breakpoints.tablet}) {
-    padding: 1rem 2.5rem;
-    font-size: 1.1rem;
-  }
-
-  @media (max-width: ${props => props.theme.breakpoints.mobile}) {
-    padding: 0.8rem 2rem;
-    font-size: 1rem;
-    width: 80%;
-    max-width: 300px;
-  }
-`;
 
 const ScrollIndicator = styled.div`
   position: absolute;
@@ -233,9 +179,7 @@ function Hero() {
           Transformez votre intérieur en un chef-d'œuvre unique qui reflète votre personnalité
           et votre style de vie avec notre expertise en design d'intérieur.
         </Subtitle>
-        <CTAButton to="appointment" smooth={true} duration={500}>
-          Prendre Rendez-vous
-        </CTAButton>
+        {/* CTA rendez-vous retiré */}
       </HeroContent>
       <ScrollIndicator>
         <span>Découvrir</span>

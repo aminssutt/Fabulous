@@ -1,3 +1,5 @@
+// NOTE: Ancien backend conservé pour référence mais non utilisé dans la version vitrine.
+// Le site se lance uniquement via le dossier client désormais.
 const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');

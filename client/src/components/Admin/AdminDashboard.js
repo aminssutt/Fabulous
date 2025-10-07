@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faTrash, faCalendarWeek, faComments, faSignOutAlt, faChevronLeft, faChevronRight, faImages } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faTrash, faSignOutAlt, faImages, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const DashboardContainer = styled.div`
   min-height: 100vh;
@@ -35,10 +35,10 @@ const Header = styled.header`
 
 const Title = styled.h1`
   color: ${props => props.theme.colors.primary};
-  font-size: 2rem;
-
+  font-size: 2.2rem;
+  letter-spacing:.5px;
   @media (max-width: 768px) {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     text-align: center;
     margin-bottom: 1rem;
   }
@@ -83,684 +83,286 @@ const NavButton = styled.button`
       color: ${props.theme.colors.background};
     }
   `}
-
-  @media (max-width: 1024px) {
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-  }
-
-  @media (max-width: 768px) {
-    flex: 1 1 auto;
-    min-width: 120px;
-    margin: 0.25rem;
-  }
+  
 `;
 
-const Calendar = styled.div`
-  background: rgba(255, 255, 255, 0.02);
+// Separate styled components (gallery management)
+const GalleryContainer = styled.div`
+  background: rgba(255,255,255,0.02);
   border: 1px solid rgba(212, 175, 55, 0.1);
   border-radius: 15px;
   padding: 2rem;
 `;
 
-const CalendarHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-`;
-
-const CalendarTitle = styled.h2`
-  color: ${props => props.theme.colors.primary};
-  font-size: 1.5rem;
-`;
-
-const WeekNavigation = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const WeekButton = styled.button`
-  background: none;
-  border: none;
-  color: ${props => props.theme.colors.primary};
-  cursor: pointer;
-  font-size: 1.2rem;
-  padding: 0.5rem;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: scale(1.1);
-  }
-`;
-
-const WeekGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 1rem;
-
-  @media (max-width: 1024px) {
-    gap: 0.5rem;
-  }
-
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const DayColumn = styled.div`
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 10px;
-  padding: 1rem;
-`;
-
-const DayHeader = styled.div`
-  color: ${props => props.theme.colors.primary};
-  text-align: center;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-  margin-bottom: 1rem;
-
-  h3 {
-    margin: 0;
-    font-size: 1.1rem;
-  }
-
-  p {
-    margin: 0.5rem 0 0;
-    font-size: 0.9rem;
-    opacity: 0.8;
-  }
-`;
-
-const TimeSlot = styled.div`
-  padding: 0.5rem;
-  margin: 0.5rem 0;
-  border-radius: 5px;
-  background: ${props => props.$hasAppointment ? 'rgba(212, 175, 55, 0.1)' : 'transparent'};
-  color: ${props => props.theme.colors.text};
-  font-size: 0.9rem;
-`;
-
-const Appointment = styled.div`
-  padding: 0.5rem;
-  background: rgba(212, 175, 55, 0.15);
-  border-radius: 5px;
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
-
-  p {
-    margin: 0.2rem 0;
-  }
-`;
-
-const ReviewsContainer = styled.div`
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  border-radius: 15px;
-  padding: 2rem;
-
-  @media (max-width: 480px) {
-    padding: 1rem;
-  }
-`;
-
-const ReviewCard = styled.div`
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  border-radius: 10px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-
-  @media (max-width: 480px) {
-    flex-direction: column;
-    gap: 1rem;
-  }
-`;
-
-
-const ReviewContent = styled.div`
-  flex: 1;
-`;
-
-const ReviewHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-`;
-
-const ReviewAuthor = styled.h3`
-  color: ${props => props.theme.colors.primary};
-  margin: 0;
-  font-size: 1.1rem;
-`;
-
-const ReviewDate = styled.p`
-  color: ${props => props.theme.colors.text};
-  opacity: 0.7;
-  margin: 0;
-  font-size: 0.9rem;
-`;
-
-const ReviewText = styled.p`
-  color: ${props => props.theme.colors.text};
-  margin: 0;
-  line-height: 1.6;
-`;
-
-const ProjectsContainer = styled.div`
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  border-radius: 15px;
-  padding: 2rem;
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
-`;
-
-const ProjectForm = styled.form`
-  margin-bottom: 2rem;
+const ImageForm = styled.form`
   display: grid;
   gap: 1rem;
+  margin-bottom: 2rem;
+  grid-template-columns: 1.2fr 1fr 1fr auto;
+  align-items: end;
+  font-size:.95rem;
+  @media (max-width: 900px){ grid-template-columns: 1fr 1fr auto; }
+  @media (max-width: 700px){ grid-template-columns: 1fr; }
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 0.8rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 5px;
+  padding: 0.9rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 6px;
   color: ${props => props.theme.colors.text};
-  font-size: 1rem;
-
-  &:focus {
-    border-color: ${props => props.theme.colors.primary};
-    outline: none;
-  }
+  font-size: 0.95rem;
 `;
 
 const Select = styled.select`
   width: 100%;
-  padding: 0.8rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 5px;
+  padding: 0.9rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 6px;
   color: ${props => props.theme.colors.text};
-  font-size: 1rem;
-
-  &:focus {
-    border-color: ${props => props.theme.colors.primary};
-    outline: none;
-  }
-
-  option {
-    background: ${props => props.theme.colors.background};
-    color: ${props => props.theme.colors.text};
-  }
+  font-size: 0.95rem;
 `;
 
-const ProjectCard = styled.div`
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  border-radius: 10px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
+const AddButton = styled.button`
+  background: ${props => props.theme.colors.primary};
+  color: ${props => props.theme.colors.background};
+  border: none;
+  padding: 0.9rem 1.1rem;
+  border-radius: 6px;
+  cursor: pointer;
   display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 600;
+  font-size:.95rem;
+  letter-spacing:.5px;
+  &:hover { opacity: .92; }
+`;
+
+const GalleryGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
   gap: 1rem;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    
-    img {
-      width: 100%;
-      height: 200px;
-    }
-  }
 `;
 
-const ProjectImage = styled.img`
-  width: 150px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 5px;
+const GalleryItem = styled.div`
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  background: #111;
 `;
 
-const ProjectInfo = styled.div`
-  flex: 1;
+const Thumb = styled.img`
+  width: 100%; height: 100%; object-fit: cover; transition: .3s;
+  &:hover { transform: scale(1.05); }
 `;
 
-const ProjectTitle = styled.h3`
-  color: ${props => props.theme.colors.primary};
-  margin: 0 0 0.5rem 0;
+const Badge = styled.span`
+  position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 4px; font-size: .7rem; letter-spacing: 1px; text-transform: uppercase; color: ${p=>p.theme.colors.primary};
 `;
-
-const ProjectDescription = styled.p`
-  color: ${props => props.theme.colors.text};
-  margin: 0 0 0.5rem 0;
-`;
-
-const ProjectCategory = styled.span`
-  display: inline-block;
-  padding: 0.3rem 0.8rem;
-  background: rgba(212, 175, 55, 0.1);
-  border-radius: 15px;
-  color: ${props => props.theme.colors.primary};
-  font-size: 0.9rem;
-`;
-
-const SubmitButton = styled(NavButton)`
-  width: 100%;
-  justify-content: center;
-`;
-
-
-
 
 const DeleteButton = styled.button`
-  background: none;
-  border: none;
-  color: #f44336;
-  cursor: pointer;
-  padding: 0.5rem;
-  margin-left: 1rem;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: scale(1.1);
-  }
+  position: absolute; top: 8px; right: 8px; background: rgba(244,67,54,0.8); color: #fff; border: none; border-radius: 4px; padding: 4px 6px; font-size: .7rem; cursor: pointer; font-weight: 600; letter-spacing: 1px; &:hover { background: #f44336; }
 `;
 
-const API_URL = 'http://localhost:5000';
+const Helper = styled.p`
+  grid-column:1 / -1;
+  margin:-.3rem 0 0;
+  font-size:.7rem;
+  letter-spacing:.5px;
+  opacity:.55;
+  line-height:1.25;
+`;
 
-function AdminDashboard() {
+function AdminDashboard(){
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('calendar');
-  const [currentWeek, setCurrentWeek] = useState(new Date());
-  const [appointments, setAppointments] = useState([]);
-  const [reviews, setReviews] = useState([]);
-  const [projects, setProjects] = useState([]);
-  const [projectForm, setProjectForm] = useState({
-    title: '',
-    description: '',
-    category: 'residential',
-    image: ''
+  const [images,setImages] = useState([]); // {id, url, theme}
+  const [form,setForm] = useState({ url:'', theme:'general' });
+  const themes = ['general','residential','commercial'];
+
+  // Protect simple session
+  useEffect(()=>{
+    const logged = localStorage.getItem('adminLogged')==='true';
+    if(!logged) navigate('/admin');
+  },[navigate]);
+
+  // Load from localStorage (backward compatibility: older entries may have data: base64)
+  useEffect(()=>{
+    try{
+      const stored = JSON.parse(localStorage.getItem('galleryImages')||'[]');
+      const normalized = Array.isArray(stored) ? stored.map(it=> ({
+        id: it.id || Date.now().toString(36)+Math.random().toString(36).slice(2),
+        theme: it.theme || 'general',
+        url: it.url || it.data || ''
+      })) : [];
+      setImages(normalized);
+      if(!normalized.length){
+        fetch('/gallery.json')
+          .then(r=> r.ok ? r.json(): [])
+          .then(data=> { if(Array.isArray(data) && data.length){
+            const norm = data.map(it=> ({ id: it.id || Date.now().toString(36)+Math.random().toString(36).slice(2), theme: it.theme || 'general', url: it.url || it.data || '' }));
+            setImages(norm);
+          } })
+          .catch(()=>{});
+      }
+    }catch(e){ console.warn('Erreur lecture stockage local',e); }
+  },[]);
+
+  const persist = (list)=>{
+    setImages(list);
+    localStorage.setItem('galleryImages', JSON.stringify(list));
+    try { window.dispatchEvent(new Event('gallery-update')); } catch{}
+  };
+
+  // --- Normalisation & validation d'URL (focus Imgur) ---
+  const normalizeUrl = (raw) => {
+    const url = raw.trim();
+    if(!url) throw new Error('URL vide');
+    if(/https?:\/\/imgur\.com\/(a|gallery)\//i.test(url)) {
+      throw new Error("Lien d'album Imgur (imgur.com/a/...). Ouvrir l'image seule puis copier le lien direct.");
+    }
+    const single = url.match(/^https?:\/\/imgur\.com\/([A-Za-z0-9]+)$/);
+    if(single) return `https://i.imgur.com/${single[1]}.jpg`;
+    const base = url.split('?')[0];
+    const hasImageExt = /\.(jpe?g|png|webp|gif|avif)$/i.test(base);
+    if(url.includes('i.imgur.com') && !hasImageExt) {
+      throw new Error('Lien i.imgur.com sans extension (.jpg/.png/.webp).');
+    }
+    return url;
+  };
+
+  const testImageLoads = (url) => new Promise((resolve,reject)=>{
+    const img = new Image();
+    const timer = setTimeout(()=> reject(new Error('Timeout de chargement')), 8000);
+    img.onload = ()=> { clearTimeout(timer); resolve(true); };
+    img.onerror = ()=> { clearTimeout(timer); reject(new Error('Impossible de charger cette image.')); };
+    img.src = url;
   });
 
-  useEffect(() => {
-    // Vérifier la validité de la session
-    const checkSession = () => {
-      const token = localStorage.getItem('adminToken');
-      const expiry = localStorage.getItem('adminTokenExpiry');
-
-      if (!token || !expiry) {
-        navigate('/admin');
-        return false;
-      }
-
-      if (new Date(expiry) < new Date()) {
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminTokenExpiry');
-        navigate('/admin');
-        return false;
-      }
-
-      return true;
-    };
-
-    // Vérifier la session toutes les minutes
-    const sessionCheck = setInterval(checkSession, 60000);
-    
-    // Vérification initiale
-    if (!checkSession()) return;
-
-    // Charger les données
-    fetchData();
-
-    // Cleanup
-    return () => clearInterval(sessionCheck);
-  }, [navigate, activeTab, currentWeek]);
-
-  const fetchData = async () => {
-    const token = localStorage.getItem('adminToken');
-    if (!token) return;
-
-    try {
-      let endpoint;
-      let headers = {
-        'Content-Type': 'application/json'
-      };
-
-      if (activeTab === 'calendar') {
-        endpoint = 'admin/appointments';
-        headers['Authorization'] = `Bearer ${token}`;
-      } else if (activeTab === 'reviews') {
-        endpoint = 'admin/reviews';
-        headers['Authorization'] = `Bearer ${token}`;
-      } else if (activeTab === 'projects') {
-        endpoint = 'projects'; // Public endpoint for projects
-      }
-      
-      const response = await fetch(`${API_URL}/api/${endpoint}`, {
-        headers: headers
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (activeTab === 'calendar') {
-          setAppointments(data);
-        } else if (activeTab === 'reviews') {
-          setReviews(data);
-        } else if (activeTab === 'projects') {
-          setProjects(data);
-        }
-      } else if (response.status === 401 && activeTab !== 'projects') {
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminTokenExpiry');
-        navigate('/admin');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des données:', error);
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminTokenExpiry');
-    navigate('/admin');
-  };
-
-  const handleHomeClick = () => {
-    navigate('/');
-  };
-
-  const handleDeleteReview = async (reviewId) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet avis ?')) {
-      return;
-    }
-
-    const token = localStorage.getItem('adminToken');
-    if (!token) return;
-
-    try {
-      const response = await fetch(`${API_URL}/api/admin/reviews/${reviewId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        setReviews(reviews.filter(review => review._id !== reviewId));
-      } else if (response.status === 401) {
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminTokenExpiry');
-        navigate('/admin');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la suppression de l\'avis:', error);
-    }
-  };
-
-  const getWeekDays = () => {
-    const days = [];
-    const startOfWeek = new Date(currentWeek);
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
-
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(startOfWeek);
-      day.setDate(startOfWeek.getDate() + i);
-      days.push(day);
-    }
-
-    return days;
-  };
-
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('fr-FR', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
-  const navigateWeek = (direction) => {
-    const newDate = new Date(currentWeek);
-    newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
-    setCurrentWeek(newDate);
-  };
-
-  const getAppointmentsForDay = (date) => {
-    return appointments.filter(appointment => {
-      const appointmentDate = new Date(appointment.date);
-      return appointmentDate.toDateString() === date.toDateString();
-    });
-  };
-
-  const timeSlots = Array.from({ length: 9 }, (_, i) => `${i + 9}:00`);
-
-  const handleProjectSubmit = async (e) => {
+  const addImage = async (e)=>{
     e.preventDefault();
-    const token = localStorage.getItem('adminToken');
-    
+    if(!form.url.trim()) { alert('Coller une URL directe vers une image.'); return; }
+    let finalUrl;
     try {
-      const response = await fetch(`${API_URL}/api/admin/projects`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(projectForm)
-      });
-
-      if (response.ok) {
-        const newProject = await response.json();
-        setProjects([newProject, ...projects]);
-        setProjectForm({
-          title: '',
-          description: '',
-          category: 'residential',
-          image: ''
-        });
-      }
-    } catch (error) {
-      console.error('Erreur lors de l\'ajout du projet:', error);
-    }
-  };
-
-  const handleProjectDelete = async (projectId) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
+      finalUrl = normalizeUrl(form.url);
+      await testImageLoads(finalUrl);
+    } catch(err){
+      alert(err.message);
       return;
     }
+    const item = { id: Date.now().toString(36), theme: form.theme, url: finalUrl };
+    persist([item, ...images]);
+    setForm({ url:'', theme: form.theme });
+  };
 
-    const token = localStorage.getItem('adminToken');
-    try {
-      const response = await fetch(`${API_URL}/api/admin/projects/${projectId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+  const removeImage = (id)=>{
+    if(!window.confirm('Supprimer cette image ?')) return;
+    persist(images.filter(i=>i.id!==id));
+  };
 
-      if (response.ok) {
-        setProjects(projects.filter(project => project._id !== projectId));
-      }
-    } catch (error) {
-      console.error('Erreur lors de la suppression du projet:', error);
+  const logout = ()=>{ localStorage.removeItem('adminLogged'); navigate('/admin'); };
+
+  // --- Export / Import / Clear helpers (static hosting strategy) ---
+  const exportGallery = () => {
+    try{
+      const data = JSON.stringify(images, null, 2);
+      const blob = new Blob([data], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'gallery-export.json'; a.click();
+      URL.revokeObjectURL(url);
+    }catch(err){ alert('Export impossible'); }
+  };
+
+  const importGallery = (file) => {
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const json = JSON.parse(ev.target.result);
+        if(!Array.isArray(json)) throw new Error('Format');
+        // basic shape normalization
+        const cleaned = json.filter(it=> (it.url||it.data) && it.theme).map(it=> ({
+          id: it.id || Date.now().toString(36)+Math.random().toString(36).slice(2),
+          url: it.url || undefined,
+          data: it.data || undefined,
+          theme: themes.includes(it.theme)? it.theme : 'general'
+        }));
+        persist(cleaned);
+        alert('Import réussi');
+      } catch(err){ alert('Fichier invalide'); }
+    };
+    reader.readAsText(file);
+  };
+
+  const clearGallery = () => {
+    if(window.confirm('Vider totalement la galerie ?')){
+      persist([]);
     }
   };
 
-
-
+  const hiddenInputId = 'import-gallery-input';
 
   return (
     <DashboardContainer>
       <Header>
         <Title>Administration</Title>
         <Nav>
-          <NavButton
-            $active={activeTab === 'calendar'}
-            onClick={() => setActiveTab('calendar')}
-          >
-            <FontAwesomeIcon icon={faCalendarWeek} />
-            Emploi du temps
-          </NavButton>
-            <NavButton
-            $active={activeTab === 'reviews'}
-            onClick={() => setActiveTab('reviews')}
-            >
-            <FontAwesomeIcon icon={faComments} />
-            Avis
-            </NavButton>
-            <NavButton
-            $active={activeTab === 'projects'}
-            onClick={() => setActiveTab('projects')}
-            >
-            <FontAwesomeIcon icon={faImages} />
-            Projets
-            </NavButton>
-          <NavButton
-            $isHome
-            onClick={handleHomeClick}
-          >
-            <FontAwesomeIcon icon={faHome} />
-            Accueil
-          </NavButton>
-          <NavButton onClick={handleLogout}>
-            <FontAwesomeIcon icon={faSignOutAlt} />
-            Déconnexion
-          </NavButton>
+          <NavButton $isHome onClick={()=>navigate('/')}> <FontAwesomeIcon icon={faHome}/> Accueil</NavButton>
+          <NavButton onClick={logout}><FontAwesomeIcon icon={faSignOutAlt}/> Déconnexion</NavButton>
         </Nav>
       </Header>
-
-      {activeTab === 'calendar' ? (
-        <Calendar>
-          <CalendarHeader>
-            <CalendarTitle>
-              Semaine du {formatDate(getWeekDays()[0])}
-            </CalendarTitle>
-            <WeekNavigation>
-              <WeekButton onClick={() => navigateWeek('prev')}>
-                <FontAwesomeIcon icon={faChevronLeft} />
-              </WeekButton>
-              <WeekButton onClick={() => navigateWeek('next')}>
-                <FontAwesomeIcon icon={faChevronRight} />
-              </WeekButton>
-            </WeekNavigation>
-          </CalendarHeader>
-
-          <WeekGrid>
-            {getWeekDays().map((day, index) => (
-              <DayColumn key={index}>
-                <DayHeader>
-                  <h3>{day.toLocaleDateString('fr-FR', { weekday: 'long' })}</h3>
-                  <p>{day.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</p>
-                </DayHeader>
-                {timeSlots.map((time, timeIndex) => {
-                  const dayAppointments = getAppointmentsForDay(day);
-                  const appointment = dayAppointments.find(a => a.time === time);
-                  
-                  return (
-                    <TimeSlot key={timeIndex} $hasAppointment={!!appointment}>
-                      {time}
-                      {appointment && (
-                        <Appointment>
-                          <p><strong>{appointment.name}</strong></p>
-                          <p>{appointment.email}</p>
-                          <p>{appointment.phone}</p>
-                        </Appointment>
-                      )}
-                    </TimeSlot>
-                  );
-                })}
-              </DayColumn>
-            ))}
-          </WeekGrid>
-        </Calendar>
-        ) : activeTab === 'reviews' && (
-        <ReviewsContainer>
-          {reviews.map((review) => (
-          <ReviewCard key={review._id}>
-            <ReviewContent>
-            <ReviewHeader>
-              <ReviewAuthor>{review.name}</ReviewAuthor>
-              <ReviewDate>{formatDate(review.createdAt)}</ReviewDate>
-            </ReviewHeader>
-            <ReviewText>{review.comment}</ReviewText>
-            </ReviewContent>
-            <DeleteButton onClick={() => handleDeleteReview(review._id)}>
-            <FontAwesomeIcon icon={faTrash} />
-            </DeleteButton>
-          </ReviewCard>
-          ))}
-        </ReviewsContainer>
-        )}
-
-        {activeTab === 'projects' && (
-        <ProjectsContainer>
-          <ProjectForm onSubmit={handleProjectSubmit}>
-          <Input
-            type="text"
-            placeholder="Titre du projet"
-            value={projectForm.title}
-            onChange={(e) => setProjectForm({...projectForm, title: e.target.value})}
-            required
-          />
-          <Input
-            type="text"
-            placeholder="Description"
-            value={projectForm.description}
-            onChange={(e) => setProjectForm({...projectForm, description: e.target.value})}
-            required
-          />
-          <Select
-            value={projectForm.category}
-            onChange={(e) => setProjectForm({...projectForm, category: e.target.value})}
-            required
-          >
-            <option value="residential">Résidentiel</option>
-            <option value="commercial">Commercial</option>
+      <GalleryContainer>
+        <h2 style={{color:'#D4AF37',marginTop:0,marginBottom:'1.5rem',fontSize:'1.6rem',display:'flex',alignItems:'center',gap:'.6rem'}}>
+          <FontAwesomeIcon icon={faImages}/> Gestion de la galerie
+        </h2>
+        <div style={{display:'flex',flexWrap:'wrap',gap:'.6rem',marginBottom:'1rem'}}>
+          <button type="button" onClick={exportGallery} style={actionBtnStyle}>Exporter JSON</button>
+          <button type="button" onClick={()=> document.getElementById(hiddenInputId).click()} style={actionBtnStyle}>Importer JSON</button>
+          <button type="button" onClick={clearGallery} style={{...actionBtnStyle,background:'rgba(244,67,54,0.15)',color:'#f44336',border:'1px solid #f44336'}}>Vider</button>
+          <input id={hiddenInputId} type="file" accept="application/json" style={{display:'none'}} onChange={e=> importGallery(e.target.files?.[0])} />
+          <small style={{opacity:.55,width:'100%',fontSize:'.65rem',letterSpacing:'.5px'}}>Exporter puis commiter le fichier (public/gallery.json) dans GitHub pour rendre la galerie persistante sur GitHub Pages.</small>
+        </div>
+        <ImageForm onSubmit={addImage}>
+          <Input placeholder="URL directe (ex: https://i.imgur.com/xxxxx.jpg)" value={form.url} onChange={e=>setForm({...form,url:e.target.value})} />
+          <Select value={form.theme} onChange={e=>setForm({...form,theme:e.target.value})}> 
+            {themes.map(t=> <option key={t} value={t}>{t}</option>)}
           </Select>
-          <Input
-            type="url"
-            placeholder="URL de l'image"
-            value={projectForm.image}
-            onChange={(e) => setProjectForm({...projectForm, image: e.target.value})}
-            required
-          />
-          <SubmitButton type="submit">Ajouter le projet</SubmitButton>
-          </ProjectForm>
-
-          {projects.map((project) => (
-          <ProjectCard key={project._id}>
-            <ProjectImage src={project.image} alt={project.title} />
-            <ProjectInfo>
-            <ProjectTitle>{project.title}</ProjectTitle>
-            <ProjectDescription>{project.description}</ProjectDescription>
-            <ProjectCategory>
-              {project.category === 'residential' ? 'Résidentiel' : 'Commercial'}
-            </ProjectCategory>
-            </ProjectInfo>
-            <DeleteButton onClick={() => handleProjectDelete(project._id)}>
-            <FontAwesomeIcon icon={faTrash} />
-            </DeleteButton>
-          </ProjectCard>
+          <AddButton type="submit"><FontAwesomeIcon icon={faPlus}/> Ajouter</AddButton>
+          <Helper>
+            Imgur: ouvrir l'image seule (pas un album). Si tu as un lien comme imgur.com/a/XXXX, clique l'image, puis clic droit "Ouvrir l'image dans un nouvel onglet" et copie l'URL qui commence par i.imgur.com et finit par .jpg / .png / .webp.
+          </Helper>
+        </ImageForm>
+        {images.length===0 && <p style={{opacity:.7}}>Aucune image pour le moment. Ajoutez-en avec le formulaire ci-dessus.</p>}
+        <GalleryGrid>
+          {images.map(img=> (
+            <GalleryItem key={img.id}>
+              <Thumb src={img.url} alt={img.theme} />
+              <Badge>{img.theme}</Badge>
+              <DeleteButton onClick={()=>removeImage(img.id)}>Suppr</DeleteButton>
+            </GalleryItem>
           ))}
-        </ProjectsContainer>
-        )}
-      </DashboardContainer>
+        </GalleryGrid>
+      </GalleryContainer>
+    </DashboardContainer>
   );
 }
 
-export default AdminDashboard; 
+// Inline style object for utility buttons
+const actionBtnStyle = {
+  background:'rgba(212,175,55,0.12)',
+  color:'#D4AF37',
+  border:'1px solid rgba(212,175,55,0.4)',
+  padding:'.55rem .9rem',
+  borderRadius:'6px',
+  fontSize:'.7rem',
+  letterSpacing:'.5px',
+  cursor:'pointer',
+  fontWeight:600,
+  textTransform:'uppercase'
+};
+
+export default AdminDashboard;

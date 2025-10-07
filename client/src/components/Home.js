@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+// Appointment link removed (static showcase)
 
 const HomeSection = styled.section`
   min-height: 100vh;
@@ -37,36 +37,17 @@ const Subtitle = styled.p`
   margin-right: auto;
 `;
 
-const CTAButton = styled(Link)`
-  display: inline-block;
-  background-color: ${props => props.theme.colors.primary};
-  color: ${props => props.theme.colors.background};
-  padding: 1rem 2.5rem;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(212, 175, 55, 0.2);
-  }
-`;
 
 function Home() {
   return (
     <HomeSection>
       <Container>
-        <Title>Bienvenue chez Fabulous</Title>
+        <Title>Fabulous Design Intérieur</Title>
         <Subtitle>
-          Découvrez l'excellence de la beauté dans notre salon haut de gamme.
-          Une expérience unique qui allie expertise et luxe.
+          Conception et réaménagement d'espaces résidentiels et commerciaux.
+          Une approche sur mesure qui allie fonctionnalité, élégance et cohérence visuelle.
         </Subtitle>
-        <CTAButton to="/appointment">
-          Prendre Rendez-vous
-        </CTAButton>
+        {/* CTA supprimé (plus de prise de rendez-vous) */}
       </Container>
     </HomeSection>
   );

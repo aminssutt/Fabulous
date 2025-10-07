@@ -128,25 +128,6 @@ const NavLink = styled(Link)`
   }
 `;
 
-const AppointmentButton = styled(Link)`
-  background-color: ${props => props.theme.colors.primary};
-  color: ${props => props.theme.colors.secondary};
-  padding: 0.8rem 1.8rem;
-  border-radius: 30px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  border: 2px solid ${props => props.theme.colors.primary};
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-    background-color: transparent;
-    color: ${props => props.theme.colors.primary};
-  }
-`;
 
 const MobileMenuButton = styled.button`
   display: none;
@@ -278,9 +259,7 @@ function Header() {
             >
               Témoignages
             </NavLink>
-            <AppointmentButton to="appointment" smooth={true} duration={500}>
-              Prendre Rendez-vous
-            </AppointmentButton>
+            {/* Appointment CTA removed (static showcase) */}
           </NavLinks>
           <MobileMenuButton onClick={() => setMobileMenuOpen(true)}>
             <FontAwesomeIcon icon={faBars} />
@@ -332,14 +311,7 @@ function Header() {
         >
           Témoignages
         </MobileNavLink>
-        <AppointmentButton 
-          to="appointment" 
-          smooth={true} 
-          duration={500} 
-          onClick={closeMenu}
-        >
-          Prendre Rendez-vous
-        </AppointmentButton>
+        {/* Appointment CTA removed mobile */}
       </MobileMenu>
     </HeaderContainer>
   );

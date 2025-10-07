@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { API_URL } from '../config';
 
 const PortfolioSection = styled.section`
   background-color: ${props => props.theme.colors.background};
@@ -123,35 +122,31 @@ const ProjectDescription = styled.p`
 
 function Portfolio() {
   const [activeFilter, setActiveFilter] = useState('all');
-  const [projects, setProjects] = useState([]);
+  const [items, setItems] = useState([]); // images from localStorage
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/projects`);
-        if (response.ok) {
-          const data = await response.json();
-          setProjects(data);
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération des projets:', error);
-      }
+  useEffect(()=>{
+    const load = () => {
+      try { setItems(JSON.parse(localStorage.getItem('galleryImages')||'[]')); } catch(e){ console.warn('Erreur lecture galerie', e); }
     };
+    load();
+    const storageListener = () => load();
+    const customListener = () => load();
+    window.addEventListener('storage', storageListener);
+    window.addEventListener('gallery-update', customListener);
+    return ()=> {
+      window.removeEventListener('storage', storageListener);
+      window.removeEventListener('gallery-update', customListener);
+    };
+  },[]);
 
-    fetchProjects();
-  }, []);
-
-
-  const filteredProjects = activeFilter === 'all' 
-    ? projects 
-    : projects.filter(project => project.category === activeFilter);
+  const filteredProjects = activeFilter === 'all' ? items : items.filter(i=>i.theme === activeFilter);
 
   return (
     <PortfolioSection id="portfolio">
       <Container>
         <SectionTitle>
-          <h2>Notre Portfolio</h2>
-          <p>Découvrez nos réalisations les plus remarquables en matière de design d'intérieur</p>
+          <h2>Galerie</h2>
+          
         </SectionTitle>
 
         <FilterContainer>
@@ -161,29 +156,20 @@ function Portfolio() {
           >
             Tous les Projets
           </FilterButton>
-          <FilterButton 
-            $active={activeFilter === 'residential'} 
-            onClick={() => setActiveFilter('residential')}
-          >
-            Résidentiel
-          </FilterButton>
-          <FilterButton 
-            $active={activeFilter === 'commercial'} 
-            onClick={() => setActiveFilter('commercial')}
-          >
-            Commercial
-          </FilterButton>
+          <FilterButton $active={activeFilter === 'residential'} onClick={() => setActiveFilter('residential')}>Résidentiel</FilterButton>
+          <FilterButton $active={activeFilter === 'commercial'} onClick={() => setActiveFilter('commercial')}>Commercial</FilterButton>
+          <FilterButton $active={activeFilter === 'general'} onClick={() => setActiveFilter('general')}>Général</FilterButton>
         </FilterContainer>
 
         <ProjectsGrid>
-            {filteredProjects.map(project => (
-            <ProjectCard key={project._id}>
-              <ProjectImage src={project.image} alt={project.title} />
-              <ProjectOverlay className="overlay">
-              <ProjectTitle>{project.title}</ProjectTitle>
-              <ProjectDescription>{project.description}</ProjectDescription>
-              </ProjectOverlay>
-            </ProjectCard>
+            {filteredProjects.map(item => (
+              <ProjectCard key={item.id}>
+                <ProjectImage src={item.data || item.url} alt={item.theme} />
+                <ProjectOverlay className="overlay">
+                  <ProjectTitle>{item.theme}</ProjectTitle>
+                  <ProjectDescription>Ajoutée par l'admin</ProjectDescription>
+                </ProjectOverlay>
+              </ProjectCard>
             ))}
         </ProjectsGrid>
       </Container>

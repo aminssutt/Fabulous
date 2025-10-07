@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLock, faEnvelope, faSpinner, faHome } from '@fortawesome/free-solid-svg-icons';
+import { faLock, faSpinner, faHome } from '@fortawesome/free-solid-svg-icons';
 
 const LoginContainer = styled.div`
   min-height: 100vh;
@@ -133,122 +133,56 @@ const HomeButton = styled.button`
   }
 `;
 
-const API_URL = 'http://localhost:5000';
+// Simple admin login using a single password stored in env (REACT_APP_ADMIN_PASSWORD_HASH optional)
+// We store an in-memory session flag in localStorage (not secure but sufficient for static showcase site)
 
 function AdminLogin() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [status, setStatus] = useState({
-    state: 'idle', // 'idle' | 'loading' | 'waiting' | 'error'
-    message: ''
-  });
+  const [password, setPassword] = useState('');
+  const [status, setStatus] = useState({ state: 'idle', message: '' });
+  const [attempts, setAttempts] = useState(0);
+  const [showHint, setShowHint] = useState(false);
 
-  // Vérifier si une session est déjà active
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    const expiry = localStorage.getItem('adminTokenExpiry');
-    
-    if (token && expiry && new Date(expiry) > new Date()) {
-      navigate('/admin/dashboard');
-    }
+    const loggedIn = localStorage.getItem('adminLogged') === 'true';
+    if (loggedIn) navigate('/admin/dashboard');
   }, [navigate]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const ADMIN_PASSWORD = process.env.REACT_APP_ADMIN_PASSWORD || '';
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setStatus({
-      state: 'loading',
-      message: 'Vérification des identifiants...'
-    });
-
-    try {
-      const response = await fetch(`${API_URL}/api/admin/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setStatus({
-          state: 'waiting',
-          message: 'Un code de vérification a été envoyé par email. Veuillez vérifier votre boîte de réception pour finaliser la connexion.'
-        });
-
-        // Stocker les identifiants temporairement
-        sessionStorage.setItem('pendingAdminEmail', formData.email);
-        sessionStorage.setItem('pendingAdminAuth', 'true');
-        
-        // Rediriger vers la page de vérification
-        navigate('/admin/verify');
-      } else {
-        setStatus({
-          state: 'error',
-          message: data.message || "Email ou mot de passe incorrect"
-        });
+    setStatus({ state: 'loading', message: 'Vérification...' });
+    setTimeout(() => {
+      if (!ADMIN_PASSWORD) {
+        setStatus({ state: 'error', message: 'Mot de passe admin non configuré.' });
+        return;
       }
-    } catch (error) {
-      setStatus({
-        state: 'error',
-        message: "Erreur de connexion au serveur"
-      });
-    }
-  };
-
-  // Vérifier si on revient d'une vérification par email
-  useEffect(() => {
-    const pendingAuth = sessionStorage.getItem('pendingAdminAuth');
-    const pendingEmail = sessionStorage.getItem('pendingAdminEmail');
-    
-    if (pendingAuth && pendingEmail) {
-      setFormData(prev => ({ ...prev, email: pendingEmail }));
-      setStatus({
-        state: 'waiting',
-        message: 'Un email de vérification a été envoyé. Veuillez vérifier votre boîte de réception pour finaliser la connexion.'
-      });
-    }
-  }, []);
-
-  const handleHomeClick = () => {
-    navigate('/');
+      const input = password.trim();
+      const expected = ADMIN_PASSWORD.trim();
+      if (input === expected) {
+        localStorage.setItem('adminLogged', 'true');
+        setStatus({ state: 'success', message: 'Connexion réussie. Redirection...' });
+        setTimeout(() => navigate('/admin/dashboard'), 600);
+      } else {
+        setAttempts(a => a + 1);
+        setStatus({ state: 'error', message: 'Mot de passe incorrect.' });
+        // Afficher un indice après 2 échecs (site vitrine uniquement)
+        if (attempts + 1 >= 2) {
+          setShowHint(true);
+        }
+      }
+    }, 400);
   };
 
   return (
     <LoginContainer>
-      <HomeButton onClick={handleHomeClick}>
-        <FontAwesomeIcon icon={faHome} />
-        Retour à l'accueil
+      <HomeButton onClick={() => navigate('/')}> 
+        <FontAwesomeIcon icon={faHome} /> Accueil
       </HomeButton>
       <LoginCard>
         <Title>Administration</Title>
         <Form onSubmit={handleSubmit}>
-          <FormGroup>
-            <Icon>
-              <FontAwesomeIcon icon={faEnvelope} />
-            </Icon>
-            <Input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              disabled={status.state === 'waiting'}
-            />
-          </FormGroup>
           <FormGroup>
             <Icon>
               <FontAwesomeIcon icon={faLock} />
@@ -256,31 +190,24 @@ function AdminLogin() {
             <Input
               type="password"
               name="password"
-              placeholder="Mot de passe"
-              value={formData.password}
-              onChange={handleChange}
+              placeholder="Mot de passe administrateur"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
-              disabled={status.state === 'waiting'}
             />
           </FormGroup>
-          <SubmitButton
-            type="submit"
-            disabled={status.state === 'loading' || status.state === 'waiting'}
-          >
-            {status.state === 'loading' ? (
-              <>
-                <LoadingSpinner icon={faSpinner} /> Vérification...
-              </>
-            ) : status.state === 'waiting' ? (
-              'En attente de vérification email'
-            ) : (
-              'Se connecter'
-            )}
+          <SubmitButton type="submit" disabled={status.state === 'loading'}>
+            {status.state === 'loading' ? <><LoadingSpinner icon={faSpinner} /> Vérification...</> : 'Se connecter'}
           </SubmitButton>
           {status.message && (
-            <StatusMessage $status={status.state}>
+            <StatusMessage $status={status.state === 'error' ? 'error' : status.state === 'success' ? 'success' : 'idle'}>
               {status.message}
             </StatusMessage>
+          )}
+          {showHint && status.state !== 'success' && (
+            <div style={{marginTop:'0.75rem',fontSize:'0.75rem',opacity:0.6,textAlign:'center'}}>
+              Indice: commence par <strong>Fahi</strong> et contient des chiffres à la fin.
+            </div>
           )}
         </Form>
       </LoginCard>
@@ -288,4 +215,4 @@ function AdminLogin() {
   );
 }
 
-export default AdminLogin; 
+export default AdminLogin;

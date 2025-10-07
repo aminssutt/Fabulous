@@ -53,7 +53,7 @@ function Footer() {
         <Copyright>
           © {currentYear} Fabulous. Tous droits réservés.
         </Copyright>
-        <AdminLink to="/admin">
+  <AdminLink to="/admin"> {/* simple password gate */}
           <FontAwesomeIcon icon={faLock} />
           Administrateur
         </AdminLink>

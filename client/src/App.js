@@ -9,10 +9,9 @@ import About from './components/About';
 import Services from './components/Services';
 import Portfolio from './components/Portfolio';
 import Testimonials from './components/Testimonials';
-import Appointment from './components/Appointment';
+// Appointment removed (site vitrine)
 import Footer from './components/Footer';
 import AdminLogin from './components/Admin/AdminLogin';
-import AdminVerify from './components/Admin/AdminVerify';
 import AdminDashboard from './components/Admin/AdminDashboard';
 
 function App() {
@@ -22,7 +21,6 @@ function App() {
         <GlobalStyle />
         <Routes>
           <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/verify" element={<AdminVerify />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/" element={
             <>
@@ -32,7 +30,6 @@ function App() {
               <Services />
               <Portfolio />
               <Testimonials />
-              <Appointment />
               <Footer />
             </>
           } />

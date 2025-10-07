@@ -1,4 +1,4 @@
-# Fabulous - Système de Gestion de Rendez-vous
+# Fabulous - Site Vitrine (Version Allégée Sans Backend)
 
 ## Structure du Projet
 
@@ -16,63 +16,58 @@ fabulous/
 	├── server.js        # Serveur Express
 	└── .env            # Variables d'environnement
 ```
-### Variables d'environnement requises
+### Variables d'environnement (Client uniquement)
 
-#### Serveur
-- MONGODB_URI
-- JWT_SECRET
-- ADMIN_EMAIL
-- ADMIN_PASSWORD
-- EMAIL_USER
-- EMAIL_PASS
+Créé maintenant en mode purement frontend.
 
-#### Client
-- REACT_APP_API_URL
-- PORT
+Client :
+- REACT_APP_ADMIN_PASSWORD = Mot de passe pour accéder au mini panneau d'administration (galerie).
 
-## Installation
+## Installation (Nouvelle Version Simplifiée)
 
-1. Installer les dépendances pour le client et le serveur :
+1. Aller dans le dossier `client` et installer :
 ```bash
-npm run install-all
+cd client
+npm install
 ```
-
-2. Configurer MongoDB :
-- Installer MongoDB sur votre machine
-- Créer une base de données nommée 'fabulous'
-
-3. Configurer les variables d'environnement :
-- Copier le fichier `.env.example` vers `.env` dans le dossier server
-- Remplir les variables d'environnement appropriées
+2. Copier `client/.env.example` vers `client/.env` et définir votre mot de passe :
+```bash
+REACT_APP_ADMIN_PASSWORD=MonSuperMotDePasseSecret
+```
+3. Lancer le site :
+```bash
+npm start
+```
 
 ## Démarrage
 
-Pour lancer l'application en mode développement :
-
+Mode développement React standard (plus de serveur Express requis) :
 ```bash
-npm run dev
+cd client
+npm start
 ```
+Le site tourne sur: http://localhost:3000
 
-Cela démarrera :
-- Le serveur backend sur http://localhost:5001
-- L'application frontend sur http://localhost:3000
+## Fonctionnalités (Version Actuelle)
 
-## Fonctionnalités
+- Site vitrine 100% statique (React + localStorage)
+- Accès admin simple par mot de passe (stocké côté build – pour démo uniquement)
+- Gestion d'une galerie dynamique (ajout d'URLs d'images + catégorisation)
+- Filtrage par catégorie dans la section Galerie / Portfolio
+- Témoignages statiques (avatars génériques, pas de photos de profil réelles)
 
-- Gestion des rendez-vous
-- Vérification des créneaux disponibles
-- Envoi d'emails de confirmation
-- Interface utilisateur réactive
+Supprimé :
+- Rendez-vous / calendrier
+- Emails
+- Auth multi-facteur
+- API / base de données
 
-## 🚀 Fonctionnalités
+## 🚀 Détails UI
 
 - Design moderne et épuré
-- Site responsive (mobile, tablette, desktop)
-- Sections interactives
-- Formulaire de prise de rendez-vous
-- Galerie de projets filtrable
-- Témoignages clients
-- Animations fluides
+- Responsive (mobile / tablette / desktop)
+- Animations légères
+- Galerie alimentée par localStorage (persistance navigateur)
 
 ## 🛠️ Technologies Utilisées
 
@@ -112,7 +107,9 @@ fabulous-website/
 │   │   ├── About.js
 │   │   ├── Portfolio.js
 │   │   ├── Services.js
-│   │   ├── Appointment.js
+│   │   ├── Admin/
+│   │   │   ├── AdminLogin.js
+│   │   │   └── AdminDashboard.js (galerie)
 │   │   ├── Testimonials.js
 │   │   └── Footer.js
 │   ├── App.js
@@ -121,13 +118,50 @@ fabulous-website/
 └── package.json
 \`\`\`
 
-## 📝 Todo
+## Déploiement GitHub Pages
 
-- [ ] Ajouter des images de projets
-- [ ] Intégrer une base de données pour les rendez-vous
-- [ ] Ajouter une authentification admin
-- [ ] Optimiser les performances
-- [ ] Ajouter des tests unitaires
+Deux approches possibles :
+
+1. (Actuelle) Utilisation du dossier `docs/` à la racine du repo pointé par GitHub Pages (branch `main`).
+2. (Alternative) Utiliser la branche `gh-pages` avec le package `gh-pages` (non configuré ici pour rester minimal).
+
+Déploiement avec la config actuelle :
+
+Depuis le dossier `client` :
+```
+npm install (une fois)
+npm run deploy
+```
+Ce script :
+- build le projet (`build/`)
+- supprime l'ancien dossier `docs` à la racine
+- copie le contenu du build dans `../docs`
+
+Ensuite pousser les changements :
+```
+git add docs
+git commit -m "build: maj"
+git push origin main
+```
+
+Dans les settings GitHub du repo :
+- Pages → Source = Deploy from a branch
+- Branch = main / folder = /docs
+
+URL finale : https://aminssutt.github.io/Fabulous
+
+Notes:
+- `homepage` est défini dans `client/package.json` pour corriger les chemins.
+- Les ressources statiques (favicon, manifest) fonctionnent via `%PUBLIC_URL%`.
+- Si tu changes le nom du repo, adapte le champ `homepage`.
+
+## 📝 Todo (Potentiel futur)
+
+- [ ] Export / import JSON de la galerie (déjà présent mais doc à clarifier)
+- [ ] Mini aperçu & validation des URLs (partiellement fait pour Imgur dans l'admin)
+- [ ] Support drag & drop + upload (ex: Cloudinary)
+- [ ] Hash côté build du mot de passe pour éviter le plain text (obfuscation minime)
+- [ ] Tests unitaires basiques
 
 ## 📄 Licence
 
