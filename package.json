@@ -1,0 +1,9 @@
+﻿{
+  "name": "fabulous-app",
+  "version": "1.0.0",
+  "description": "Fabulous Appointment Management System",
+  "scripts": {
+    "start": "cd client && npm start",
+    "build": "cd client && npm run build"
+  }
+}
