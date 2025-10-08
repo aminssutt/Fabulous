@@ -1,12 +1,1 @@
-[
-  {
-    "id": "example1",
-    "theme": "general",
-    "url": "https://images.unsplash.com/photo-1505691723518-36a5ac3b2fba?auto=format&fit=crop&w=800&q=60"
-  },
-  {
-    "id": "example2",
-    "theme": "residential",
-    "url": "https://images.unsplash.com/photo-1493666438817-866a91353ca9?auto=format&fit=crop&w=800&q=60"
-  }
-]
+[]
