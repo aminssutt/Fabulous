@@ -421,6 +421,7 @@ const EmptyState = styled.div`
 export default function Testimonials() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
   
@@ -446,6 +447,7 @@ export default function Testimonials() {
       console.error('Erreur lors du chargement des avis:', error);
     } finally {
       setLoading(false);
+      setInitialLoad(false);
     }
   };
 
@@ -509,8 +511,8 @@ export default function Testimonials() {
           </Subtitle>
         </SectionHeader>
         
-        {loading ? (
-          <Loading>Chargement des avis...</Loading>
+        {(loading || (initialLoad && reviews.length === 0)) ? (
+          <Loading>Chargement des avis en cours...</Loading>
         ) : reviews.length === 0 ? (
           <EmptyState>
             <h3>Aucun avis pour le moment</h3>

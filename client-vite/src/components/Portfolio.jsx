@@ -277,6 +277,7 @@ export default function Portfolio() {
   const [gallery, setGallery] = useState([]);
   const [filter, setFilter] = useState(ALL_KEY);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   useEffect(() => {
     const loadGallery = async () => {
@@ -290,6 +291,7 @@ export default function Portfolio() {
         console.error('Erreur lors du chargement de la galerie:', error);
       } finally {
         setLoading(false);
+        setInitialLoad(false);
       }
     };
 
@@ -302,7 +304,8 @@ export default function Portfolio() {
 
   const filtered = filter === ALL_KEY ? gallery : gallery.filter(g => g.theme === filter);
 
-  if (loading) {
+  // Show loading if still loading OR if initial load with no data
+  if (loading || (initialLoad && gallery.length === 0)) {
     return (
       <Section id="portfolio">
         <Container>
@@ -310,7 +313,7 @@ export default function Portfolio() {
             <Overline>Notre Portfolio</Overline>
             <Title>Réalisations</Title>
           </SectionHeader>
-          <Loading>Chargement de la galerie</Loading>
+          <Loading>Chargement des créations en cours...</Loading>
         </Container>
       </Section>
     );
