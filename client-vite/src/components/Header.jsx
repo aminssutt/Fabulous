@@ -61,11 +61,15 @@ const Menu = styled.ul`
   
   @media (max-width: 900px) {
     position: fixed;
-    inset: 0;
-    background: rgba(10, 10, 10, 0.98);
-    backdrop-filter: blur(20px);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #0a0a0a;
+    backdrop-filter: none;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     padding: 2rem;
     transform: ${p => p.$open ? 'translateX(0)' : 'translateX(100%)'};
     transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);

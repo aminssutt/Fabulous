@@ -203,6 +203,11 @@ const FormSection = styled.div`
   position: relative;
   overflow: hidden;
   
+  @media (max-width: 600px) {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+  
   &::before {
     content: '';
     position: absolute;
@@ -297,6 +302,12 @@ const RatingContainer = styled.div`
   gap: 0.5rem;
   align-items: center;
   padding: 0.5rem 0;
+  flex-wrap: wrap;
+  
+  @media (max-width: 600px) {
+    gap: 0.25rem;
+    justify-content: center;
+  }
 `;
 
 const StarButton = styled.button`
@@ -312,6 +323,11 @@ const StarButton = styled.button`
     color: ${p => p.theme.colors.primary};
     transform: scale(1.15);
   }
+  
+  @media (max-width: 600px) {
+    font-size: 1.5rem;
+    padding: 0.15rem;
+  }
 `;
 
 const RatingText = styled.span`
@@ -319,6 +335,13 @@ const RatingText = styled.span`
   font-size: 0.9rem;
   color: ${p => p.theme.colors.primary};
   font-weight: 500;
+  
+  @media (max-width: 600px) {
+    width: 100%;
+    text-align: center;
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
 `;
 
 const SubmitBtn = styled.button`
