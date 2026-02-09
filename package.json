@@ -1,9 +1,15 @@
-﻿{
-  "name": "fabulous-app",
+{
+  "name": "fabulous-root",
+  "private": true,
   "version": "1.0.0",
-  "description": "Fabulous Appointment Management System",
+  "description": "Root wrapper for Fabulous static site (client in ./client)",
+  "license": "MIT",
   "scripts": {
     "start": "cd client && npm start",
-    "build": "cd client && npm run build"
+    "build": "cd client && npm run build",
+    "deploy": "cd client && npm run deploy"
+  },
+  "dependencies": {
+    "react-router-dom": "^6.30.1"
   }
 }

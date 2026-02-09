@@ -118,42 +118,49 @@ fabulous-website/
 └── package.json
 \`\`\`
 
-## Déploiement GitHub Pages
+## Déploiement GitHub Pages (Branche gh-pages)
 
-Deux approches possibles :
+La configuration utilise maintenant le package `gh-pages` et publie le dossier `build/` directement sur une branche `gh-pages`.
 
-1. (Actuelle) Utilisation du dossier `docs/` à la racine du repo pointé par GitHub Pages (branch `main`).
-2. (Alternative) Utiliser la branche `gh-pages` avec le package `gh-pages` (non configuré ici pour rester minimal).
-
-Déploiement avec la config actuelle :
-
-Depuis le dossier `client` :
+Pré-requis :
 ```
-npm install (une fois)
+cd client
+npm install
+```
+### Déploiement GitHub Pages
+
+Depuis le dossier `client-vite` :
+
+1. Installer les dépendances si pas déjà fait: `npm install`
+2. Construire le build production: `npm run build`
+3. Déployer sur la branche gh-pages: `npm run deploy:gh`
+
+Le script `deploy:gh` crée (ou met à jour) la branche `gh-pages` avec le contenu du dossier `dist`.
+
+Assurez-vous que le repo distant existe et que vous avez les droits de push. La config `base: '/Fabulous/'` dans `vite.config.js` est nécessaire pour GitHub Pages (chemins relatifs corrects).
+
+Si vous utilisez une autre URL (ex: changement de nom du repo), mettre à jour la propriété `base`.
+
+
+Déployer :
+```
+cd client
 npm run deploy
 ```
 Ce script :
-- build le projet (`build/`)
-- supprime l'ancien dossier `docs` à la racine
-- copie le contenu du build dans `../docs`
+- lance `npm run build`
+- pousse le contenu du dossier `build` sur la branche `gh-pages`
 
-Ensuite pousser les changements :
-```
-git add docs
-git commit -m "build: maj"
-git push origin main
-```
+Sur GitHub (Settings > Pages) :
+- Source = Deploy from a branch
+- Branch = gh-pages (root)
 
-Dans les settings GitHub du repo :
-- Pages → Source = Deploy from a branch
-- Branch = main / folder = /docs
-
-URL finale : https://aminssutt.github.io/Fabulous
+URL attendue : https://aminssutt.github.io/Fabulous
 
 Notes:
-- `homepage` est défini dans `client/package.json` pour corriger les chemins.
-- Les ressources statiques (favicon, manifest) fonctionnent via `%PUBLIC_URL%`.
-- Si tu changes le nom du repo, adapte le champ `homepage`.
+- `homepage` dans `client/package.json` assure les chemins corrects.
+- Si tu renommes le repo, mets à jour ce champ.
+- Pour nettoyer un ancien dossier `docs`, tu peux simplement le supprimer si présent.
 
 ## 📝 Todo (Potentiel futur)
 
