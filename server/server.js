@@ -58,8 +58,33 @@ app.use((req, res, next) => {
   next();
 });
 
+// Configuration CORS dynamique pour accepter toutes les URLs Vercel
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  /^https:\/\/fabulous.*\.vercel\.app$/,  // Toutes les URLs Vercel de fabulous
+];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: function(origin, callback) {
+    // Permettre les requêtes sans origin (Postman, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    // Vérifier si l'origin correspond à un pattern autorisé
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (allowed instanceof RegExp) {
+        return allowed.test(origin);
+      }
+      return allowed === origin;
+    });
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.log('CORS bloqué pour:', origin);
+      callback(new Error('Non autorisé par CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
