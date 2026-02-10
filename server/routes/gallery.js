@@ -72,9 +72,9 @@ router.post('/upload', authenticateAdmin, upload.single('image'), async (req, re
       return res.status(400).json({ message: 'Aucun fichier fourni' });
     }
 
-    const { theme } = req.body;
-    if (!theme || !['general', 'residential', 'commercial'].includes(theme)) {
-      return res.status(400).json({ message: 'Thème invalide' });
+    const { theme, title, description } = req.body;
+    if (!theme) {
+      return res.status(400).json({ message: 'Catégorie requise' });
     }
 
     // Générer un nom de fichier unique
@@ -106,7 +106,9 @@ router.post('/upload', authenticateAdmin, upload.single('image'), async (req, re
           url: publicUrl,
           theme: theme,
           filename: fileName,
-          storage_path: filePath
+          storage_path: filePath,
+          title: title || null,
+          description: description || null
         }
       ])
       .select()
@@ -119,6 +121,36 @@ router.post('/upload', authenticateAdmin, upload.single('image'), async (req, re
     console.error('Erreur lors de l\'upload:', error);
     res.status(500).json({ 
       message: 'Erreur lors de l\'upload de l\'image',
+      error: error.message 
+    });
+  }
+});
+
+// PUT - Mettre à jour une image (protégé)
+router.put('/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, theme } = req.body;
+
+    const updateData = {};
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (theme !== undefined) updateData.theme = theme;
+
+    const { data, error } = await supabase
+      .from('gallery_images')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour:', error);
+    res.status(500).json({ 
+      message: 'Erreur lors de la mise à jour de l\'image',
       error: error.message 
     });
   }

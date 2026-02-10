@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { API_URL } from '../config';
 
 // Animations
@@ -11,11 +13,6 @@ const shimmer = keyframes`
 const fadeIn = keyframes`
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
-`;
-
-const slideUp = keyframes`
-  from { opacity: 0; transform: translateY(100%); }
-  to { opacity: 1; transform: translateY(0); }
 `;
 
 const Section = styled.section`
@@ -95,7 +92,7 @@ const Filters = styled.div`
 
 const FilterBtn = styled.button`
   position: relative;
-  background: ${p => p.$active ? 'transparent' : 'transparent'};
+  background: transparent;
   color: ${p => p.$active ? p.theme.colors.primary : p.theme.colors.textMuted || 'rgba(245, 245, 245, 0.5)'};
   border: none;
   padding: 0.75rem 1.5rem;
@@ -132,7 +129,7 @@ const Grid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
   
-  @media (max-width: ${p => p.theme.breakpoints.mobile}) {
+  @media (max-width: ${p => p.theme.breakpoints?.mobile || '480px'}) {
     grid-template-columns: 1fr;
   }
 `;
@@ -225,6 +222,13 @@ const ItemBadge = styled.span`
   text-transform: uppercase;
 `;
 
+const ItemTitle = styled.p`
+  margin: 0.5rem 0 0;
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+`;
+
 const Loading = styled.div`
   text-align: center;
   padding: 4rem;
@@ -265,47 +269,208 @@ const EmptyState = styled.div`
   }
 `;
 
-const RAW_THEMES = ['general', 'residential', 'commercial'];
-const THEME_LABELS = {
-  general: 'Général',
-  residential: 'Résidentiel',
-  commercial: 'Commercial'
-};
+// Modal Components
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: ${fadeIn} 0.3s ease;
+`;
+
+const ModalContent = styled.div`
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  
+  @media (max-width: 768px) {
+    max-height: 85vh;
+  }
+`;
+
+const ModalImage = styled.div`
+  position: relative;
+  width: 100%;
+  max-height: 60vh;
+  border-radius: 12px;
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #111;
+  }
+`;
+
+const ModalInfo = styled.div`
+  padding: 1.5rem 0;
+  color: white;
+`;
+
+const ModalTitle = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 0 0 0.5rem;
+  color: ${p => p.theme.colors.primary};
+`;
+
+const ModalCategory = styled.span`
+  display: inline-block;
+  background: rgba(212, 175, 55, 0.2);
+  color: ${p => p.theme.colors.primary};
+  padding: 0.3rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+`;
+
+const ModalDescription = styled.p`
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+`;
+
+const ModalClose = styled.button`
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  z-index: 1001;
+  
+  &:hover {
+    background: rgba(229, 57, 53, 0.5);
+    transform: scale(1.1);
+  }
+`;
+
+const NavButton = styled.button`
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  ${p => p.$left ? 'left: 1rem;' : 'right: 1rem;'}
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  z-index: 1001;
+  
+  &:hover {
+    background: rgba(212, 175, 55, 0.5);
+    transform: translateY(-50%) scale(1.1);
+  }
+  
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+`;
+
 const ALL_KEY = 'ALL__ALL';
 
 export default function Portfolio() {
   const [gallery, setGallery] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [filter, setFilter] = useState(ALL_KEY);
   const [loading, setLoading] = useState(true);
-  const [initialLoad, setInitialLoad] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
-    const loadGallery = async () => {
+    const loadData = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/gallery`);
-        if (response.ok) {
-          const data = await response.json();
+        // Load gallery and categories in parallel
+        const [galleryRes, categoriesRes] = await Promise.all([
+          fetch(`${API_URL}/api/gallery`),
+          fetch(`${API_URL}/api/categories`)
+        ]);
+        
+        if (galleryRes.ok) {
+          const data = await galleryRes.json();
           setGallery(Array.isArray(data) ? data : []);
         }
+        
+        if (categoriesRes.ok) {
+          const cats = await categoriesRes.json();
+          setCategories(Array.isArray(cats) ? cats : []);
+        }
       } catch (error) {
-        console.error('Erreur lors du chargement de la galerie:', error);
+        console.error('Erreur lors du chargement:', error);
       } finally {
         setLoading(false);
-        setInitialLoad(false);
       }
     };
 
-    loadGallery();
+    loadData();
 
-    const handler = () => loadGallery();
+    // Listen for gallery updates from admin
+    const handler = () => loadData();
     window.addEventListener('gallery-update', handler);
     return () => window.removeEventListener('gallery-update', handler);
   }, []);
 
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setSelectedImage(null);
+      if (selectedImage) {
+        if (e.key === 'ArrowLeft') navigateImage(-1);
+        if (e.key === 'ArrowRight') navigateImage(1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage, gallery, filter]);
+
   const filtered = filter === ALL_KEY ? gallery : gallery.filter(g => g.theme === filter);
 
-  // Show loading if still loading OR if initial load with no data
-  if (loading || (initialLoad && gallery.length === 0)) {
+  const getCategoryLabel = (slug) => {
+    const cat = categories.find(c => c.slug === slug);
+    return cat?.label || slug || 'Non classé';
+  };
+
+  const navigateImage = (direction) => {
+    const currentIndex = filtered.findIndex(img => img.id === selectedImage.id);
+    if (currentIndex === -1) return;
+    
+    let newIndex = currentIndex + direction;
+    if (newIndex < 0) newIndex = filtered.length - 1;
+    if (newIndex >= filtered.length) newIndex = 0;
+    
+    setSelectedImage(filtered[newIndex]);
+  };
+
+  if (loading) {
     return (
       <Section id="portfolio">
         <Container>
@@ -338,13 +503,13 @@ export default function Portfolio() {
           >
             Tous les projets
           </FilterBtn>
-          {RAW_THEMES.map(t => (
+          {categories.map(cat => (
             <FilterBtn 
-              key={t} 
-              $active={filter === t} 
-              onClick={() => setFilter(t)}
+              key={cat.id} 
+              $active={filter === cat.slug} 
+              onClick={() => setFilter(cat.slug)}
             >
-              {THEME_LABELS[t] || t}
+              {cat.label}
             </FilterBtn>
           ))}
         </Filters>
@@ -354,7 +519,7 @@ export default function Portfolio() {
             <h3>
               {filter === ALL_KEY 
                 ? 'Notre galerie est en préparation' 
-                : `Aucun projet ${THEME_LABELS[filter] || filter}`}
+                : `Aucun projet dans cette catégorie`}
             </h3>
             <p>
               {filter === ALL_KEY 
@@ -365,16 +530,61 @@ export default function Portfolio() {
         ) : (
           <Grid>
             {filtered.map((img, index) => (
-              <Item key={img.id} $delay={`${index * 0.1}s`}>
-                <Thumb src={img.url} alt={img.theme || 'Projet'} loading="lazy" />
+              <Item 
+                key={img.id} 
+                $delay={`${index * 0.1}s`}
+                onClick={() => setSelectedImage(img)}
+              >
+                <Thumb src={img.url} alt={img.title || 'Projet'} loading="lazy" />
                 <ItemOverlay>
-                  <ItemBadge>{THEME_LABELS[img.theme] || img.theme}</ItemBadge>
+                  <ItemBadge>{getCategoryLabel(img.theme)}</ItemBadge>
+                  {img.title && <ItemTitle>{img.title}</ItemTitle>}
                 </ItemOverlay>
               </Item>
             ))}
           </Grid>
         )}
       </Container>
+
+      {/* Image Detail Modal */}
+      {selectedImage && (
+        <ModalOverlay onClick={() => setSelectedImage(null)}>
+          <ModalClose onClick={() => setSelectedImage(null)}>
+            <FontAwesomeIcon icon={faTimes} />
+          </ModalClose>
+          
+          {filtered.length > 1 && (
+            <>
+              <NavButton $left onClick={(e) => { e.stopPropagation(); navigateImage(-1); }}>
+                <FontAwesomeIcon icon={faChevronLeft} />
+              </NavButton>
+              <NavButton onClick={(e) => { e.stopPropagation(); navigateImage(1); }}>
+                <FontAwesomeIcon icon={faChevronRight} />
+              </NavButton>
+            </>
+          )}
+          
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalImage>
+              <img src={selectedImage.url} alt={selectedImage.title || 'Projet'} />
+            </ModalImage>
+            <ModalInfo>
+              <ModalCategory>{getCategoryLabel(selectedImage.theme)}</ModalCategory>
+              {selectedImage.title && (
+                <ModalTitle>{selectedImage.title}</ModalTitle>
+              )}
+              {selectedImage.description && (
+                <ModalDescription>{selectedImage.description}</ModalDescription>
+              )}
+              {!selectedImage.title && !selectedImage.description && (
+                <ModalDescription style={{ fontStyle: 'italic', opacity: 0.5 }}>
+                  Cliquez sur les flèches ou utilisez les touches ← → pour naviguer
+                </ModalDescription>
+              )}
+            </ModalInfo>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </Section>
   );
 }

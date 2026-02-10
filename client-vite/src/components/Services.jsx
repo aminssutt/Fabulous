@@ -1,7 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCouch, faLightbulb, faRulerCombined, faPalette, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { 
+  faCouch, faLightbulb, faRulerCombined, faPalette, faArrowRight,
+  faGem, faHome, faPaintBrush, faCube, faHammer, faMagic, faSpinner
+} from '@fortawesome/free-solid-svg-icons';
+import { API_URL } from '../config';
+
+// Map icon names to FontAwesome icons
+const ICON_MAP = {
+  faCouch: faCouch,
+  faLightbulb: faLightbulb,
+  faRulerCombined: faRulerCombined,
+  faPalette: faPalette,
+  faGem: faGem,
+  faHome: faHome,
+  faPaintBrush: faPaintBrush,
+  faCube: faCube,
+  faHammer: faHammer,
+  faMagic: faMagic
+};
 
 // Animations
 const shimmer = keyframes`
@@ -82,14 +100,10 @@ const Subtitle = styled.p`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
   
-  @media (max-width: ${p => p.theme.breakpoints.tablet}) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  @media (max-width: ${p => p.theme.breakpoints.mobile}) {
+  @media (max-width: ${p => p.theme.breakpoints?.mobile || '480px'}) {
     grid-template-columns: 1fr;
   }
 `;
@@ -209,30 +223,76 @@ const LearnMore = styled.div`
   }
 `;
 
-const services = [
+const Loading = styled.div`
+  text-align: center;
+  padding: 4rem;
+  color: ${p => p.theme.colors.primary};
+  font-size: 1.2rem;
+`;
+
+// Fallback services if API fails or is empty
+const FALLBACK_SERVICES = [
   { 
-    icon: faCouch, 
+    icon: 'faCouch', 
     title: 'Design Intérieur', 
-    desc: "Création d'espaces harmonieux et fonctionnels qui reflètent votre personnalité unique."
+    description: "Création d'espaces harmonieux et fonctionnels qui reflètent votre personnalité unique."
   },
   { 
-    icon: faLightbulb, 
+    icon: 'faLightbulb', 
     title: 'Conseil & Concept', 
-    desc: 'Accompagnement personnalisé pour définir votre identité décorative avec précision.'
+    description: 'Accompagnement personnalisé pour définir votre identité décorative avec précision.'
   },
   { 
-    icon: faRulerCombined, 
+    icon: 'faRulerCombined', 
     title: 'Sur Mesure', 
-    desc: 'Optimisation des volumes et agencement intelligent pour maximiser chaque espace.'
+    description: 'Optimisation des volumes et agencement intelligent pour maximiser chaque espace.'
   },
   { 
-    icon: faPalette, 
+    icon: 'faPalette', 
     title: 'Matériaux Nobles', 
-    desc: 'Sélection de textures et finitions exclusives pour un rendu véritablement unique.'
+    description: 'Sélection de textures et finitions exclusives pour un rendu véritablement unique.'
   }
 ];
 
 export default function Services() {
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadServices = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/services`);
+        if (res.ok) {
+          const data = await res.json();
+          setServices(data.length > 0 ? data : FALLBACK_SERVICES);
+        } else {
+          setServices(FALLBACK_SERVICES);
+        }
+      } catch (error) {
+        console.error('Erreur chargement services:', error);
+        setServices(FALLBACK_SERVICES);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadServices();
+  }, []);
+
+  if (loading) {
+    return (
+      <Section id="services">
+        <Container>
+          <SectionHeader>
+            <Overline>Ce Que Nous Offrons</Overline>
+            <Title>Nos Services</Title>
+          </SectionHeader>
+          <Loading><FontAwesomeIcon icon={faSpinner} spin /> Chargement...</Loading>
+        </Container>
+      </Section>
+    );
+  }
+
   return (
     <Section id="services">
       <Container>
@@ -247,12 +307,12 @@ export default function Services() {
         
         <Grid>
           {services.map((s, index) => (
-            <Card key={s.title} style={{ animationDelay: `${index * 0.1}s` }}>
+            <Card key={s.id || s.title} style={{ animationDelay: `${index * 0.1}s` }}>
               <IconWrap>
-                <FontAwesomeIcon icon={s.icon} />
+                <FontAwesomeIcon icon={ICON_MAP[s.icon] || faGem} />
               </IconWrap>
               <h3>{s.title}</h3>
-              <p>{s.desc}</p>
+              <p>{s.description}</p>
               <LearnMore>
                 En savoir plus <FontAwesomeIcon icon={faArrowRight} />
               </LearnMore>

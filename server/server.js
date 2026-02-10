@@ -18,6 +18,8 @@ const hpp = require('hpp');
 const galleryRoutes = require('./routes/gallery');
 const appointmentsRoutes = require('./routes/appointments');
 const reviewsRoutes = require('./routes/reviews');
+const servicesRoutes = require('./routes/services');
+const categoriesRoutes = require('./routes/categories');
 
 const app = express();
 
@@ -360,6 +362,12 @@ app.use('/api/appointments', appointmentsRoutes);
 
 // Routes des avis
 app.use('/api/reviews', reviewsRoutes);
+
+// Routes des services
+app.use('/api/services', servicesRoutes);
+
+// Routes des catégories
+app.use('/api/categories', categoriesRoutes);
 
 // Route protégée pour récupérer les rendez-vous admin
 app.get('/api/admin/appointments', authenticateAdmin, async (req, res) => {

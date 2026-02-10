@@ -4,12 +4,13 @@ import styled, { keyframes } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faHome, faTrash, faSignOutAlt, faImages, faPlus, faUpload, 
-  faComments, faStar, faCalendarAlt, faTimes, faSpinner,
-  faCheck, faClock, faCheckCircle, faTimesCircle
+  faComments, faStar, faTimes, faSpinner, faCheck, faClock, 
+  faCheckCircle, faTimesCircle, faCog, faLayerGroup, faEdit,
+  faSave
 } from '@fortawesome/free-solid-svg-icons';
 import { API_URL } from '../../config';
 
-// Animations
+// ==================== ANIMATIONS ====================
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -20,12 +21,7 @@ const shimmer = keyframes`
   100% { background-position: 200% 0; }
 `;
 
-const pulse = keyframes`
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-`;
-
-// Styled Components
+// ==================== STYLED COMPONENTS ====================
 const Wrap = styled.div`
   min-height: 100vh;
   background: ${p => p.theme.colors.background};
@@ -59,7 +55,7 @@ const Title = styled.h1`
 
 const Nav = styled.nav`
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
 `;
 
@@ -67,14 +63,14 @@ const Btn = styled.button`
   background: ${p => p.$active ? 'linear-gradient(135deg, #D4AF37, #AA771C)' : 'rgba(212, 175, 55, 0.1)'};
   color: ${p => p.$active ? p.theme.colors.background : p.theme.colors.primary};
   border: 1px solid ${p => p.$active ? 'transparent' : 'rgba(212, 175, 55, 0.2)'};
-  padding: 0.75rem 1.25rem;
+  padding: 0.6rem 1rem;
   border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-weight: 500;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   letter-spacing: 0.5px;
   transition: all 0.3s ease;
   
@@ -82,44 +78,11 @@ const Btn = styled.button`
     background: ${p => p.$active ? 'linear-gradient(135deg, #D4AF37, #AA771C)' : 'rgba(212, 175, 55, 0.2)'};
     transform: translateY(-2px);
   }
-`;
-
-const TabContainer = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-  padding-bottom: 1rem;
-`;
-
-const Tab = styled.button`
-  background: ${p => p.$active ? 'rgba(212, 175, 55, 0.15)' : 'transparent'};
-  color: ${p => p.$active ? p.theme.colors.primary : 'rgba(255, 255, 255, 0.5)'};
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 500;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
   
-  &:hover {
-    background: rgba(212, 175, 55, 0.1);
-    color: ${p => p.theme.colors.primary};
+  @media (max-width: 768px) {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
   }
-`;
-
-const TabBadge = styled.span`
-  background: ${p => p.$warning ? '#FFA726' : p.theme.colors.primary};
-  color: ${p => p.theme.colors.background};
-  padding: 0.15rem 0.5rem;
-  border-radius: 10px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  animation: ${p => p.$warning && p.$count > 0 ? pulse : 'none'} 2s ease infinite;
 `;
 
 const Box = styled.div`
@@ -128,6 +91,10 @@ const Box = styled.div`
   border-radius: 16px;
   padding: 2rem;
   animation: ${fadeIn} 0.5s ease;
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -140,46 +107,173 @@ const SectionTitle = styled.h2`
   gap: 0.75rem;
 `;
 
-const SubTabContainer = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 0.5rem;
-  border-radius: 10px;
-  width: fit-content;
-`;
-
-const SubTab = styled.button`
-  background: ${p => p.$active ? 'rgba(212, 175, 55, 0.2)' : 'transparent'};
-  color: ${p => p.$active ? p.theme.colors.primary : 'rgba(255, 255, 255, 0.5)'};
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-weight: 500;
-  font-size: 0.85rem;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: rgba(212, 175, 55, 0.1);
-    color: ${p => p.theme.colors.primary};
-  }
-`;
-
 const Form = styled.form`
   display: grid;
   gap: 1rem;
   margin: 0 0 2rem;
 `;
 
+const FormRow = styled.div`
+  display: grid;
+  grid-template-columns: ${p => p.$cols || '1fr'};
+  gap: 1rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const Input = styled.input`
+  padding: 0.9rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 10px;
+  color: ${p => p.theme.colors.text};
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  
+  &::placeholder { color: rgba(255, 255, 255, 0.3); }
+  &:focus { outline: none; border-color: ${p => p.theme.colors.primary}; }
+`;
+
+const TextArea = styled.textarea`
+  padding: 0.9rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 10px;
+  color: ${p => p.theme.colors.text};
+  font-size: 0.95rem;
+  min-height: 80px;
+  resize: vertical;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  
+  &::placeholder { color: rgba(255, 255, 255, 0.3); }
+  &:focus { outline: none; border-color: ${p => p.theme.colors.primary}; }
+`;
+
+const Select = styled.select`
+  padding: 0.9rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 10px;
+  color: ${p => p.theme.colors.text};
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  
+  &:focus { outline: none; border-color: ${p => p.theme.colors.primary}; }
+  option { background: #1a1a1a; }
+`;
+
+const ActionBtn = styled.button`
+  background: ${p => p.$danger ? 'rgba(229, 57, 53, 0.2)' : p.$success ? 'rgba(76, 175, 80, 0.2)' : 'linear-gradient(135deg, #D4AF37, #AA771C)'};
+  color: ${p => p.$danger ? '#E53935' : p.$success ? '#4CAF50' : p.theme.colors.background};
+  border: 1px solid ${p => p.$danger ? 'rgba(229, 57, 53, 0.3)' : p.$success ? 'rgba(76, 175, 80, 0.3)' : 'transparent'};
+  padding: ${p => p.$small ? '0.5rem 0.75rem' : '0.9rem 1.5rem'};
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: ${p => p.$small ? '0.75rem' : '0.9rem'};
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  
+  &:hover { transform: translateY(-2px); opacity: 0.9; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(${p => p.$min || '200px'}, 1fr));
+  gap: 1rem;
+`;
+
+const Card = styled.div`
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+  position: relative;
+  
+  &:hover { border-color: rgba(212, 175, 55, 0.3); }
+`;
+
+const CardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+`;
+
+const CardTitle = styled.h3`
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: ${p => p.theme.colors.primary};
+`;
+
+const CardDesc = styled.p`
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.5;
+`;
+
+const CardActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+`;
+
+const IconBtn = styled.button`
+  background: ${p => p.$danger ? 'rgba(229, 57, 53, 0.2)' : 'rgba(212, 175, 55, 0.1)'};
+  color: ${p => p.$danger ? '#E53935' : p.theme.colors.primary};
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+  
+  &:hover { transform: scale(1.1); }
+`;
+
+const Badge = styled.span`
+  background: ${p => p.$color || 'rgba(212, 175, 55, 0.2)'};
+  color: ${p => p.$textColor || p.theme.colors.primary};
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+`;
+
+const Message = styled.div`
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  background: ${p => p.$error ? 'rgba(229, 57, 53, 0.1)' : 'rgba(76, 175, 80, 0.1)'};
+  border: 1px solid ${p => p.$error ? 'rgba(229, 57, 53, 0.3)' : 'rgba(76, 175, 80, 0.3)'};
+  color: ${p => p.$error ? '#E53935' : '#4CAF50'};
+`;
+
+const Loading = styled.div`
+  text-align: center;
+  padding: 3rem;
+  color: ${p => p.theme.colors.primary};
+  font-size: 1.1rem;
+`;
+
 const UploadArea = styled.div`
   border: 2px dashed rgba(212, 175, 55, 0.3);
   border-radius: 12px;
-  padding: 2.5rem;
+  padding: 2rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -191,17 +285,10 @@ const UploadArea = styled.div`
   }
 `;
 
-const PreviewContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-`;
-
-const PreviewItem = styled.div`
+const PreviewImage = styled.div`
   position: relative;
   aspect-ratio: 1;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   background: #111;
   
@@ -212,877 +299,808 @@ const PreviewItem = styled.div`
   }
 `;
 
-const RemovePreview = styled.button`
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(229, 57, 53, 0.9);
-  color: #fff;
+const SubTab = styled.button`
+  background: ${p => p.$active ? 'rgba(212, 175, 55, 0.2)' : 'transparent'};
+  color: ${p => p.$active ? p.theme.colors.primary : 'rgba(255, 255, 255, 0.5)'};
   border: none;
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 0.7rem;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: #E53935;
-  }
-`;
-
-const Select = styled.select`
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 10px;
-  color: ${p => p.theme.colors.text};
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  
-  &:focus {
-    outline: none;
-    border-color: ${p => p.theme.colors.primary};
-  }
-  
-  option {
-    background: #1a1a1a;
-  }
-`;
-
-const Input = styled.input`
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 10px;
-  color: ${p => p.theme.colors.text};
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-  }
-  
-  &:focus {
-    outline: none;
-    border-color: ${p => p.theme.colors.primary};
-  }
-`;
-
-const TextArea = styled.textarea`
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 10px;
-  color: ${p => p.theme.colors.text};
-  font-size: 1rem;
-  min-height: 100px;
-  resize: vertical;
-  font-family: inherit;
-  transition: all 0.3s ease;
-  
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-  }
-  
-  &:focus {
-    outline: none;
-    border-color: ${p => p.theme.colors.primary};
-  }
-`;
-
-const UploadBtn = styled.button`
-  background: ${p => p.disabled ? 'rgba(212, 175, 55, 0.3)' : 'linear-gradient(135deg, #D4AF37, #AA771C)'};
-  color: ${p => p.theme.colors.background};
-  border: none;
-  padding: 1rem 1.5rem;
-  border-radius: 10px;
-  cursor: ${p => p.disabled ? 'not-allowed' : 'pointer'};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
-  }
-`;
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.25rem;
-  margin-top: 2rem;
-`;
-
-const Item = styled.div`
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  aspect-ratio: 4/3;
-  background: #111;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  }
-`;
-
-const Thumb = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-  
-  ${Item}:hover & {
-    transform: scale(1.05);
-  }
-`;
-
-const Badge = styled.span`
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(10px);
-  padding: 0.4rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.7rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: ${p => p.theme.colors.primary};
-  border: 1px solid rgba(212, 175, 55, 0.2);
-`;
-
-const Del = styled.button`
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(229, 57, 53, 0.9);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: #E53935;
-    transform: scale(1.05);
-  }
-`;
-
-const Loading = styled.div`
-  text-align: center;
-  padding: 3rem;
-  color: ${p => p.theme.colors.primary};
-  font-size: 1.1rem;
-`;
-
-const Message = styled.div`
-  padding: 1rem 1.25rem;
-  border-radius: 10px;
-  margin-bottom: 1.5rem;
-  background: ${p => p.$error ? 'rgba(229, 57, 53, 0.1)' : 'rgba(67, 160, 71, 0.1)'};
-  color: ${p => p.$error ? '#E53935' : '#43A047'};
-  border: 1px solid ${p => p.$error ? 'rgba(229, 57, 53, 0.3)' : 'rgba(67, 160, 71, 0.3)'};
-  animation: ${fadeIn} 0.3s ease;
-`;
-
-const EmptyState = styled.div`
-  text-align: center;
-  padding: 3rem;
-  color: rgba(255, 255, 255, 0.4);
-  
-  p {
-    margin: 0;
-    font-size: 1rem;
-  }
-`;
-
-// Reviews Section Styles
-const ReviewCard = styled.div`
-  background: ${p => p.$pending ? 'rgba(255, 167, 38, 0.05)' : 'rgba(255, 255, 255, 0.02)'};
-  border: 1px solid ${p => p.$pending ? 'rgba(255, 167, 38, 0.2)' : 'rgba(212, 175, 55, 0.1)'};
-  border-radius: 12px;
-  padding: 1.5rem;
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-  transition: all 0.3s ease;
-  animation: ${fadeIn} 0.5s ease;
-  animation-delay: ${p => p.$delay || '0s'};
-  
-  &:hover {
-    border-color: ${p => p.$pending ? 'rgba(255, 167, 38, 0.4)' : 'rgba(212, 175, 55, 0.2)'};
-    background: ${p => p.$pending ? 'rgba(255, 167, 38, 0.08)' : 'rgba(255, 255, 255, 0.03)'};
-  }
-  
-  @media (max-width: 600px) {
-    flex-direction: column;
-  }
-`;
-
-const ReviewAvatar = styled.div`
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${p => p.theme.colors.primary};
-  font-weight: 600;
-  font-size: 1.1rem;
-  flex-shrink: 0;
-`;
-
-const ReviewContent = styled.div`
-  flex: 1;
-  min-width: 0;
-`;
-
-const ReviewHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
-  gap: 1rem;
-  flex-wrap: wrap;
-`;
-
-const ReviewName = styled.h4`
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: ${p => p.theme.colors.text};
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const StatusBadge = styled.span`
-  font-size: 0.7rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-weight: 600;
-  background: ${p => p.$approved ? 'rgba(67, 160, 71, 0.15)' : 'rgba(255, 167, 38, 0.15)'};
-  color: ${p => p.$approved ? '#43A047' : '#FFA726'};
-`;
-
-const ReviewEmail = styled.span`
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.4);
-  margin-top: 0.25rem;
-  display: block;
-`;
-
-const ReviewDate = styled.span`
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.4);
-`;
-
-const ReviewStars = styled.div`
-  color: ${p => p.theme.colors.primary};
-  font-size: 0.85rem;
-  margin-bottom: 0.75rem;
-`;
-
-const ReviewText = styled.p`
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0;
-  line-height: 1.6;
-  font-size: 0.95rem;
-`;
-
-const ReviewActions = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  flex-wrap: wrap;
-`;
-
-const ActionBtn = styled.button`
-  background: ${p => {
-    if (p.$approve) return 'rgba(67, 160, 71, 0.1)';
-    if (p.$danger) return 'rgba(229, 57, 53, 0.1)';
-    return 'rgba(212, 175, 55, 0.1)';
-  }};
-  color: ${p => {
-    if (p.$approve) return '#43A047';
-    if (p.$danger) return '#E53935';
-    return p.theme.colors.primary;
-  }};
-  border: 1px solid ${p => {
-    if (p.$approve) return 'rgba(67, 160, 71, 0.2)';
-    if (p.$danger) return 'rgba(229, 57, 53, 0.2)';
-    return 'rgba(212, 175, 55, 0.2)';
-  }};
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.8rem;
-  font-weight: 500;
   transition: all 0.3s ease;
   
-  &:hover {
-    background: ${p => {
-      if (p.$approve) return 'rgba(67, 160, 71, 0.2)';
-      if (p.$danger) return 'rgba(229, 57, 53, 0.2)';
-      return 'rgba(212, 175, 55, 0.2)';
-    }};
-    transform: translateY(-1px);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
+  &:hover { background: rgba(212, 175, 55, 0.1); color: ${p => p.theme.colors.primary}; }
 `;
 
-const ReviewsList = styled.div`
+const SubTabContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  border-radius: 10px;
+  width: fit-content;
+  flex-wrap: wrap;
 `;
 
-const THEME_LABELS = {
-  general: 'Général',
-  residential: 'Résidentiel',
-  commercial: 'Commercial'
-};
+const TabBadge = styled.span`
+  background: ${p => p.$warning ? '#FFA726' : p.theme.colors.primary};
+  color: ${p => p.theme.colors.background};
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+`;
+
+// Modal Components
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+`;
+
+const ModalContent = styled.div`
+  background: #1a1a1a;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+`;
+
+const ModalClose = styled.button`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.5rem;
+  cursor: pointer;
+  
+  &:hover { color: #E53935; }
+`;
+
+function Modal({ children, onClose }) {
+  return (
+    <ModalOverlay onClick={onClose}>
+      <ModalContent onClick={e => e.stopPropagation()}>
+        <ModalClose onClick={onClose}>×</ModalClose>
+        {children}
+      </ModalContent>
+    </ModalOverlay>
+  );
+}
+
+// Icon options for services
+const ICON_OPTIONS = [
+  { value: 'faCouch', label: '🛋️ Canapé' },
+  { value: 'faLightbulb', label: '💡 Ampoule' },
+  { value: 'faRulerCombined', label: '📐 Règle' },
+  { value: 'faPalette', label: '🎨 Palette' },
+  { value: 'faGem', label: '💎 Diamant' },
+  { value: 'faHome', label: '🏠 Maison' },
+  { value: 'faPaintBrush', label: '🖌️ Pinceau' },
+  { value: 'faCube', label: '📦 Cube' },
+  { value: 'faHammer', label: '🔨 Marteau' },
+  { value: 'faMagic', label: '✨ Baguette' },
+];
 
 export default function AdminDashboard() {
-  const nav = useNavigate();
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
   
-  // Tab state
-  const [activeTab, setActiveTab] = useState('gallery');
-  const [reviewSubTab, setReviewSubTab] = useState('pending');
-  
-  // Gallery state
-  const [images, setImages] = useState([]);
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [postTitle, setPostTitle] = useState('');
-  const [postDescription, setPostDescription] = useState('');
-  const [theme, setTheme] = useState('general');
-  const [uploading, setUploading] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // State principal
+  const [tab, setTab] = useState('gallery');
+  const [subTab, setSubTab] = useState('pending');
   const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(true);
   
-  // Reviews state
-  const [allReviews, setAllReviews] = useState([]);
-  const [pendingReviews, setPendingReviews] = useState([]);
-  const [approvedReviews, setApprovedReviews] = useState([]);
-  const [reviewsLoading, setReviewsLoading] = useState(true);
-  const [processingReview, setProcessingReview] = useState(null);
+  // Data states
+  const [gallery, setGallery] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [services, setServices] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  
+  // Form states
+  const [uploadFiles, setUploadFiles] = useState([]);
+  const [uploadCategory, setUploadCategory] = useState('');
+  const [uploadTitle, setUploadTitle] = useState('');
+  const [uploadDesc, setUploadDesc] = useState('');
+  const [uploading, setUploading] = useState(false);
+  
+  // Edit modals
+  const [editingService, setEditingService] = useState(null);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [editingImage, setEditingImage] = useState(null);
+  
+  // New item forms
+  const [newService, setNewService] = useState({ icon: 'faGem', title: '', description: '' });
+  const [newCategory, setNewCategory] = useState({ slug: '', label: '' });
 
-  useEffect(() => {
-    if (localStorage.getItem('adminLogged') !== 'true') {
-      nav('/admin');
-    }
-  }, [nav]);
+  const token = localStorage.getItem('adminToken');
 
+  // ==================== LOAD DATA ====================
   useEffect(() => {
-    loadGallery();
-    loadReviews();
+    loadAll();
   }, []);
+
+  const loadAll = async () => {
+    setLoading(true);
+    await Promise.all([
+      loadGallery(),
+      loadCategories(),
+      loadServices(),
+      loadReviews()
+    ]);
+    setLoading(false);
+  };
 
   const loadGallery = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/gallery`);
-      if (response.ok) {
-        const data = await response.json();
-        setImages(Array.isArray(data) ? data : []);
+      const res = await fetch(`${API_URL}/api/gallery`);
+      if (res.ok) setGallery(await res.json());
+    } catch (e) { console.error('Erreur gallery:', e); }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/categories/admin/all`);
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+        if (data.length > 0 && !uploadCategory) setUploadCategory(data[0].slug);
       }
-    } catch (error) {
-      console.error('Erreur lors du chargement:', error);
-      showMessage('Erreur lors du chargement de la galerie', true);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { console.error('Erreur categories:', e); }
+  };
+
+  const loadServices = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/services/admin/all`);
+      if (res.ok) setServices(await res.json());
+    } catch (e) { console.error('Erreur services:', e); }
   };
 
   const loadReviews = async () => {
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${API_URL}/api/reviews/admin/all`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const res = await fetch(`${API_URL}/api/reviews/admin/all`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        const reviews = Array.isArray(data) ? data : [];
-        setAllReviews(reviews);
-        setPendingReviews(reviews.filter(r => !r.is_approved));
-        setApprovedReviews(reviews.filter(r => r.is_approved));
-      }
-    } catch (error) {
-      console.error('Erreur lors du chargement des avis:', error);
-    } finally {
-      setReviewsLoading(false);
-    }
+      if (res.ok) setReviews(await res.json());
+    } catch (e) { console.error('Erreur reviews:', e); }
   };
 
-  const showMessage = (text, isError = false) => {
-    setMessage({ text, error: isError });
-    setTimeout(() => setMessage(null), 5000);
+  // ==================== MESSAGE HELPER ====================
+  const showMessage = (text, error = false) => {
+    setMessage({ text, error });
+    setTimeout(() => setMessage(null), 4000);
   };
 
-  const handleFileSelect = (e) => {
-    const files = Array.from(e.target.files || []);
-    const validFiles = files.filter(file => {
-      const isValidType = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type);
-      const isValidSize = file.size <= 5 * 1024 * 1024;
-      
-      if (!isValidType) {
-        showMessage(`${file.name}: Format non supporté`, true);
-        return false;
-      }
-      if (!isValidSize) {
-        showMessage(`${file.name}: Fichier trop volumineux (max 5MB)`, true);
-        return false;
-      }
-      return true;
-    });
-
-    setSelectedFiles(prev => [...prev, ...validFiles]);
+  // ==================== GALLERY HANDLERS ====================
+  const handleFilesSelect = (e) => {
+    const files = Array.from(e.target.files);
+    setUploadFiles(prev => [...prev, ...files]);
   };
 
-  const removePreview = (index) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  const removePreviewFile = (index) => {
+    setUploadFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleUpload = async (e) => {
     e.preventDefault();
+    if (uploadFiles.length === 0 || !uploadCategory) return;
     
-    if (selectedFiles.length === 0) {
-      showMessage('Sélectionnez au moins une image', true);
-      return;
-    }
-
     setUploading(true);
-
-    try {
-      const token = localStorage.getItem('adminToken');
-      if (!token) {
-        showMessage('Session expirée, veuillez vous reconnecter', true);
-        nav('/admin');
-        return;
-      }
-
-      let successCount = 0;
-      let errorCount = 0;
-
-      for (const file of selectedFiles) {
-        const formData = new FormData();
-        formData.append('image', file);
-        formData.append('theme', theme);
-        formData.append('title', postTitle);
-        formData.append('description', postDescription);
-
-        try {
-          const response = await fetch(`${API_URL}/api/gallery/upload`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`
-            },
-            body: formData
-          });
-
-          if (response.ok) {
-            successCount++;
-          } else {
-            const error = await response.json();
-            console.error('Erreur upload:', error);
-            errorCount++;
-          }
-        } catch (error) {
-          console.error('Erreur réseau:', error);
-          errorCount++;
-        }
-      }
-
-      if (successCount > 0) {
-        showMessage(`${successCount} image(s) uploadée(s) avec succès !`);
-        setSelectedFiles([]);
-        setPostTitle('');
-        setPostDescription('');
-        await loadGallery();
-        window.dispatchEvent(new Event('gallery-update'));
-      }
-
-      if (errorCount > 0) {
-        showMessage(`${errorCount} erreur(s) lors de l'upload`, true);
-      }
-
-    } catch (error) {
-      console.error('Erreur:', error);
-      showMessage('Erreur lors de l\'upload', true);
-    } finally {
-      setUploading(false);
+    let successCount = 0;
+    
+    for (const file of uploadFiles) {
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('theme', uploadCategory);
+      if (uploadTitle) formData.append('title', uploadTitle);
+      if (uploadDesc) formData.append('description', uploadDesc);
+      
+      try {
+        const res = await fetch(`${API_URL}/api/gallery/upload`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData
+        });
+        if (res.ok) successCount++;
+      } catch (e) { console.error('Upload error:', e); }
     }
+    
+    setUploading(false);
+    setUploadFiles([]);
+    setUploadTitle('');
+    setUploadDesc('');
+    loadGallery();
+    showMessage(`${successCount}/${uploadFiles.length} image(s) uploadée(s)`);
   };
 
-  const handleDeleteImage = async (id) => {
+  const deleteImage = async (id) => {
     if (!window.confirm('Supprimer cette image ?')) return;
-
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${API_URL}/api/gallery/${id}`, {
+      const res = await fetch(`${API_URL}/api/gallery/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` }
       });
-
-      if (response.ok) {
-        showMessage('Image supprimée avec succès');
-        await loadGallery();
-        window.dispatchEvent(new Event('gallery-update'));
-      } else {
-        const error = await response.json();
-        showMessage(error.message || 'Erreur lors de la suppression', true);
+      if (res.ok) {
+        loadGallery();
+        showMessage('Image supprimée');
       }
-    } catch (error) {
-      console.error('Erreur:', error);
-      showMessage('Erreur lors de la suppression', true);
-    }
+    } catch (e) { showMessage('Erreur de suppression', true); }
   };
 
-  const handleApproveReview = async (id) => {
-    setProcessingReview(id);
-    
+  const updateImage = async (id, data) => {
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${API_URL}/api/reviews/${id}/approve`, {
+      const res = await fetch(`${API_URL}/api/gallery/${id}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify(data)
       });
-
-      if (response.ok) {
-        showMessage('Avis approuvé et publié ! ✓');
-        await loadReviews();
-      } else {
-        const error = await response.json();
-        showMessage(error.message || 'Erreur lors de l\'approbation', true);
+      if (res.ok) {
+        loadGallery();
+        setEditingImage(null);
+        showMessage('Image mise à jour');
       }
-    } catch (error) {
-      console.error('Erreur:', error);
-      showMessage('Erreur lors de l\'approbation', true);
-    } finally {
-      setProcessingReview(null);
-    }
+    } catch (e) { showMessage('Erreur de mise à jour', true); }
   };
 
-  const handleRejectReview = async (id) => {
-    if (!window.confirm('Rejeter et supprimer cet avis ? Cette action est irréversible.')) return;
-
-    setProcessingReview(id);
+  // ==================== SERVICES HANDLERS ====================
+  const createService = async (e) => {
+    e.preventDefault();
+    if (!newService.title || !newService.description) return;
     
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${API_URL}/api/reviews/${id}/reject`, {
+      const res = await fetch(`${API_URL}/api/services`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ ...newService, sort_order: services.length })
+      });
+      if (res.ok) {
+        loadServices();
+        setNewService({ icon: 'faGem', title: '', description: '' });
+        showMessage('Service créé');
+      }
+    } catch (e) { showMessage('Erreur de création', true); }
+  };
+
+  const updateService = async (id, data) => {
+    try {
+      const res = await fetch(`${API_URL}/api/services/${id}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify(data)
       });
-
-      if (response.ok) {
-        showMessage('Avis rejeté et supprimé');
-        await loadReviews();
-      } else {
-        const error = await response.json();
-        showMessage(error.message || 'Erreur lors du rejet', true);
+      if (res.ok) {
+        loadServices();
+        setEditingService(null);
+        showMessage('Service mis à jour');
       }
-    } catch (error) {
-      console.error('Erreur:', error);
-      showMessage('Erreur lors du rejet', true);
-    } finally {
-      setProcessingReview(null);
-    }
+    } catch (e) { showMessage('Erreur de mise à jour', true); }
   };
 
-  const handleDeleteReview = async (id) => {
-    if (!window.confirm('Supprimer cet avis ? Cette action est irréversible.')) return;
-
-    setProcessingReview(id);
-    
+  const deleteService = async (id) => {
+    if (!window.confirm('Supprimer ce service ?')) return;
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${API_URL}/api/reviews/${id}`, {
+      const res = await fetch(`${API_URL}/api/services/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` }
       });
-
-      if (response.ok) {
-        showMessage('Avis supprimé avec succès');
-        await loadReviews();
-      } else {
-        const error = await response.json();
-        showMessage(error.message || 'Erreur lors de la suppression', true);
+      if (res.ok) {
+        loadServices();
+        showMessage('Service supprimé');
       }
-    } catch (error) {
-      console.error('Erreur:', error);
-      showMessage('Erreur lors de la suppression', true);
-    } finally {
-      setProcessingReview(null);
-    }
+    } catch (e) { showMessage('Erreur de suppression', true); }
   };
 
-  const logout = () => {
-    localStorage.removeItem('adminLogged');
+  // ==================== CATEGORIES HANDLERS ====================
+  const createCategory = async (e) => {
+    e.preventDefault();
+    if (!newCategory.slug || !newCategory.label) return;
+    
+    try {
+      const res = await fetch(`${API_URL}/api/categories`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ ...newCategory, sort_order: categories.length })
+      });
+      if (res.ok) {
+        loadCategories();
+        setNewCategory({ slug: '', label: '' });
+        showMessage('Catégorie créée');
+      } else {
+        const err = await res.json();
+        showMessage(err.error || 'Erreur', true);
+      }
+    } catch (e) { showMessage('Erreur de création', true); }
+  };
+
+  const updateCategory = async (id, data) => {
+    try {
+      const res = await fetch(`${API_URL}/api/categories/${id}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) {
+        loadCategories();
+        setEditingCategory(null);
+        showMessage('Catégorie mise à jour');
+      }
+    } catch (e) { showMessage('Erreur de mise à jour', true); }
+  };
+
+  const deleteCategory = async (id) => {
+    if (!window.confirm('Supprimer cette catégorie ? Les images associées ne seront plus classifiées.')) return;
+    try {
+      const res = await fetch(`${API_URL}/api/categories/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        loadCategories();
+        showMessage('Catégorie supprimée');
+      }
+    } catch (e) { showMessage('Erreur de suppression', true); }
+  };
+
+  // ==================== REVIEWS HANDLERS ====================
+  const approveReview = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/api/reviews/admin/${id}/approve`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        loadReviews();
+        showMessage('Avis approuvé');
+      }
+    } catch (e) { showMessage('Erreur', true); }
+  };
+
+  const rejectReview = async (id) => {
+    if (!window.confirm('Rejeter et supprimer cet avis ?')) return;
+    try {
+      const res = await fetch(`${API_URL}/api/reviews/admin/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        loadReviews();
+        showMessage('Avis rejeté');
+      }
+    } catch (e) { showMessage('Erreur', true); }
+  };
+
+  // ==================== LOGOUT ====================
+  const handleLogout = () => {
     localStorage.removeItem('adminToken');
-    nav('/admin');
+    navigate('/admin');
   };
 
-  const getInitials = (name) => {
-    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-  };
+  // ==================== RENDER ====================
+  const pendingReviews = reviews.filter(r => !r.is_approved);
+  const approvedReviews = reviews.filter(r => r.is_approved);
 
-  const renderStars = (rating) => {
-    return [...Array(5)].map((_, i) => (
-      <FontAwesomeIcon 
-        key={i} 
-        icon={faStar} 
-        style={{ opacity: i < rating ? 1 : 0.2 }} 
-      />
-    ));
-  };
-
-  const currentReviews = reviewSubTab === 'pending' ? pendingReviews : approvedReviews;
+  if (loading) {
+    return (
+      <Wrap>
+        <Loading><FontAwesomeIcon icon={faSpinner} spin /> Chargement...</Loading>
+      </Wrap>
+    );
+  }
 
   return (
     <Wrap>
       <Head>
-        <Title>Administration</Title>
+        <Title>Administration Fabulous</Title>
         <Nav>
-          <Btn onClick={() => nav('/')}>
-            <FontAwesomeIcon icon={faHome} /> Accueil
+          <Btn $active={tab === 'gallery'} onClick={() => setTab('gallery')}>
+            <FontAwesomeIcon icon={faImages} /> Galerie
           </Btn>
-          <Btn onClick={logout}>
-            <FontAwesomeIcon icon={faSignOutAlt} /> Déconnexion
+          <Btn $active={tab === 'categories'} onClick={() => setTab('categories')}>
+            <FontAwesomeIcon icon={faLayerGroup} /> Catégories
+          </Btn>
+          <Btn $active={tab === 'services'} onClick={() => setTab('services')}>
+            <FontAwesomeIcon icon={faCog} /> Services
+          </Btn>
+          <Btn $active={tab === 'reviews'} onClick={() => setTab('reviews')}>
+            <FontAwesomeIcon icon={faComments} /> Avis
+            {pendingReviews.length > 0 && <TabBadge $warning>{pendingReviews.length}</TabBadge>}
+          </Btn>
+          <Btn onClick={() => navigate('/')}>
+            <FontAwesomeIcon icon={faHome} />
+          </Btn>
+          <Btn onClick={handleLogout}>
+            <FontAwesomeIcon icon={faSignOutAlt} />
           </Btn>
         </Nav>
       </Head>
 
-      <TabContainer>
-        <Tab $active={activeTab === 'gallery'} onClick={() => setActiveTab('gallery')}>
-          <FontAwesomeIcon icon={faImages} /> Galerie
-          <TabBadge>{images.length}</TabBadge>
-        </Tab>
-        <Tab $active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')}>
-          <FontAwesomeIcon icon={faComments} /> Avis
-          <TabBadge $warning={pendingReviews.length > 0} $count={pendingReviews.length}>
-            {pendingReviews.length > 0 ? `${pendingReviews.length} en attente` : allReviews.length}
-          </TabBadge>
-        </Tab>
-      </TabContainer>
+      {message && <Message $error={message.error}>{message.text}</Message>}
 
-      {message && (
-        <Message $error={message.error}>
-          {message.text}
-        </Message>
-      )}
-
-      {activeTab === 'gallery' && (
+      {/* ==================== GALLERY TAB ==================== */}
+      {tab === 'gallery' && (
         <Box>
-          <SectionTitle>
-            <FontAwesomeIcon icon={faImages} /> Gestion de la galerie
-          </SectionTitle>
-
+          <SectionTitle><FontAwesomeIcon icon={faImages} /> Gestion de la Galerie</SectionTitle>
+          
           <Form onSubmit={handleUpload}>
             <UploadArea onClick={() => fileInputRef.current?.click()}>
-              <FontAwesomeIcon icon={faUpload} size="3x" color="#D4AF37" style={{ marginBottom: '1rem' }} />
-              <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 500 }}>
+              <FontAwesomeIcon icon={faUpload} size="2x" style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
+              <p style={{ margin: 0, color: 'rgba(255,255,255,0.5)' }}>
                 Cliquez pour sélectionner des images
-              </p>
-              <p style={{ margin: '0.5rem 0 0', fontSize: '0.85rem', opacity: 0.6 }}>
-                JPG, PNG ou WebP - Maximum 5MB par image
               </p>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/jpeg,image/jpg,image/png,image/webp"
+                accept="image/*"
                 multiple
                 style={{ display: 'none' }}
-                onChange={handleFileSelect}
+                onChange={handleFilesSelect}
               />
             </UploadArea>
-
-            {selectedFiles.length > 0 && (
-              <>
-                <PreviewContainer>
-                  {selectedFiles.map((file, index) => (
-                    <PreviewItem key={index}>
-                      <img src={URL.createObjectURL(file)} alt={`Preview ${index}`} />
-                      <RemovePreview onClick={() => removePreview(index)}>
-                        <FontAwesomeIcon icon={faTimes} />
-                      </RemovePreview>
-                    </PreviewItem>
-                  ))}
-                </PreviewContainer>
-
-                <Select value={theme} onChange={e => setTheme(e.target.value)}>
-                  {Object.entries(THEME_LABELS).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
-                  ))}
-                </Select>
-
-                <Input
-                  type="text"
-                  value={postTitle}
-                  onChange={e => setPostTitle(e.target.value)}
-                  placeholder="Titre du projet (optionnel)"
-                />
-
-                <TextArea
-                  value={postDescription}
-                  onChange={e => setPostDescription(e.target.value)}
-                  placeholder="Description du projet (optionnel)"
-                />
-
-                <UploadBtn type="submit" disabled={uploading}>
-                  <FontAwesomeIcon icon={uploading ? faSpinner : faPlus} spin={uploading} />
-                  {uploading ? `Upload en cours...` : `Uploader ${selectedFiles.length} image(s)`}
-                </UploadBtn>
-              </>
-            )}
-          </Form>
-
-          {loading ? (
-            <Loading>
-              <FontAwesomeIcon icon={faSpinner} spin /> Chargement de la galerie...
-            </Loading>
-          ) : images.length === 0 ? (
-            <EmptyState>
-              <p>Aucune image dans la galerie. Uploadez votre première image !</p>
-            </EmptyState>
-          ) : (
-            <>
-              <p style={{ opacity: 0.6, fontSize: '0.9rem', marginBottom: '1rem' }}>
-                {images.length} image(s) dans la galerie
-              </p>
-              <Grid>
-                {images.map(img => (
-                  <Item key={img.id}>
-                    <Thumb src={img.url} alt={img.theme} />
-                    <Badge>{THEME_LABELS[img.theme] || img.theme}</Badge>
-                    <Del onClick={() => handleDeleteImage(img.id)}>
-                      <FontAwesomeIcon icon={faTrash} />
-                    </Del>
-                  </Item>
+            
+            {uploadFiles.length > 0 && (
+              <Grid $min="100px">
+                {uploadFiles.map((file, i) => (
+                  <PreviewImage key={i}>
+                    <img src={URL.createObjectURL(file)} alt="" />
+                    <IconBtn 
+                      $danger 
+                      style={{ position: 'absolute', top: 4, right: 4 }}
+                      onClick={() => removePreviewFile(i)}
+                      type="button"
+                    >
+                      <FontAwesomeIcon icon={faTimes} />
+                    </IconBtn>
+                  </PreviewImage>
                 ))}
               </Grid>
-            </>
+            )}
+            
+            <FormRow $cols="1fr 1fr">
+              <Select value={uploadCategory} onChange={e => setUploadCategory(e.target.value)}>
+                {categories.map(c => (
+                  <option key={c.id} value={c.slug}>{c.label}</option>
+                ))}
+              </Select>
+              <Input 
+                placeholder="Titre (optionnel)" 
+                value={uploadTitle} 
+                onChange={e => setUploadTitle(e.target.value)} 
+              />
+            </FormRow>
+            
+            <TextArea 
+              placeholder="Description (optionnelle)" 
+              value={uploadDesc} 
+              onChange={e => setUploadDesc(e.target.value)} 
+            />
+            
+            <ActionBtn type="submit" disabled={uploadFiles.length === 0 || uploading}>
+              {uploading ? <><FontAwesomeIcon icon={faSpinner} spin /> Upload en cours...</> 
+                        : <><FontAwesomeIcon icon={faUpload} /> Uploader {uploadFiles.length} image(s)</>}
+            </ActionBtn>
+          </Form>
+          
+          <SectionTitle style={{ marginTop: '2rem' }}>Images existantes ({gallery.length})</SectionTitle>
+          
+          <Grid $min="180px">
+            {gallery.map(img => (
+              <Card key={img.id}>
+                <PreviewImage style={{ marginBottom: '0.75rem' }}>
+                  <img src={img.url} alt={img.title || ''} />
+                </PreviewImage>
+                <Badge>{categories.find(c => c.slug === img.theme)?.label || img.theme}</Badge>
+                {img.title && <CardTitle style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>{img.title}</CardTitle>}
+                {img.description && <CardDesc style={{ fontSize: '0.8rem' }}>{img.description.substring(0, 50)}...</CardDesc>}
+                <CardActions>
+                  <IconBtn onClick={() => setEditingImage(img)}>
+                    <FontAwesomeIcon icon={faEdit} />
+                  </IconBtn>
+                  <IconBtn $danger onClick={() => deleteImage(img.id)}>
+                    <FontAwesomeIcon icon={faTrash} />
+                  </IconBtn>
+                </CardActions>
+              </Card>
+            ))}
+          </Grid>
+        </Box>
+      )}
+
+      {/* ==================== CATEGORIES TAB ==================== */}
+      {tab === 'categories' && (
+        <Box>
+          <SectionTitle><FontAwesomeIcon icon={faLayerGroup} /> Gestion des Catégories</SectionTitle>
+          
+          <Form onSubmit={createCategory}>
+            <FormRow $cols="1fr 1fr auto">
+              <Input 
+                placeholder="Slug (ex: luxe)" 
+                value={newCategory.slug} 
+                onChange={e => setNewCategory({ ...newCategory, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })} 
+              />
+              <Input 
+                placeholder="Label (ex: Luxe & Prestige)" 
+                value={newCategory.label} 
+                onChange={e => setNewCategory({ ...newCategory, label: e.target.value })} 
+              />
+              <ActionBtn type="submit" disabled={!newCategory.slug || !newCategory.label}>
+                <FontAwesomeIcon icon={faPlus} /> Ajouter
+              </ActionBtn>
+            </FormRow>
+          </Form>
+          
+          <Grid $min="250px">
+            {categories.map(cat => (
+              <Card key={cat.id}>
+                <CardHeader>
+                  <div>
+                    <CardTitle>{cat.label}</CardTitle>
+                    <Badge style={{ marginTop: '0.25rem' }}>{cat.slug}</Badge>
+                  </div>
+                  <Badge $color={cat.is_active ? 'rgba(76, 175, 80, 0.2)' : 'rgba(255,255,255,0.1)'} 
+                         $textColor={cat.is_active ? '#4CAF50' : 'rgba(255,255,255,0.4)'}>
+                    {cat.is_active ? 'Actif' : 'Inactif'}
+                  </Badge>
+                </CardHeader>
+                <CardDesc>{gallery.filter(g => g.theme === cat.slug).length} image(s)</CardDesc>
+                <CardActions>
+                  <IconBtn onClick={() => setEditingCategory(cat)}>
+                    <FontAwesomeIcon icon={faEdit} />
+                  </IconBtn>
+                  <IconBtn $danger onClick={() => deleteCategory(cat.id)}>
+                    <FontAwesomeIcon icon={faTrash} />
+                  </IconBtn>
+                </CardActions>
+              </Card>
+            ))}
+          </Grid>
+        </Box>
+      )}
+
+      {/* ==================== SERVICES TAB ==================== */}
+      {tab === 'services' && (
+        <Box>
+          <SectionTitle><FontAwesomeIcon icon={faCog} /> Gestion des Services</SectionTitle>
+          
+          <Form onSubmit={createService}>
+            <FormRow $cols="auto 1fr">
+              <Select value={newService.icon} onChange={e => setNewService({ ...newService, icon: e.target.value })}>
+                {ICON_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </Select>
+              <Input 
+                placeholder="Titre du service" 
+                value={newService.title} 
+                onChange={e => setNewService({ ...newService, title: e.target.value })} 
+              />
+            </FormRow>
+            <TextArea 
+              placeholder="Description du service" 
+              value={newService.description} 
+              onChange={e => setNewService({ ...newService, description: e.target.value })} 
+            />
+            <ActionBtn type="submit" disabled={!newService.title || !newService.description}>
+              <FontAwesomeIcon icon={faPlus} /> Ajouter un service
+            </ActionBtn>
+          </Form>
+          
+          <Grid $min="280px">
+            {services.map(srv => (
+              <Card key={srv.id}>
+                <CardHeader>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '1.5rem' }}>
+                      {ICON_OPTIONS.find(o => o.value === srv.icon)?.label.split(' ')[0] || '💎'}
+                    </span>
+                    <CardTitle>{srv.title}</CardTitle>
+                  </div>
+                  <Badge $color={srv.is_active ? 'rgba(76, 175, 80, 0.2)' : 'rgba(255,255,255,0.1)'} 
+                         $textColor={srv.is_active ? '#4CAF50' : 'rgba(255,255,255,0.4)'}>
+                    {srv.is_active ? 'Actif' : 'Inactif'}
+                  </Badge>
+                </CardHeader>
+                <CardDesc>{srv.description}</CardDesc>
+                <CardActions>
+                  <IconBtn onClick={() => setEditingService(srv)}>
+                    <FontAwesomeIcon icon={faEdit} />
+                  </IconBtn>
+                  <IconBtn $danger onClick={() => deleteService(srv.id)}>
+                    <FontAwesomeIcon icon={faTrash} />
+                  </IconBtn>
+                </CardActions>
+              </Card>
+            ))}
+          </Grid>
+        </Box>
+      )}
+
+      {/* ==================== REVIEWS TAB ==================== */}
+      {tab === 'reviews' && (
+        <Box>
+          <SectionTitle><FontAwesomeIcon icon={faComments} /> Gestion des Avis</SectionTitle>
+          
+          <SubTabContainer>
+            <SubTab $active={subTab === 'pending'} onClick={() => setSubTab('pending')}>
+              <FontAwesomeIcon icon={faClock} /> En attente
+              {pendingReviews.length > 0 && <TabBadge $warning>{pendingReviews.length}</TabBadge>}
+            </SubTab>
+            <SubTab $active={subTab === 'approved'} onClick={() => setSubTab('approved')}>
+              <FontAwesomeIcon icon={faCheckCircle} /> Approuvés
+              <TabBadge>{approvedReviews.length}</TabBadge>
+            </SubTab>
+          </SubTabContainer>
+          
+          {(subTab === 'pending' ? pendingReviews : approvedReviews).length === 0 ? (
+            <CardDesc style={{ textAlign: 'center', padding: '2rem' }}>
+              {subTab === 'pending' ? 'Aucun avis en attente' : 'Aucun avis approuvé'}
+            </CardDesc>
+          ) : (
+            <Grid $min="300px">
+              {(subTab === 'pending' ? pendingReviews : approvedReviews).map(review => (
+                <Card key={review.id}>
+                  <CardHeader>
+                    <CardTitle>{review.name}</CardTitle>
+                    <div style={{ color: '#D4AF37' }}>
+                      {[...Array(review.rating)].map((_, i) => (
+                        <FontAwesomeIcon key={i} icon={faStar} style={{ marginLeft: 2 }} />
+                      ))}
+                    </div>
+                  </CardHeader>
+                  <CardDesc>{review.comment || 'Pas de commentaire'}</CardDesc>
+                  <CardDesc style={{ fontSize: '0.75rem', marginTop: '0.5rem', opacity: 0.5 }}>
+                    {new Date(review.created_at).toLocaleDateString('fr-FR')}
+                  </CardDesc>
+                  <CardActions>
+                    {!review.is_approved && (
+                      <ActionBtn $small $success onClick={() => approveReview(review.id)}>
+                        <FontAwesomeIcon icon={faCheck} /> Approuver
+                      </ActionBtn>
+                    )}
+                    <ActionBtn $small $danger onClick={() => rejectReview(review.id)}>
+                      <FontAwesomeIcon icon={faTimes} /> {review.is_approved ? 'Supprimer' : 'Rejeter'}
+                    </ActionBtn>
+                  </CardActions>
+                </Card>
+              ))}
+            </Grid>
           )}
         </Box>
       )}
 
-      {activeTab === 'reviews' && (
-        <Box>
-          <SectionTitle>
-            <FontAwesomeIcon icon={faComments} /> Gestion des avis
-          </SectionTitle>
+      {/* ==================== EDIT IMAGE MODAL ==================== */}
+      {editingImage && (
+        <Modal onClose={() => setEditingImage(null)}>
+          <SectionTitle>Modifier l'image</SectionTitle>
+          <Form onSubmit={e => { e.preventDefault(); updateImage(editingImage.id, editingImage); }}>
+            <Select 
+              value={editingImage.theme} 
+              onChange={e => setEditingImage({ ...editingImage, theme: e.target.value })}
+            >
+              {categories.map(c => <option key={c.id} value={c.slug}>{c.label}</option>)}
+            </Select>
+            <Input 
+              placeholder="Titre" 
+              value={editingImage.title || ''} 
+              onChange={e => setEditingImage({ ...editingImage, title: e.target.value })} 
+            />
+            <TextArea 
+              placeholder="Description" 
+              value={editingImage.description || ''} 
+              onChange={e => setEditingImage({ ...editingImage, description: e.target.value })} 
+            />
+            <ActionBtn type="submit"><FontAwesomeIcon icon={faSave} /> Enregistrer</ActionBtn>
+          </Form>
+        </Modal>
+      )}
 
-          <SubTabContainer>
-            <SubTab $active={reviewSubTab === 'pending'} onClick={() => setReviewSubTab('pending')}>
-              <FontAwesomeIcon icon={faClock} />
-              En attente ({pendingReviews.length})
-            </SubTab>
-            <SubTab $active={reviewSubTab === 'approved'} onClick={() => setReviewSubTab('approved')}>
-              <FontAwesomeIcon icon={faCheckCircle} />
-              Approuvés ({approvedReviews.length})
-            </SubTab>
-          </SubTabContainer>
+      {/* ==================== EDIT SERVICE MODAL ==================== */}
+      {editingService && (
+        <Modal onClose={() => setEditingService(null)}>
+          <SectionTitle>Modifier le service</SectionTitle>
+          <Form onSubmit={e => { e.preventDefault(); updateService(editingService.id, editingService); }}>
+            <Select 
+              value={editingService.icon} 
+              onChange={e => setEditingService({ ...editingService, icon: e.target.value })}
+            >
+              {ICON_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+            </Select>
+            <Input 
+              placeholder="Titre" 
+              value={editingService.title} 
+              onChange={e => setEditingService({ ...editingService, title: e.target.value })} 
+            />
+            <TextArea 
+              placeholder="Description" 
+              value={editingService.description} 
+              onChange={e => setEditingService({ ...editingService, description: e.target.value })} 
+            />
+            <FormRow $cols="1fr 1fr">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.7)' }}>
+                <input 
+                  type="checkbox" 
+                  checked={editingService.is_active} 
+                  onChange={e => setEditingService({ ...editingService, is_active: e.target.checked })} 
+                />
+                Actif
+              </label>
+              <Input 
+                type="number" 
+                placeholder="Ordre" 
+                value={editingService.sort_order || 0} 
+                onChange={e => setEditingService({ ...editingService, sort_order: parseInt(e.target.value) || 0 })} 
+              />
+            </FormRow>
+            <ActionBtn type="submit"><FontAwesomeIcon icon={faSave} /> Enregistrer</ActionBtn>
+          </Form>
+        </Modal>
+      )}
 
-          {reviewsLoading ? (
-            <Loading>
-              <FontAwesomeIcon icon={faSpinner} spin /> Chargement des avis...
-            </Loading>
-          ) : currentReviews.length === 0 ? (
-            <EmptyState>
-              <p>
-                {reviewSubTab === 'pending' 
-                  ? 'Aucun avis en attente de validation.' 
-                  : 'Aucun avis approuvé pour le moment.'}
-              </p>
-            </EmptyState>
-          ) : (
-            <ReviewsList>
-              {currentReviews.map((review, index) => (
-                <ReviewCard key={review.id} $delay={`${index * 0.1}s`} $pending={!review.is_approved}>
-                  <ReviewAvatar>{getInitials(review.name)}</ReviewAvatar>
-                  <ReviewContent>
-                    <ReviewHeader>
-                      <div>
-                        <ReviewName>
-                          {review.name}
-                          <StatusBadge $approved={review.is_approved}>
-                            {review.is_approved ? 'Approuvé' : 'En attente'}
-                          </StatusBadge>
-                        </ReviewName>
-                        <ReviewEmail>{review.email}</ReviewEmail>
-                        <ReviewStars>{renderStars(review.rating)}</ReviewStars>
-                      </div>
-                      <ReviewDate>
-                        <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '0.4rem' }} />
-                        {new Date(review.created_at).toLocaleDateString('fr-FR', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </ReviewDate>
-                    </ReviewHeader>
-                    <ReviewText>
-                      {review.comment || 'Aucun commentaire'}
-                    </ReviewText>
-                    <ReviewActions>
-                      {!review.is_approved && (
-                        <ActionBtn 
-                          $approve 
-                          onClick={() => handleApproveReview(review.id)}
-                          disabled={processingReview === review.id}
-                        >
-                          <FontAwesomeIcon icon={processingReview === review.id ? faSpinner : faCheck} spin={processingReview === review.id} />
-                          Approuver
-                        </ActionBtn>
-                      )}
-                      <ActionBtn 
-                        $danger 
-                        onClick={() => review.is_approved ? handleDeleteReview(review.id) : handleRejectReview(review.id)}
-                        disabled={processingReview === review.id}
-                      >
-                        <FontAwesomeIcon icon={processingReview === review.id ? faSpinner : faTimesCircle} spin={processingReview === review.id} />
-                        {review.is_approved ? 'Supprimer' : 'Rejeter'}
-                      </ActionBtn>
-                    </ReviewActions>
-                  </ReviewContent>
-                </ReviewCard>
-              ))}
-            </ReviewsList>
-          )}
-        </Box>
+      {/* ==================== EDIT CATEGORY MODAL ==================== */}
+      {editingCategory && (
+        <Modal onClose={() => setEditingCategory(null)}>
+          <SectionTitle>Modifier la catégorie</SectionTitle>
+          <Form onSubmit={e => { e.preventDefault(); updateCategory(editingCategory.id, editingCategory); }}>
+            <Input 
+              placeholder="Slug" 
+              value={editingCategory.slug} 
+              onChange={e => setEditingCategory({ ...editingCategory, slug: e.target.value })} 
+            />
+            <Input 
+              placeholder="Label" 
+              value={editingCategory.label} 
+              onChange={e => setEditingCategory({ ...editingCategory, label: e.target.value })} 
+            />
+            <FormRow $cols="1fr 1fr">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.7)' }}>
+                <input 
+                  type="checkbox" 
+                  checked={editingCategory.is_active} 
+                  onChange={e => setEditingCategory({ ...editingCategory, is_active: e.target.checked })} 
+                />
+                Actif
+              </label>
+              <Input 
+                type="number" 
+                placeholder="Ordre" 
+                value={editingCategory.sort_order || 0} 
+                onChange={e => setEditingCategory({ ...editingCategory, sort_order: parseInt(e.target.value) || 0 })} 
+              />
+            </FormRow>
+            <ActionBtn type="submit"><FontAwesomeIcon icon={faSave} /> Enregistrer</ActionBtn>
+          </Form>
+        </Modal>
       )}
     </Wrap>
   );
