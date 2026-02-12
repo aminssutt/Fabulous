@@ -20,6 +20,7 @@ const appointmentsRoutes = require('./routes/appointments');
 const reviewsRoutes = require('./routes/reviews');
 const servicesRoutes = require('./routes/services');
 const categoriesRoutes = require('./routes/categories');
+const contentRoutes = require('./routes/content');
 
 const app = express();
 
@@ -393,6 +394,9 @@ app.use('/api/services', servicesRoutes);
 
 // Routes des catégories
 app.use('/api/categories', categoriesRoutes);
+
+// Routes du contenu éditable
+app.use('/api/content', contentRoutes);
 
 // Route protégée pour récupérer les rendez-vous admin
 app.get('/api/admin/appointments', authenticateAdmin, async (req, res) => {

@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAward, faPaintBrush, faGem, faStar } from '@fortawesome/free-solid-svg-icons';
+import { API_URL } from '../config';
 
 // Animations
 const fadeInUp = keyframes`
@@ -225,27 +226,62 @@ const Card = styled.div`
   }
 `;
 
+// Default content fallback
+const DEFAULT_CONTENT = {
+  about_intro: {
+    title: 'Notre Histoire',
+    content: "Chez Fabulous, nous transformons vos espaces en véritables œuvres d'art. Notre passion pour le design d'intérieur se reflète dans chaque projet que nous réalisons, créant des environnements qui allient esthétique raffinée et fonctionnalité absolue."
+  },
+  about_philosophy: {
+    title: 'Notre Philosophie',
+    content: "Chaque création est une invitation au voyage sensoriel, où les textures nobles rencontrent les lignes épurées, où la lumière sculpte l'espace pour révéler sa beauté intrinsèque."
+  }
+};
+
 export default function About() {
+  const [content, setContent] = useState(DEFAULT_CONTENT);
+
+  useEffect(() => {
+    const loadContent = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/content`);
+        if (res.ok) {
+          const data = await res.json();
+          // Convert array to object keyed by 'key'
+          const contentMap = {};
+          data.forEach(item => {
+            contentMap[item.key] = {
+              title: item.title,
+              content: item.content
+            };
+          });
+          if (Object.keys(contentMap).length > 0) {
+            setContent(prev => ({ ...prev, ...contentMap }));
+          }
+        }
+      } catch (error) {
+        console.error('Erreur chargement contenu:', error);
+      }
+    };
+
+    loadContent();
+  }, []);
+
   return (
     <AboutSection id="about">
       <Container>
         <SectionHeader>
-          <Overline>Notre Histoire</Overline>
+          <Overline>{content.about_intro?.title || 'Notre Histoire'}</Overline>
           <SectionTitle>À Propos de Fabulous</SectionTitle>
         </SectionHeader>
         
         <Grid>
           <Content>
             <p>
-              Chez Fabulous, nous transformons vos espaces en véritables œuvres d'art. 
-              Notre passion pour le design d'intérieur se reflète dans chaque projet que 
-              nous réalisons, créant des environnements qui allient esthétique raffinée 
-              et fonctionnalité absolue.
+              {content.about_intro?.content || DEFAULT_CONTENT.about_intro.content}
             </p>
             <p>
-              Chaque création est une invitation au voyage sensoriel, où les textures 
-              nobles rencontrent les lignes épurées, où la lumière sculpte l'espace 
-              pour révéler sa beauté intrinsèque.
+              {content.about_philosophy?.content || DEFAULT_CONTENT.about_philosophy.content}
             </p>
             <Stats>
               <Stat $delay="0.2s">

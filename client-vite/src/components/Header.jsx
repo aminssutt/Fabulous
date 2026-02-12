@@ -43,25 +43,46 @@ const Logo = styled.div`
   font-weight: 500;
   letter-spacing: 2px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: opacity 0.3s ease;
+  z-index: 1002;
+  
+  &:hover {
+    opacity: 0.85;
+  }
+  
+  @media (max-width: 900px) {
+    font-size: 1.3rem;
+    gap: 0.5rem;
+  }
+`;
+
+const LogoImage = styled.img`
+  height: 55px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+  transition: all 0.3s ease;
+  
+  ${Logo}:hover & {
+    filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5));
+    transform: scale(1.05);
+  }
+  
+  @media (max-width: 900px) {
+    height: 45px;
+  }
+`
+
+const LogoText = styled.span`
   background: linear-gradient(135deg, #FCF6BA 0%, #D4AF37 25%, #BF953F 50%, #D4AF37 75%, #FCF6BA 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: ${shimmer} 4s linear infinite;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: opacity 0.3s ease;
-  z-index: 1002;
-  
-  &:hover {
-    opacity: 0.8;
-  }
-  
-  @media (max-width: 900px) {
-    font-size: 1.3rem;
-  }
 `;
 
 // Overlay pour fermer le menu en cliquant à côté
@@ -320,7 +341,10 @@ export default function Header() {
     return (
       <Nav>
         <Container>
-          <Logo onClick={() => animateScroll.scrollToTop()}>FABULOUS</Logo>
+          <Logo onClick={() => animateScroll.scrollToTop()}>
+            <LogoImage src="/logo.png" alt="Fabulous" />
+            <LogoText>FABULOUS</LogoText>
+          </Logo>
           <AdminLink to="/">← Retour au site</AdminLink>
         </Container>
       </Nav>
@@ -332,7 +356,10 @@ export default function Header() {
       <Overlay $open={open} onClick={() => setOpen(false)} />
       <Nav>
         <Container>
-          <Logo onClick={() => { animateScroll.scrollToTop(); setOpen(false); }}>FABULOUS</Logo>
+          <Logo onClick={() => { animateScroll.scrollToTop(); setOpen(false); }}>
+            <LogoImage src="/logo.png" alt="Fabulous" />
+            <LogoText>FABULOUS</LogoText>
+          </Logo>
           <Menu $open={open}>
             <CloseButton onClick={() => setOpen(false)} aria-label="Fermer">×</CloseButton>
             {links.map(l => (

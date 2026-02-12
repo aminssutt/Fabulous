@@ -6,7 +6,7 @@ import {
   faHome, faTrash, faSignOutAlt, faImages, faPlus, faUpload, 
   faComments, faStar, faTimes, faSpinner, faCheck, faClock, 
   faCheckCircle, faTimesCircle, faCog, faLayerGroup, faEdit,
-  faSave
+  faSave, faFileAlt
 } from '@fortawesome/free-solid-svg-icons';
 import { API_URL } from '../../config';
 
@@ -413,6 +413,7 @@ export default function AdminDashboard() {
   const [categories, setCategories] = useState([]);
   const [services, setServices] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [siteContent, setSiteContent] = useState([]);
   
   // Form states
   const [uploadFiles, setUploadFiles] = useState([]);
@@ -425,6 +426,7 @@ export default function AdminDashboard() {
   const [editingService, setEditingService] = useState(null);
   const [editingCategory, setEditingCategory] = useState(null);
   const [editingImage, setEditingImage] = useState(null);
+  const [editingContent, setEditingContent] = useState(null);
   
   // New item forms
   const [newService, setNewService] = useState({ icon: 'faGem', title: '', description: '' });
@@ -443,7 +445,8 @@ export default function AdminDashboard() {
       loadGallery(),
       loadCategories(),
       loadServices(),
-      loadReviews()
+      loadReviews(),
+      loadSiteContent()
     ]);
     setLoading(false);
   };
@@ -480,6 +483,13 @@ export default function AdminDashboard() {
       });
       if (res.ok) setReviews(await res.json());
     } catch (e) { console.error('Erreur reviews:', e); }
+  };
+
+  const loadSiteContent = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/content`);
+      if (res.ok) setSiteContent(await res.json());
+    } catch (e) { console.error('Erreur content:', e); }
   };
 
   // ==================== MESSAGE HELPER ====================
@@ -701,6 +711,25 @@ export default function AdminDashboard() {
     } catch (e) { showMessage('Erreur', true); }
   };
 
+  // ==================== CONTENT HANDLERS ====================
+  const updateContent = async (key, data) => {
+    try {
+      const res = await fetch(`${API_URL}/api/content/${key}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) {
+        loadSiteContent();
+        setEditingContent(null);
+        showMessage('Contenu mis à jour');
+      }
+    } catch (e) { showMessage('Erreur de mise à jour', true); }
+  };
+
   // ==================== LOGOUT ====================
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -732,6 +761,9 @@ export default function AdminDashboard() {
           </Btn>
           <Btn $active={tab === 'services'} onClick={() => setTab('services')}>
             <FontAwesomeIcon icon={faCog} /> Services
+          </Btn>
+          <Btn $active={tab === 'content'} onClick={() => setTab('content')}>
+            <FontAwesomeIcon icon={faFileAlt} /> Contenu
           </Btn>
           <Btn $active={tab === 'reviews'} onClick={() => setTab('reviews')}>
             <FontAwesomeIcon icon={faComments} /> Avis
@@ -946,6 +978,48 @@ export default function AdminDashboard() {
         </Box>
       )}
 
+      {/* ==================== CONTENT TAB ==================== */}
+      {tab === 'content' && (
+        <Box>
+          <SectionTitle><FontAwesomeIcon icon={faFileAlt} /> Gestion du Contenu</SectionTitle>
+          <CardDesc style={{ marginBottom: '2rem' }}>
+            Modifiez les textes des sections "À Propos" et "Notre Philosophie" affichés sur le site.
+          </CardDesc>
+          
+          <Grid $min="350px">
+            {siteContent.map(content => (
+              <Card key={content.key}>
+                <CardHeader>
+                  <CardTitle>{content.title || content.key}</CardTitle>
+                  <Badge>{content.key}</Badge>
+                </CardHeader>
+                <CardDesc style={{ 
+                  maxHeight: '100px', 
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}>
+                  {content.content}
+                </CardDesc>
+                <CardDesc style={{ fontSize: '0.75rem', marginTop: '0.75rem', opacity: 0.5 }}>
+                  Dernière modification: {new Date(content.updated_at).toLocaleDateString('fr-FR')}
+                </CardDesc>
+                <CardActions>
+                  <ActionBtn $small onClick={() => setEditingContent(content)}>
+                    <FontAwesomeIcon icon={faEdit} /> Modifier
+                  </ActionBtn>
+                </CardActions>
+              </Card>
+            ))}
+          </Grid>
+          
+          {siteContent.length === 0 && (
+            <CardDesc style={{ textAlign: 'center', padding: '2rem' }}>
+              Aucun contenu trouvé. Exécutez la migration SQL pour créer les contenus par défaut.
+            </CardDesc>
+          )}
+        </Box>
+      )}
+
       {/* ==================== REVIEWS TAB ==================== */}
       {tab === 'reviews' && (
         <Box>
@@ -1098,6 +1172,28 @@ export default function AdminDashboard() {
                 onChange={e => setEditingCategory({ ...editingCategory, sort_order: parseInt(e.target.value) || 0 })} 
               />
             </FormRow>
+            <ActionBtn type="submit"><FontAwesomeIcon icon={faSave} /> Enregistrer</ActionBtn>
+          </Form>
+        </Modal>
+      )}
+
+      {/* ==================== EDIT CONTENT MODAL ==================== */}
+      {editingContent && (
+        <Modal onClose={() => setEditingContent(null)}>
+          <SectionTitle>Modifier le contenu</SectionTitle>
+          <Badge style={{ marginBottom: '1rem', display: 'inline-block' }}>{editingContent.key}</Badge>
+          <Form onSubmit={e => { e.preventDefault(); updateContent(editingContent.key, editingContent); }}>
+            <Input 
+              placeholder="Titre de la section" 
+              value={editingContent.title || ''} 
+              onChange={e => setEditingContent({ ...editingContent, title: e.target.value })} 
+            />
+            <TextArea 
+              placeholder="Contenu de la section" 
+              value={editingContent.content} 
+              onChange={e => setEditingContent({ ...editingContent, content: e.target.value })}
+              style={{ minHeight: '200px' }}
+            />
             <ActionBtn type="submit"><FontAwesomeIcon icon={faSave} /> Enregistrer</ActionBtn>
           </Form>
         </Modal>

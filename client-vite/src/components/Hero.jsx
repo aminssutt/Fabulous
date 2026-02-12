@@ -90,6 +90,30 @@ const Content = styled.div`
   z-index: 2;
 `;
 
+const LogoContainer = styled.div`
+  opacity: 0;
+  animation: ${fadeInUp} 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation-delay: 0s;
+  margin-bottom: 2.5rem;
+`;
+
+const HeroLogo = styled.img`
+  height: 380px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 80px rgba(212, 175, 55, 0.5));
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  
+  &:hover {
+    filter: drop-shadow(0 0 120px rgba(212, 175, 55, 0.7));
+    transform: scale(1.02);
+  }
+  
+  @media (max-width: ${p => p.theme.breakpoints?.mobile || '480px'}) {
+    height: 220px;
+  }
+`
+
 const Overline = styled.span`
   display: inline-block;
   font-family: ${p => p.theme.fonts.secondary};
@@ -256,12 +280,12 @@ export default function Hero() {
       </BackgroundElements>
       
       <Content>
-        <Overline>Design d'Exception</Overline>
+        <LogoContainer>
+          <HeroLogo src="/logo.png" alt="Fabulous - Regenerative Interiors" />
+        </LogoContainer>
         <Title>L'Art de Sublimer Vos Espaces</Title>
         <Subtitle>
-          Fabulous conçoit des intérieurs d'exception où élégance intemporelle 
-          et raffinement contemporain se rencontrent. Découvrez l'art de vivre 
-          dans des espaces qui reflètent votre essence.
+          Où élégance intemporelle et raffinement contemporain se rencontrent.
         </Subtitle>
         <Actions>
           <Button to="portfolio" smooth duration={800} offset={-70}>

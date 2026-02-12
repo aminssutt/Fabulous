@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faCouch, faLightbulb, faRulerCombined, faPalette, faArrowRight,
+  faCouch, faLightbulb, faRulerCombined, faPalette, faChevronDown,
   faGem, faHome, faPaintBrush, faCube, faHammer, faMagic, faSpinner
 } from '@fortawesome/free-solid-svg-icons';
 import { API_URL } from '../config';
@@ -118,6 +118,7 @@ const Card = styled.div`
   position: relative;
   overflow: hidden;
   transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: pointer;
   
   &::before {
     content: '';
@@ -141,7 +142,7 @@ const Card = styled.div`
   }
   
   &:hover {
-    transform: translateY(-15px);
+    transform: translateY(-10px);
     border-color: rgba(212, 175, 55, 0.25);
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3), 0 0 40px rgba(212, 175, 55, 0.08);
     
@@ -150,20 +151,20 @@ const Card = styled.div`
     }
   }
   
+  ${p => p.$expanded && css`
+    border-color: rgba(212, 175, 55, 0.35);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3), 0 0 50px rgba(212, 175, 55, 0.12);
+    
+    &::before, &::after {
+      opacity: 1;
+    }
+  `}
+  
   h3 {
     margin: 1.5rem 0 1rem;
     font-size: 1.25rem;
     font-weight: 500;
     color: ${p => p.theme.colors.text};
-    position: relative;
-    z-index: 1;
-  }
-  
-  p {
-    margin: 0;
-    color: ${p => p.theme.colors.textMuted || 'rgba(245, 245, 245, 0.7)'};
-    line-height: 1.7;
-    font-size: 0.95rem;
     position: relative;
     z-index: 1;
   }
@@ -185,11 +186,43 @@ const IconWrap = styled.div`
   z-index: 1;
   transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   
-  ${Card}:hover & {
+  ${Card}:hover &, ${p => p.$active && css`
     background: linear-gradient(135deg, #D4AF37 0%, #AA771C 100%);
     color: ${p => p.theme.colors.background};
     box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
     animation: ${float} 2s ease-in-out infinite;
+  `}
+`;
+
+const Preview = styled.p`
+  margin: 0;
+  color: ${p => p.theme.colors.textMuted || 'rgba(245, 245, 245, 0.7)'};
+  line-height: 1.7;
+  font-size: 0.95rem;
+  position: relative;
+  z-index: 1;
+`;
+
+const FullDescription = styled.div`
+  max-height: ${p => p.$expanded ? '500px' : '0'};
+  opacity: ${p => p.$expanded ? 1 : 0};
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 0.4s ease,
+              margin 0.4s ease,
+              padding 0.4s ease;
+  margin-top: ${p => p.$expanded ? '1rem' : '0'};
+  padding-top: ${p => p.$expanded ? '1rem' : '0'};
+  border-top: ${p => p.$expanded ? '1px solid rgba(212, 175, 55, 0.1)' : 'none'};
+  position: relative;
+  z-index: 1;
+  
+  p {
+    margin: 0;
+    color: ${p => p.theme.colors.textMuted || 'rgba(245, 245, 245, 0.7)'};
+    line-height: 1.8;
+    font-size: 0.95rem;
+    text-align: left;
   }
 `;
 
@@ -201,25 +234,18 @@ const LearnMore = styled.div`
   gap: 0.5rem;
   font-size: 0.85rem;
   color: ${p => p.theme.colors.primary};
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.4s ease;
-  cursor: pointer;
   position: relative;
   z-index: 1;
+  transition: all 0.3s ease;
   
   svg {
     font-size: 0.75rem;
-    transition: transform 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: ${p => p.$expanded ? 'rotate(180deg)' : 'rotate(0)'};
   }
   
-  ${Card}:hover & {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  
-  &:hover svg {
-    transform: translateX(5px);
+  &:hover {
+    opacity: 0.8;
   }
 `;
 
@@ -230,33 +256,44 @@ const Loading = styled.div`
   font-size: 1.2rem;
 `;
 
+// Helper function to get preview text (first sentence or first 80 chars)
+const getPreview = (text) => {
+  if (!text) return '';
+  const firstSentence = text.split(/[.!?]/)[0];
+  if (firstSentence.length < 100) {
+    return firstSentence + '.';
+  }
+  return text.substring(0, 80) + '...';
+};
+
 // Fallback services if API fails or is empty
 const FALLBACK_SERVICES = [
   { 
     icon: 'faCouch', 
     title: 'Design Intérieur', 
-    description: "Création d'espaces harmonieux et fonctionnels qui reflètent votre personnalité unique."
+    description: "Création d'espaces harmonieux et fonctionnels qui reflètent votre personnalité unique. Notre approche combine esthétique contemporaine et confort absolu pour transformer votre habitat en un lieu de vie exceptionnel."
   },
   { 
     icon: 'faLightbulb', 
     title: 'Conseil & Concept', 
-    description: 'Accompagnement personnalisé pour définir votre identité décorative avec précision.'
+    description: "Accompagnement personnalisé pour définir votre identité décorative avec précision. Nous analysons vos besoins, vos goûts et votre mode de vie pour créer un concept sur mesure qui vous ressemble."
   },
   { 
     icon: 'faRulerCombined', 
     title: 'Sur Mesure', 
-    description: 'Optimisation des volumes et agencement intelligent pour maximiser chaque espace.'
+    description: "Optimisation des volumes et agencement intelligent pour maximiser chaque espace. Chaque centimètre carré est pensé pour allier fonctionnalité et élégance."
   },
   { 
     icon: 'faPalette', 
     title: 'Matériaux Nobles', 
-    description: 'Sélection de textures et finitions exclusives pour un rendu véritablement unique.'
+    description: "Sélection de textures et finitions exclusives pour un rendu véritablement unique. Nous travaillons avec les meilleurs artisans et fournisseurs pour garantir une qualité irréprochable."
   }
 ];
 
 export default function Services() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     const loadServices = async () => {
@@ -278,6 +315,10 @@ export default function Services() {
 
     loadServices();
   }, []);
+
+  const toggleExpand = (id) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
 
   if (loading) {
     return (
@@ -306,18 +347,39 @@ export default function Services() {
         </SectionHeader>
         
         <Grid>
-          {services.map((s, index) => (
-            <Card key={s.id || s.title} style={{ animationDelay: `${index * 0.1}s` }}>
-              <IconWrap>
-                <FontAwesomeIcon icon={ICON_MAP[s.icon] || faGem} />
-              </IconWrap>
-              <h3>{s.title}</h3>
-              <p>{s.description}</p>
-              <LearnMore>
-                En savoir plus <FontAwesomeIcon icon={faArrowRight} />
-              </LearnMore>
-            </Card>
-          ))}
+          {services.map((s, index) => {
+            const serviceId = s.id || s.title;
+            const isExpanded = expandedId === serviceId;
+            const preview = getPreview(s.description);
+            const hasMoreContent = s.description && s.description.length > preview.length;
+            
+            return (
+              <Card 
+                key={serviceId} 
+                style={{ animationDelay: `${index * 0.1}s` }}
+                $expanded={isExpanded}
+                onClick={() => hasMoreContent && toggleExpand(serviceId)}
+              >
+                <IconWrap $active={isExpanded}>
+                  <FontAwesomeIcon icon={ICON_MAP[s.icon] || faGem} />
+                </IconWrap>
+                <h3>{s.title}</h3>
+                
+                {!isExpanded && <Preview>{preview}</Preview>}
+                
+                <FullDescription $expanded={isExpanded}>
+                  <p>{s.description}</p>
+                </FullDescription>
+                
+                {hasMoreContent && (
+                  <LearnMore $expanded={isExpanded}>
+                    {isExpanded ? 'Réduire' : 'En savoir plus'} 
+                    <FontAwesomeIcon icon={faChevronDown} />
+                  </LearnMore>
+                )}
+              </Card>
+            );
+          })}
         </Grid>
       </Container>
     </Section>
