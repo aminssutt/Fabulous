@@ -434,6 +434,23 @@ export default function AdminDashboard() {
 
   const token = localStorage.getItem('adminToken');
 
+  // ==================== AUTH GUARD ====================
+  useEffect(() => {
+    const isTokenExpired = (t) => {
+      try {
+        const payload = JSON.parse(atob(t.split('.')[1]));
+        return payload.exp * 1000 < Date.now();
+      } catch { return true; }
+    };
+    const storedToken = localStorage.getItem('adminToken');
+    const logged = localStorage.getItem('adminLogged') === 'true';
+    if (!storedToken || !logged || isTokenExpired(storedToken)) {
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminLogged');
+      navigate('/admin');
+    }
+  }, [navigate]);
+
   // ==================== LOAD DATA ====================
   useEffect(() => {
     loadAll();
@@ -481,6 +498,12 @@ export default function AdminDashboard() {
       const res = await fetch(`${API_URL}/api/reviews/admin/all`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminLogged');
+        navigate('/admin');
+        return;
+      }
       if (res.ok) setReviews(await res.json());
     } catch (e) { console.error('Erreur reviews:', e); }
   };
@@ -736,6 +759,7 @@ export default function AdminDashboard() {
   // ==================== LOGOUT ====================
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminLogged');
     navigate('/admin');
   };
 
