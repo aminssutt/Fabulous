@@ -286,33 +286,53 @@ const ModalContent = styled.div`
   max-width: 900px;
   width: 100%;
   max-height: 90vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   position: relative;
+  border-radius: 16px;
+  
+  /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 175, 55, 0.4) transparent;
+  &::-webkit-scrollbar { width: 5px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.4); border-radius: 3px; }
   
   @media (max-width: 768px) {
-    max-height: 85vh;
+    max-height: 88vh;
   }
 `;
 
 const ModalImage = styled.div`
   position: relative;
   width: 100%;
-  max-height: 60vh;
-  border-radius: 12px;
+  height: 60vh;
+  flex-shrink: 0;
+  border-radius: 12px 12px 0 0;
   overflow: hidden;
+  background: #111;
   
   img {
     width: 100%;
     height: 100%;
     object-fit: contain;
     background: #111;
+    display: block;
+  }
+  
+  @media (max-width: 768px) {
+    height: 45vw;
+    min-height: 220px;
   }
 `;
 
 const ModalInfo = styled.div`
-  padding: 1.5rem 0;
+  padding: 1.5rem 2rem 2rem;
   color: white;
+  background: rgba(10, 10, 10, 0.95);
+  border-radius: 0 0 16px 16px;
+  border-top: 1px solid rgba(212, 175, 55, 0.15);
 `;
 
 const ModalTitle = styled.h3`
@@ -337,9 +357,10 @@ const ModalCategory = styled.span`
 
 const ModalDescription = styled.p`
   font-size: 1rem;
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.75);
   margin: 0;
+  white-space: pre-line;
 `;
 
 const ModalClose = styled.button`
@@ -568,20 +589,17 @@ export default function Portfolio() {
             <ModalImage>
               <img src={selectedImage.url} alt={selectedImage.title || 'Projet'} />
             </ModalImage>
-            <ModalInfo>
-              <ModalCategory>{getCategoryLabel(selectedImage.theme)}</ModalCategory>
-              {selectedImage.title && (
-                <ModalTitle>{selectedImage.title}</ModalTitle>
-              )}
-              {selectedImage.description && (
-                <ModalDescription>{selectedImage.description}</ModalDescription>
-              )}
-              {!selectedImage.title && !selectedImage.description && (
-                <ModalDescription style={{ fontStyle: 'italic', opacity: 0.5 }}>
-                  Cliquez sur les flèches ou utilisez les touches ← → pour naviguer
-                </ModalDescription>
-              )}
-            </ModalInfo>
+            {(selectedImage.title || selectedImage.description) ? (
+              <ModalInfo>
+                <ModalCategory>{getCategoryLabel(selectedImage.theme)}</ModalCategory>
+                {selectedImage.title && (
+                  <ModalTitle>{selectedImage.title}</ModalTitle>
+                )}
+                {selectedImage.description && (
+                  <ModalDescription>{selectedImage.description}</ModalDescription>
+                )}
+              </ModalInfo>
+            ) : null}
           </ModalContent>
         </ModalOverlay>
       )}

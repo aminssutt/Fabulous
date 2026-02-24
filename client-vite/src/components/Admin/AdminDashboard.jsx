@@ -501,7 +501,10 @@ export default function AdminDashboard() {
   // ==================== GALLERY HANDLERS ====================
   const handleFilesSelect = (e) => {
     const files = Array.from(e.target.files);
-    setUploadFiles(prev => [...prev, ...files]);
+    if (files.length > 0) {
+      // Un seul fichier autorisé par publication
+      setUploadFiles([files[0]]);
+    }
   };
 
   const removePreviewFile = (index) => {
@@ -686,7 +689,7 @@ export default function AdminDashboard() {
   // ==================== REVIEWS HANDLERS ====================
   const approveReview = async (id) => {
     try {
-      const res = await fetch(`${API_URL}/api/reviews/admin/${id}/approve`, {
+      const res = await fetch(`${API_URL}/api/reviews/${id}/approve`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -700,7 +703,7 @@ export default function AdminDashboard() {
   const rejectReview = async (id) => {
     if (!window.confirm('Rejeter et supprimer cet avis ?')) return;
     try {
-      const res = await fetch(`${API_URL}/api/reviews/admin/${id}`, {
+      const res = await fetch(`${API_URL}/api/reviews/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -789,13 +792,15 @@ export default function AdminDashboard() {
             <UploadArea onClick={() => fileInputRef.current?.click()}>
               <FontAwesomeIcon icon={faUpload} size="2x" style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
               <p style={{ margin: 0, color: 'rgba(255,255,255,0.5)' }}>
-                Cliquez pour sélectionner des images
+                Cliquez pour sélectionner une image
+              </p>
+              <p style={{ margin: '0.4rem 0 0', color: 'rgba(212,175,55,0.7)', fontSize: '0.8rem' }}>
+                ⚠ Une seule image par publication — pour ajouter plusieurs images, répétez l'opération.
               </p>
               <input
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
-                multiple
                 style={{ display: 'none' }}
                 onChange={handleFilesSelect}
               />
@@ -840,7 +845,7 @@ export default function AdminDashboard() {
             
             <ActionBtn type="submit" disabled={uploadFiles.length === 0 || uploading}>
               {uploading ? <><FontAwesomeIcon icon={faSpinner} spin /> Upload en cours...</> 
-                        : <><FontAwesomeIcon icon={faUpload} /> Uploader {uploadFiles.length} image(s)</>}
+                        : <><FontAwesomeIcon icon={faUpload} /> Publier l'image</>}
             </ActionBtn>
           </Form>
           
