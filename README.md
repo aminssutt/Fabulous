@@ -1,174 +1,114 @@
-# Fabulous - Site Vitrine (Version Allégée Sans Backend)
+<p align="center">
+  <img src="./logofabulousv2.png" alt="Fabulous logo" width="160" />
+</p>
 
-## Structure du Projet
+<h1 align="center">Fabulous</h1>
+<p align="center">Site vitrine premium pour un portfolio d'architecture d'intérieur.</p>
 
+<p align="center">
+  <img alt="Frontend Vite React" src="https://img.shields.io/badge/Frontend-Vite%20%2B%20React-1a1a1a?style=for-the-badge&logo=react&logoColor=D4AF37">
+  <img alt="Backend Node Express" src="https://img.shields.io/badge/Backend-Node%20%2B%20Express-2d2d2d?style=for-the-badge&logo=express&logoColor=FCF6BA">
+  <img alt="Database Supabase" src="https://img.shields.io/badge/Data-Supabase-111111?style=for-the-badge&logo=supabase&logoColor=BF953F">
+</p>
+
+<p align="center">
+  <img alt="Palette Or Signature" src="https://img.shields.io/badge/Or%20Signature-%23D4AF37?style=flat-square&labelColor=%231a1a1a">
+  <img alt="Palette Noir Profond" src="https://img.shields.io/badge/Noir%20Profond-%231a1a1a?style=flat-square&labelColor=%231a1a1a">
+  <img alt="Palette Or Clair" src="https://img.shields.io/badge/Or%20Clair-%23FCF6BA?style=flat-square&labelColor=%231a1a1a">
+</p>
+
+---
+
+## ✨ Aperçu
+
+**Fabulous** est une expérience web élégante et responsive, pensée pour être présentée sur un portfolio ou LinkedIn avec une identité visuelle forte (or + noir), une navigation fluide et un espace admin.
+
+### Fonctionnalités clés
+- Hero et sections premium (About, Services, Portfolio, Testimonials)
+- Galerie administrable
+- Interface responsive mobile/tablette/desktop
+- Backend Express pour auth admin et opérations sécurisées
+- Intégration Supabase (base de données + storage)
+
+---
+
+## 🧱 Architecture du projet
+
+```text
+Fabulous/
+├── client-vite/     # Frontend principal (React + Vite)
+├── client/          # Frontend CRA legacy (historique)
+├── server/          # API Express (auth, contact, gestion données)
+├── DEPLOYMENT.md    # Guide de déploiement complet
+└── README.md
 ```
-fabulous/
-├── client/               # Frontend React
-│   ├── public/          # Fichiers statiques
-│   └── src/             # Code source React
-│       ├── components/  # Composants React
-│       ├── App.js       # Composant principal
-│       └── index.js     # Point d'entrée
-│
-└── server/              # Backend Node.js/Express
-	├── models/          # Modèles MongoDB
-	├── server.js        # Serveur Express
-	└── .env            # Variables d'environnement
-```
-### Variables d'environnement (Client uniquement)
 
-Créé maintenant en mode purement frontend.
+---
 
-Client :
-- REACT_APP_ADMIN_PASSWORD = Mot de passe pour accéder au mini panneau d'administration (galerie).
+## 🚀 Démarrage rapide (recommandé)
 
-## Installation (Nouvelle Version Simplifiée)
-
-1. Aller dans le dossier `client` et installer :
+### 1) Frontend (Vite)
 ```bash
-cd client
+cd client-vite
 npm install
+npm run dev
 ```
-2. Copier `client/.env.example` vers `client/.env` et définir votre mot de passe :
+
+### 2) Backend (Express)
 ```bash
-REACT_APP_ADMIN_PASSWORD=MonSuperMotDePasseSecret
-```
-3. Lancer le site :
-```bash
-npm start
-```
-
-## Démarrage
-
-Mode développement React standard (plus de serveur Express requis) :
-```bash
-cd client
-npm start
-```
-Le site tourne sur: http://localhost:3000
-
-## Fonctionnalités (Version Actuelle)
-
-- Site vitrine 100% statique (React + localStorage)
-- Accès admin simple par mot de passe (stocké côté build – pour démo uniquement)
-- Gestion d'une galerie dynamique (ajout d'URLs d'images + catégorisation)
-- Filtrage par catégorie dans la section Galerie / Portfolio
-- Témoignages statiques (avatars génériques, pas de photos de profil réelles)
-
-Supprimé :
-- Rendez-vous / calendrier
-- Emails
-- Auth multi-facteur
-- API / base de données
-
-## 🚀 Détails UI
-
-- Design moderne et épuré
-- Responsive (mobile / tablette / desktop)
-- Animations légères
-- Galerie alimentée par localStorage (persistance navigateur)
-
-## 🛠️ Technologies Utilisées
-
-- React.js
-- Styled Components
-- Material-UI
-- React Scroll
-- React Slick
-- Font Awesome
-
-## 📦 Installation
-
-1. Clonez le repository :
-\`\`\`bash
-git clone [url-du-repo]
-\`\`\`
-
-2. Installez les dépendances :
-\`\`\`bash
+cd server
 npm install
-\`\`\`
-
-3. Lancez le serveur de développement :
-\`\`\`bash
-npm start
-\`\`\`
-
-## 🎨 Structure du Projet
-
-\`\`\`
-fabulous-website/
-├── public/
-│   └── index.html
-├── src/
-│   ├── components/
-│   │   ├── Header.js
-│   │   ├── About.js
-│   │   ├── Portfolio.js
-│   │   ├── Services.js
-│   │   ├── Admin/
-│   │   │   ├── AdminLogin.js
-│   │   │   └── AdminDashboard.js (galerie)
-│   │   ├── Testimonials.js
-│   │   └── Footer.js
-│   ├── App.js
-│   ├── index.js
-│   └── index.css
-└── package.json
-\`\`\`
-
-## Déploiement GitHub Pages (Branche gh-pages)
-
-La configuration utilise maintenant le package `gh-pages` et publie le dossier `build/` directement sur une branche `gh-pages`.
-
-Pré-requis :
+npm run dev
 ```
-cd client
-npm install
-```
-### Déploiement GitHub Pages
 
-Depuis le dossier `client-vite` :
+> Le frontend Vite est la version recommandée pour la présentation professionnelle.
 
-1. Installer les dépendances si pas déjà fait: `npm install`
-2. Construire le build production: `npm run build`
-3. Déployer sur la branche gh-pages: `npm run deploy:gh`
+---
 
-Le script `deploy:gh` crée (ou met à jour) la branche `gh-pages` avec le contenu du dossier `dist`.
+## 🛠️ Scripts utiles
 
-Assurez-vous que le repo distant existe et que vous avez les droits de push. La config `base: '/Fabulous/'` dans `vite.config.js` est nécessaire pour GitHub Pages (chemins relatifs corrects).
+### `client-vite`
+- `npm run dev` : lancement local
+- `npm run build` : build production
+- `npm run preview` : preview du build
+- `npm run deploy:gh` : déploiement GitHub Pages (branche `gh-pages`)
 
-Si vous utilisez une autre URL (ex: changement de nom du repo), mettre à jour la propriété `base`.
+### `server`
+- `npm run dev` : backend en mode développement (nodemon)
+- `npm run start` : backend en mode production
 
+---
 
-Déployer :
-```
-cd client
-npm run deploy
-```
-Ce script :
-- lance `npm run build`
-- pousse le contenu du dossier `build` sur la branche `gh-pages`
+## 🔐 Sécurité (résumé)
 
-Sur GitHub (Settings > Pages) :
-- Source = Deploy from a branch
-- Branch = gh-pages (root)
+Le backend inclut déjà des protections essentielles :
+- `helmet` (headers de sécurité)
+- `xss-clean` (réduction risques XSS)
+- `hpp` (protection HTTP Parameter Pollution)
+- `express-rate-limit` (limitation de requêtes API/login)
+- JWT pour l'accès admin
+- CORS avec whitelist contrôlée
 
-URL attendue : https://aminssutt.github.io/Fabulous
+### Vérifications recommandées avant mise en production
+- Utiliser un `JWT_SECRET` robuste (32+ caractères)
+- Utiliser un `ADMIN_PASSWORD` fort (12+ caractères, mixte)
+- Ne jamais exposer les clés `SUPABASE_SERVICE_KEY` côté client
+- Activer la 2FA sur les comptes d'infrastructure (Supabase, Vercel, Render)
 
-Notes:
-- `homepage` dans `client/package.json` assure les chemins corrects.
-- Si tu renommes le repo, mets à jour ce champ.
-- Pour nettoyer un ancien dossier `docs`, tu peux simplement le supprimer si présent.
+👉 Détails complets : [`DEPLOYMENT.md`](./DEPLOYMENT.md)
 
-## 📝 Todo (Potentiel futur)
+---
 
-- [ ] Export / import JSON de la galerie (déjà présent mais doc à clarifier)
-- [ ] Mini aperçu & validation des URLs (partiellement fait pour Imgur dans l'admin)
-- [ ] Support drag & drop + upload (ex: Cloudinary)
-- [ ] Hash côté build du mot de passe pour éviter le plain text (obfuscation minime)
-- [ ] Tests unitaires basiques
+## 🌍 Déploiement
+
+Le projet supporte un déploiement moderne :
+- Frontend : Vercel ou GitHub Pages (`client-vite`)
+- Backend : Render
+- Données : Supabase
+
+Pour la procédure complète, suivre [`DEPLOYMENT.md`](./DEPLOYMENT.md).
+
+---
 
 ## 📄 Licence
 
