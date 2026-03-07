@@ -6,15 +6,15 @@
 <p align="center">Site vitrine premium pour un portfolio d'architecture d'intérieur.</p>
 
 <p align="center">
-  <img alt="Frontend Vite React" src="https://img.shields.io/badge/Frontend-Vite%20%2B%20React-1a1a1a?style=for-the-badge&logo=react&logoColor=D4AF37">
-  <img alt="Backend Node Express" src="https://img.shields.io/badge/Backend-Node%20%2B%20Express-2d2d2d?style=for-the-badge&logo=express&logoColor=FCF6BA">
-  <img alt="Database Supabase" src="https://img.shields.io/badge/Data-Supabase-111111?style=for-the-badge&logo=supabase&logoColor=BF953F">
+  <img alt="Badge stack frontend Vite et React" src="https://img.shields.io/badge/Frontend-Vite%20%2B%20React-1a1a1a?style=for-the-badge&logo=react&logoColor=D4AF37">
+  <img alt="Badge stack backend Node.js et Express" src="https://img.shields.io/badge/Backend-Node%20%2B%20Express-2d2d2d?style=for-the-badge&logo=express&logoColor=FCF6BA">
+  <img alt="Badge couche data Supabase" src="https://img.shields.io/badge/Data-Supabase-111111?style=for-the-badge&logo=supabase&logoColor=BF953F">
 </p>
 
 <p align="center">
-  <img alt="Palette Or Signature" src="https://img.shields.io/badge/Or%20Signature-%23D4AF37?style=flat-square&labelColor=%231a1a1a">
-  <img alt="Palette Noir Profond" src="https://img.shields.io/badge/Noir%20Profond-%231a1a1a?style=flat-square&labelColor=%231a1a1a">
-  <img alt="Palette Or Clair" src="https://img.shields.io/badge/Or%20Clair-%23FCF6BA?style=flat-square&labelColor=%231a1a1a">
+  <img alt="Palette Or Signature" src="https://img.shields.io/badge/Or%20Signature-%23D4AF37?style=flat-square&labelColor=%231a1a1a&color=%23D4AF37&logoColor=%231a1a1a">
+  <img alt="Palette Noir Profond" src="https://img.shields.io/badge/Noir%20Profond-%231a1a1a?style=flat-square&labelColor=%231a1a1a&color=%231a1a1a&logoColor=%23FCF6BA">
+  <img alt="Palette Or Clair" src="https://img.shields.io/badge/Or%20Clair-%23FCF6BA?style=flat-square&labelColor=%231a1a1a&color=%23FCF6BA&logoColor=%231a1a1a">
 </p>
 
 ---
@@ -61,7 +61,8 @@ npm install
 npm run dev
 ```
 
-> Le frontend Vite est la version recommandée pour la présentation professionnelle.
+> Le frontend Vite est la version recommandée pour la présentation professionnelle.  
+> Le dossier `client/` est conservé pour compatibilité/historique, mais n'est plus la cible principale.
 
 ---
 
@@ -90,12 +91,12 @@ Le backend inclut déjà des protections essentielles :
 - CORS avec whitelist contrôlée
 
 ### Vérifications recommandées avant mise en production
-- Utiliser un `JWT_SECRET` robuste (32+ caractères)
-- Utiliser un `ADMIN_PASSWORD` fort (12+ caractères, mixte)
-- Ne jamais exposer les clés `SUPABASE_SERVICE_KEY` côté client
+- Configurer un `JWT_SECRET` robuste, aléatoire cryptographiquement (32+ caractères) dans `server/.env` (ou variables Render)
+- Configurer un `ADMIN_PASSWORD` fort (12+ caractères, maj/min/chiffres/caractères spéciaux, non commun) dans `server/.env` (ou variables Render)
+- Ne jamais exposer les clés `SUPABASE_SERVICE_KEY` côté client (les conserver uniquement dans `server/.env` ou variables backend)
 - Activer la 2FA sur les comptes d'infrastructure (Supabase, Vercel, Render)
 
-👉 Détails complets : [`DEPLOYMENT.md`](./DEPLOYMENT.md)
+Consulter les détails complets : [`DEPLOYMENT.md`](./DEPLOYMENT.md)
 
 ---
 
