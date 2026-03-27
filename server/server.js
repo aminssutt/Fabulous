@@ -78,6 +78,8 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   /^https:\/\/fabulous.*\.vercel\.app$/,  // Toutes les URLs Vercel de fabulous
+  'https://fabulousdesign.online',
+  'https://www.fabulousdesign.online',
 ];
 
 app.use(cors({
