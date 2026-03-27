@@ -25,6 +25,9 @@ const contentRoutes = require('./routes/content');
 
 const app = express();
 
+// Render utilise un reverse proxy - nécessaire pour express-rate-limit
+app.set('trust proxy', 1);
+
 // Configuration Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
 const EMAIL_SENDER =
