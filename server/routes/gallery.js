@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const jwt = require('jsonwebtoken');
 const supabase = require('../config/supabase');
 const crypto = require('crypto');
+const FileType = require('file-type');
+const sharp = require('sharp');
+const { authenticateAdmin } = require('../middleware/auth');
 
 // Configuration Multer
 const upload = multer({
@@ -20,23 +22,6 @@ const upload = multer({
     }
   }
 });
-
-// Middleware d'authentification admin
-const authenticateAdmin = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  
-  if (!token) {
-    return res.status(401).json({ message: 'Token manquant' });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.admin = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({ message: 'Token invalide ou expiré' });
-  }
-};
 
 // GET - Récupérer toutes les images de la galerie
 router.get('/', async (req, res) => {
@@ -77,17 +62,43 @@ router.post('/upload', authenticateAdmin, upload.single('image'), async (req, re
       return res.status(400).json({ message: 'Catégorie requise' });
     }
 
+    // Validate actual file content (magic bytes check)
+    const fileTypeResult = await FileType.fromBuffer(req.file.buffer);
+    if (!fileTypeResult || !['image/jpeg', 'image/png', 'image/webp'].includes(fileTypeResult.mime)) {
+      return res.status(400).json({ message: 'Le fichier n\'est pas une image valide.' });
+    }
+
+    // Process image: resize if too large, strip metadata, convert to WebP
+    let processedBuffer = req.file.buffer;
+    let finalMime = fileTypeResult.mime;
+    let finalExt = fileTypeResult.ext;
+
+    try {
+      const metadata = await sharp(req.file.buffer).metadata();
+      let pipeline = sharp(req.file.buffer).rotate();
+
+      if (metadata.width > 1920 || metadata.height > 1920) {
+        pipeline = pipeline.resize(1920, 1920, { fit: 'inside', withoutEnlargement: true });
+      }
+
+      pipeline = pipeline.webp({ quality: 85 });
+      processedBuffer = await pipeline.toBuffer();
+      finalMime = 'image/webp';
+      finalExt = 'webp';
+    } catch (err) {
+      console.error('Image processing failed, using original:', err.message);
+    }
+
     // Générer un nom de fichier unique
-    const fileExt = req.file.originalname.split('.').pop();
-    const fileName = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}.${fileExt}`;
+    const fileName = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}.${finalExt}`;
     const filePath = `gallery/${fileName}`;
 
     // Upload vers Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('images')
-      .upload(filePath, req.file.buffer, {
-        contentType: req.file.mimetype,
-        cacheControl: '3600',
+      .upload(filePath, processedBuffer, {
+        contentType: finalMime,
+        cacheControl: 'public, max-age=31536000, immutable',
         upsert: false
       });
 

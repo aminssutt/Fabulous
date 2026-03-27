@@ -45,5 +45,15 @@ export const theme = {
     goldSimple: 'linear-gradient(135deg, #D4AF37 0%, #AA771C 100%)',
     dark: 'linear-gradient(180deg, #0A0A0A 0%, #1A1A1A 100%)',
     radialGold: 'radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.15) 0%, transparent 70%)'
+  },
+  spacing: {
+    section: '8rem',
+    sectionMobile: '5rem'
+  },
+  radius: {
+    sm: '8px',
+    md: '16px',
+    lg: '24px',
+    xl: '32px'
   }
 };

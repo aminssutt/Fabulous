@@ -256,9 +256,15 @@ function Appointment() {
 
   const fetchAvailableSlots = async (date) => {
     try {
-      const response = await fetch(`${API_URL}/api/available-slots?date=${date}`);
+      const response = await fetch(`${API_URL}/api/appointments/available-slots?date=${date}`);
       const data = await response.json();
-      setAvailableSlots(data.slots || []);
+      if (Array.isArray(data)) {
+        setAvailableSlots(data.map(time => ({ time, available: true })));
+      } else if (Array.isArray(data?.slots)) {
+        setAvailableSlots(data.slots);
+      } else {
+        setAvailableSlots([]);
+      }
     } catch (error) {
       console.error('Erreur lors de la récupération des créneaux:', error);
       setAvailableSlots([]);
@@ -285,8 +291,7 @@ function Appointment() {
     setStatus({ submitting: true, message: '', success: false });
 
     try {
-      console.log('Envoi de la demande de rendez-vous:', formData);
-      const response = await fetch(`${API_URL}/api/appointment`, {
+      const response = await fetch(`${API_URL}/api/appointments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -295,7 +300,6 @@ function Appointment() {
       });
 
       const data = await response.json();
-      console.log('Réponse reçue:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Une erreur est survenue');
@@ -458,3 +462,4 @@ function Appointment() {
 }
 
 export default Appointment;
+

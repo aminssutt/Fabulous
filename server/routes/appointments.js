@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
 const { Resend } = require('resend');
+const { authenticateAdmin } = require('../middleware/auth');
 
 // Configuration Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -54,7 +55,7 @@ const sendNotificationEmail = async (appointment) => {
 };
 
 // GET - Récupérer tous les rendez-vous (protégé admin)
-router.get('/', async (req, res) => {
+router.get('/', authenticateAdmin, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('appointments')
@@ -120,6 +121,17 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: 'Tous les champs sont requis' });
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Format d\'email invalide' });
+    }
+
+    // Validate phone format
+    if (!/^[+\d\s().-]{6,50}$/.test(phone)) {
+      return res.status(400).json({ message: 'Format de téléphone invalide' });
+    }
+
     // Vérifier si le créneau est déjà pris
     const { data: existing, error: checkError } = await supabase
       .from('appointments')
@@ -165,7 +177,7 @@ router.post('/', async (req, res) => {
 });
 
 // DELETE - Supprimer un rendez-vous (protégé admin)
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateAdmin, async (req, res) => {
   try {
     const { id } = req.params;
 

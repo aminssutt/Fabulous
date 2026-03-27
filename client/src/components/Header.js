@@ -42,12 +42,6 @@ const NavContent = styled.div`
   padding: 0 2rem;
 `;
 
-const logoAnimation = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-`;
-
 const Logo = styled.div`
   font-family: ${props => props.theme.fonts.primary};
   font-size: 2rem;

@@ -3,7 +3,7 @@ const router = express.Router();
 const supabase = require('../config/supabase');
 const { Resend } = require('resend');
 const rateLimit = require('express-rate-limit');
-const jwt = require('jsonwebtoken');
+const { authenticateAdmin } = require('../middleware/auth');
 
 // Configuration Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -24,26 +24,6 @@ const reviewLimiter = rateLimit({
     return req.body?.email || req.ip;
   }
 });
-
-// Middleware pour protéger les routes admin
-const authenticateAdmin = (req, res, next) => {
-  try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ message: "Token manquant" });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (decoded.email !== ADMIN_EMAIL) {
-      return res.status(403).json({ message: "Accès non autorisé" });
-    }
-
-    req.adminEmail = decoded.email;
-    next();
-  } catch (error) {
-    res.status(401).json({ message: "Token invalide" });
-  }
-};
 
 // Fonction pour anonymiser un nom
 const anonymizeName = (name) => {

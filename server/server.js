@@ -11,8 +11,9 @@ const supabase = require('./config/supabase');
 // Import des middlewares de sécurité
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const xss = require('xss-clean');
+const { xss } = require('express-xss-sanitizer');
 const hpp = require('hpp');
+const { authenticateAdmin } = require('./middleware/auth');
 
 // Import des routes
 const galleryRoutes = require('./routes/gallery');
@@ -26,6 +27,11 @@ const app = express();
 
 // Configuration Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
+const EMAIL_SENDER =
+  process.env.EMAIL_FROM ||
+  process.env.EMAIL_USER ||
+  process.env.ADMIN_EMAIL ||
+  'no-reply@fabulous.local';
 
 // Configuration des limiteurs de requêtes
 const loginLimiter = rateLimit({
@@ -41,6 +47,14 @@ const apiLimiter = rateLimit({
   max: 100, // 100 requêtes par IP
   message: {
     error: 'Trop de requêtes depuis cette IP. Veuillez réessayer dans une heure.'
+  }
+});
+
+const verifyCodeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 tentatives max
+  message: {
+    error: 'Trop de tentatives de vérification. Réessayez dans 15 minutes.'
   }
 });
 
@@ -138,150 +152,10 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR', options);
 };
 
-const clientEmailTemplate = (data) => `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Confirmation de rendez-vous</title>
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0;">
-  <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
-    <div style="background-color: #D4AF37; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
-      <h1 style="color: #fff; margin: 0; font-size: 24px;">Confirmation de Rendez-vous</h1>
-    </div>
-    
-    <div style="background-color: #fff; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-      <p style="font-size: 16px; color: #333;">Bonjour ${data.name},</p>
-      
-      <p style="font-size: 16px; color: #333;">Votre rendez-vous a été confirmé pour :</p>
-      
-      <div style="background-color: #f5f5f5; padding: 15px; border-radius: 4px; margin: 20px 0;">
-        <p style="margin: 5px 0;"><strong>Date :</strong> ${formatDate(data.date)}</p>
-        <p style="margin: 5px 0;"><strong>Heure :</strong> ${data.time}</p>
-      </div>
-      
-      <p style="font-size: 14px; color: #666;">Message : ${data.message}</p>
-      
-      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-        <p style="color: #888; font-size: 14px;">Pour toute modification ou annulation, veuillez nous contacter directement.</p>
-      </div>
-    </div>
-    
-    <div style="text-align: center; margin-top: 20px;">
-      <p style="color: #D4AF37; font-weight: bold; margin: 0;">L'équipe Fabulous</p>
-      <p style="color: #888; font-size: 12px; margin: 5px 0;">Email: ${process.env.EMAIL_USER}</p>
-    </div>
-  </div>
-</body>
-</html>`;
-
-const adminEmailTemplate = (data) => `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nouveau rendez-vous</title>
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0;">
-  <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
-    <div style="background-color: #D4AF37; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
-      <h1 style="color: #fff; margin: 0; font-size: 24px;">Nouveau Rendez-vous</h1>
-    </div>
-    
-    <div style="background-color: #fff; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-      <div style="background-color: #f5f5f5; padding: 15px; border-radius: 4px;">
-        <p style="margin: 5px 0;"><strong>Nom :</strong> ${data.name}</p>
-        <p style="margin: 5px 0;"><strong>Email :</strong> ${data.email}</p>
-        <p style="margin: 5px 0;"><strong>Téléphone :</strong> ${data.phone}</p>
-        <p style="margin: 5px 0;"><strong>Date :</strong> ${formatDate(data.date)}</p>
-        <p style="margin: 5px 0;"><strong>Heure :</strong> ${data.time}</p>
-      </div>
-      
-      <div style="margin-top: 20px;">
-        <h3 style="color: #666;">Message du client :</h3>
-        <p style="background-color: #f9f9f9; padding: 10px; border-radius: 4px;">${data.message}</p>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
-
-const sendEmails = async (appointmentData) => {
-  console.log('Préparation de l\'envoi des emails pour:', appointmentData.email);
-
-  const clientMail = {
-    from: {
-      name: 'Fabulous',
-      address: process.env.EMAIL_USER
-    },
-    to: {
-      name: appointmentData.name,
-      address: appointmentData.email
-    },
-    subject: 'Confirmation de rendez-vous - Fabulous',
-    html: clientEmailTemplate(appointmentData)
-  };
-
-  const adminMail = {
-    from: {
-      name: 'Fabulous System',
-      address: process.env.EMAIL_USER
-    },
-    to: {
-      name: 'Fabulous Admin',
-      address: process.env.EMAIL_USER
-    },
-    subject: `Nouveau rendez-vous - ${appointmentData.name}`,
-    html: adminEmailTemplate(appointmentData)
-  };
-
-  try {
-    console.log('Envoi de l\'email au client...');
-    const clientResult = await transporter.sendMail(clientMail);
-    console.log('✅ Email client envoyé:', clientResult.messageId);
-
-    console.log('Envoi de l\'email à l\'admin...');
-    const adminResult = await transporter.sendMail(adminMail);
-    console.log('✅ Email admin envoyé:', adminResult.messageId);
-
-    return {
-      success: true,
-      clientMessageId: clientResult.messageId,
-      adminMessageId: adminResult.messageId
-    };
-  } catch (error) {
-    console.error('❌ Erreur lors de l\'envoi des emails:', error);
-    throw error;
-  }
-};
-
 // Configuration pour l'authentification admin
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const VERIFICATION_CODES = new Map();
-
-// Middleware pour protéger les routes admin
-const authenticateAdmin = (req, res, next) => {
-  try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ message: "Token manquant" });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (decoded.email !== ADMIN_EMAIL) {
-      return res.status(403).json({ message: "Accès non autorisé" });
-    }
-
-    req.adminEmail = decoded.email;
-    next();
-  } catch (error) {
-    res.status(401).json({ message: "Token invalide" });
-  }
-};
 
 // ==================== ROUTES AUTHENTIFICATION ====================
 
@@ -300,7 +174,7 @@ app.post('/api/admin/login', async (req, res) => {
     }
 
     // Générer un code à 6 chiffres
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationCode = crypto.randomInt(100000, 1000000).toString();
     const expirationTime = Date.now() + 15 * 60 * 1000; // 15 minutes
 
     VERIFICATION_CODES.set(verificationCode, { email, expirationTime });
@@ -344,7 +218,7 @@ app.post('/api/admin/login', async (req, res) => {
 });
 
 // Route pour vérifier le code
-app.post('/api/admin/verify-code', (req, res) => {
+app.post('/api/admin/verify-code', verifyCodeLimiter, (req, res) => {
   try {
     const { code, email } = req.body;
     const codeData = VERIFICATION_CODES.get(code);
@@ -440,8 +314,7 @@ const server = app.listen(PORT, (err) => {
     process.exit(1);
   }
   console.log(`\n✅ Serveur démarré sur http://localhost:${PORT}`);
-  console.log(`📧 Email configuré: ${process.env.EMAIL_USER}`);
-  console.log(`🗄️  Supabase URL: ${process.env.SUPABASE_URL}\n`);
+  console.log(`📧 Email configuré: ${EMAIL_SENDER}\n`);
 })
 .on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
@@ -454,11 +327,11 @@ const server = app.listen(PORT, (err) => {
 
 // Gestion des erreurs non capturées
 process.on('uncaughtException', (err) => {
-  console.error('❌ Erreur non capturée:', err.message);
-  // Ne pas arrêter le serveur pour les erreurs non critiques
+  console.error('❌ Erreur non capturée:', err);
+  process.exit(1);
 });
 
 process.on('unhandledRejection', (err) => {
-  console.error('❌ Promesse rejetée non gérée:', err.message || err);
-  // Ne pas arrêter le serveur pour les erreurs non critiques
+  console.error('❌ Promesse rejetée non gérée:', err);
 });
+

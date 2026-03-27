@@ -43,12 +43,12 @@ const GalleryImage = styled.img`
 `;
 
 const galleryItems = [
-  { id: 1, src: '/images/gallery/1.jpg', alt: 'Coiffure élégante' },
-  { id: 2, src: '/images/gallery/2.jpg', alt: 'Maquillage professionnel' },
-  { id: 3, src: '/images/gallery/3.jpg', alt: 'Soins du visage' },
-  { id: 4, src: '/images/gallery/4.jpg', alt: 'Manucure' },
-  { id: 5, src: '/images/gallery/5.jpg', alt: 'Coupe tendance' },
-  { id: 6, src: '/images/gallery/6.jpg', alt: 'Soins des cheveux' },
+  { id: 1, src: 'https://images.unsplash.com/photo-1505691723518-36a5ac3b2fba?auto=format&fit=crop&w=800&q=60', alt: 'Interior elegant design' },
+  { id: 2, src: 'https://images.unsplash.com/photo-1493666438817-866a91353ca9?auto=format&fit=crop&w=800&q=60', alt: 'Contemporary living room' },
+  { id: 3, src: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=800&q=60', alt: 'Modern kitchen concept' },
+  { id: 4, src: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=60', alt: 'Cozy curated space' },
+  { id: 5, src: 'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=800&q=60', alt: 'Luxury interior mood' },
+  { id: 6, src: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=60', alt: 'Modern decoration details' },
 ];
 
 function Gallery() {
@@ -59,7 +59,7 @@ function Gallery() {
         <GalleryGrid>
           {galleryItems.map(item => (
             <GalleryItem key={item.id}>
-              <GalleryImage src={item.src} alt={item.alt} />
+              <GalleryImage src={item.src} alt={item.alt} loading="lazy" />
             </GalleryItem>
           ))}
         </GalleryGrid>

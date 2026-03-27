@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
+const { authenticateAdmin } = require('../middleware/auth');
 
 // GET all categories (public - only active)
 router.get('/', async (req, res) => {
@@ -20,7 +21,7 @@ router.get('/', async (req, res) => {
 });
 
 // GET all categories (admin - all)
-router.get('/admin/all', async (req, res) => {
+router.get('/admin/all', authenticateAdmin, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('categories')
@@ -36,7 +37,7 @@ router.get('/admin/all', async (req, res) => {
 });
 
 // POST create category (admin)
-router.post('/', async (req, res) => {
+router.post('/', authenticateAdmin, async (req, res) => {
   try {
     const { slug, label, sort_order, is_active } = req.body;
     
@@ -75,7 +76,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT update category (admin)
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { slug, label, sort_order, is_active } = req.body;
@@ -96,7 +97,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE category (admin)
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     

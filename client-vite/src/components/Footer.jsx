@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Link as ScrollLink } from 'react-scroll';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faInstagram, faFacebookF, faPinterestP, faLinkedinIn } from '@fortawesome/free-brands-svg-icons';
+import { faInstagram, faTiktok } from '@fortawesome/free-brands-svg-icons';
 
 const shimmer = keyframes`
   0% { background-position: -200% 0; }
@@ -206,7 +206,8 @@ const links = [
   { to: 'about', label: 'À propos' },
   { to: 'services', label: 'Services' },
   { to: 'portfolio', label: 'Réalisations' },
-  { to: 'testimonials', label: 'Avis' }
+  { to: 'testimonials', label: 'Avis' },
+  { to: 'contact', label: 'Contact' }
 ];
 
 export default function Footer() {
@@ -221,17 +222,11 @@ export default function Footer() {
               en réalités luxueuses avec passion et expertise.
             </Description>
             <SocialLinks>
-              <SocialLink href="#" aria-label="Instagram">
+              <SocialLink href="https://www.instagram.com/fahima_faroukhi" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                 <FontAwesomeIcon icon={faInstagram} />
               </SocialLink>
-              <SocialLink href="#" aria-label="Facebook">
-                <FontAwesomeIcon icon={faFacebookF} />
-              </SocialLink>
-              <SocialLink href="#" aria-label="Pinterest">
-                <FontAwesomeIcon icon={faPinterestP} />
-              </SocialLink>
-              <SocialLink href="#" aria-label="LinkedIn">
-                <FontAwesomeIcon icon={faLinkedinIn} />
+              <SocialLink href="#" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+                <FontAwesomeIcon icon={faTiktok} />
               </SocialLink>
             </SocialLinks>
           </Column>

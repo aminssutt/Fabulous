@@ -3,22 +3,19 @@
 Migration de l'ancienne application CRA vers Vite + React 19.
 
 ## Scripts
-- `npm run dev` : démarrage en développement
-- `npm run build` : build de production (sortie dans dist/)
-- `npm run preview` : prévisualisation du build
+- `npm run dev` : demarrage en developpement
+- `npm run build` : build de production (sortie dans `dist/`)
+- `npm run preview` : previsualisation locale du build
+- `npm run deploy:gh` : build puis publication sur `gh-pages`
 
 ## Variables d'environnement
-Copier `.env.example` vers `.env` et définir :
-```
-VITE_ADMIN_PASSWORD=FahimaFerqazwsx123
-VITE_API_URL=https://example.com (optionnel si plus d'API)
-```
-
-## Déploiement GitHub Pages
-Base configurée dans `vite.config.js` avec `base: '/Fabulous/'`.
-Générer le build puis pousser `dist/` dans la branche `gh-pages`.
+Copier `.env.example` vers `.env.local` (ou `.env`) et definir :
 
 ```bash
-npm run build
-# (Option) Copier contenu dist à la racine de la branche gh-pages
+VITE_API_URL=http://localhost:5000
+VITE_SUPABASE_URL=https://votre-projet.supabase.co
+VITE_SUPABASE_ANON_KEY=votre_anon_key_publique
 ```
+
+## GitHub Pages
+La base est configuree dans `vite.config.js` avec `base: '/Fabulous/'`.

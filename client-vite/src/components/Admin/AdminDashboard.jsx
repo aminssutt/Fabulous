@@ -433,6 +433,8 @@ export default function AdminDashboard() {
   const [newCategory, setNewCategory] = useState({ slug: '', label: '' });
 
   const token = localStorage.getItem('adminToken');
+  const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+  const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
   // ==================== AUTH GUARD ====================
   useEffect(() => {
@@ -523,49 +525,101 @@ export default function AdminDashboard() {
 
   // ==================== GALLERY HANDLERS ====================
   const handleFilesSelect = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length > 0) {
-      // Un seul fichier autorisé par publication
-      setUploadFiles([files[0]]);
-    }
-  };
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
+    const file = files[0];
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      showMessage('Format non supporte. Utilisez JPG, PNG ou WebP.', true);
+      e.target.value = '';
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      showMessage('Fichier trop volumineux (max 5MB).', true);
+      e.target.value = '';
+      return;
+    }
+
+    // Un seul fichier autorise par publication
+    setUploadFiles([file]);
+  };
   const removePreviewFile = (index) => {
     setUploadFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (uploadFiles.length === 0 || !uploadCategory) return;
-    
+    if (uploadFiles.length === 0) {
+      showMessage('Selectionnez une image avant de publier.', true);
+      return;
+    }
+    if (!uploadCategory) {
+      showMessage('Selectionnez une categorie avant de publier.', true);
+      return;
+    }
+
     setUploading(true);
     let successCount = 0;
-    
+    const uploadErrors = [];
+
     for (const file of uploadFiles) {
       const formData = new FormData();
       formData.append('image', file);
       formData.append('theme', uploadCategory);
       if (uploadTitle) formData.append('title', uploadTitle);
       if (uploadDesc) formData.append('description', uploadDesc);
-      
+
       try {
         const res = await fetch(`${API_URL}/api/gallery/upload`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
           body: formData
         });
-        if (res.ok) successCount++;
-      } catch (e) { console.error('Upload error:', e); }
-    }
-    
-    setUploading(false);
-    setUploadFiles([]);
-    setUploadTitle('');
-    setUploadDesc('');
-    loadGallery();
-    showMessage(`${successCount}/${uploadFiles.length} image(s) uploadée(s)`);
-  };
+        if (res.ok) {
+          successCount++;
+          continue;
+        }
 
+        let errMsg = 'Erreur inconnue';
+        try {
+          const errData = await res.json();
+          errMsg = errData?.message || errData?.error || errMsg;
+        } catch {}
+
+        if (res.status === 401 || res.status === 403) {
+          uploadErrors.push('Session admin expiree. Reconnectez-vous puis reessayez.');
+        } else {
+          uploadErrors.push(`${file.name}: ${errMsg}`);
+        }
+      } catch (e) {
+        console.error('Upload error:', e);
+        uploadErrors.push(`${file.name}: erreur reseau/API`);
+      }
+    }
+
+    setUploading(false);
+
+    if (successCount > 0) {
+      setUploadFiles([]);
+      setUploadTitle('');
+      setUploadDesc('');
+      loadGallery();
+    }
+
+    if (uploadErrors.length > 0) {
+      showMessage(
+        successCount > 0
+          ? `${successCount}/${uploadFiles.length} image(s) uploadee(s). ${uploadErrors[0]}`
+          : uploadErrors[0],
+        successCount === 0
+      );
+      return;
+    }
+
+    showMessage(`${successCount}/${uploadFiles.length} image(s) uploadee(s)`);
+  };
   const deleteImage = async (id) => {
     if (!window.confirm('Supprimer cette image ?')) return;
     try {
@@ -824,7 +878,7 @@ export default function AdminDashboard() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
                 style={{ display: 'none' }}
                 onChange={handleFilesSelect}
               />
@@ -1230,3 +1284,5 @@ export default function AdminDashboard() {
     </Wrap>
   );
 }
+
+

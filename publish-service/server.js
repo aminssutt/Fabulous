@@ -9,7 +9,10 @@ import cors from 'cors';
 // OPTIONAL_BASIC_SECRET (simple shared secret to avoid public misuse)
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:5173'],
+  methods: ['GET', 'POST']
+}));
 app.use(express.json({limit: '1mb'}));
 
 const {
@@ -17,7 +20,7 @@ const {
   REPO_OWNER = 'aminssutt',
   REPO_NAME = 'Fabulous',
   REPO_BRANCH = 'gh-pages',
-  OPTIONAL_BASIC_SECRET
+  PUBLISH_SECRET
 } = process.env;
 
 if(!GITHUB_TOKEN){
@@ -38,15 +41,13 @@ async function getCurrentFileSha(){
   return null;
 }
 
-app.get('/health', (_,res)=> res.json({ ok:true, repo:`${REPO_OWNER}/${REPO_NAME}`, branch: REPO_BRANCH }));
+app.get('/health', (_, res) => res.json({ ok: true }));
 
 app.post('/publish', async (req,res)=>{
   try {
-    if(OPTIONAL_BASIC_SECRET){
-      const header = req.headers['x-publish-secret'];
-      if(header !== OPTIONAL_BASIC_SECRET){
-        return res.status(401).json({error:'invalid secret'});
-      }
+    const header = req.headers['x-publish-secret'];
+    if (!PUBLISH_SECRET || header !== PUBLISH_SECRET) {
+      return res.status(401).json({ error: 'Authentication required' });
     }
     if(!GITHUB_TOKEN) return res.status(500).json({error:'server missing token'});
 
@@ -86,13 +87,14 @@ app.post('/publish', async (req,res)=>{
 
     if(!putResp.ok){
       const txt = await putResp.text();
-      return res.status(500).json({error:'github api error', status: putResp.status, body: txt.slice(0,300)});
+      console.error('GitHub API error:', putResp.status, txt.slice(0, 300));
+      return res.status(500).json({ error: 'Publication failed' });
     }
     const json = await putResp.json();
     return res.json({ ok:true, committed: true, sha: json.content?.sha });
   } catch(err){
     console.error(err);
-    return res.status(500).json({error:'server error', detail: err.message});
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 

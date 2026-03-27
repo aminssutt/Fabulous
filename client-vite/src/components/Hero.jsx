@@ -1,17 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Link as ScrollLink } from 'react-scroll';
 
-// Animations luxueuses
 const fadeInUp = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(60px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(60px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
 const shimmer = keyframes`
@@ -19,14 +12,19 @@ const shimmer = keyframes`
   100% { background-position: 200% 0; }
 `;
 
-const float = keyframes`
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(2deg); }
+const kenBurns1 = keyframes`
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.15) translate(-2%, -1%); }
 `;
 
-const pulse = keyframes`
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.05); }
+const kenBurns2 = keyframes`
+  0% { transform: scale(1.05) translate(-1%, 0); }
+  100% { transform: scale(1.2) translate(2%, -2%); }
+`;
+
+const kenBurns3 = keyframes`
+  0% { transform: scale(1.1) translate(1%, -1%); }
+  100% { transform: scale(1) translate(-1%, 1%); }
 `;
 
 const scrollAnim = keyframes`
@@ -34,99 +32,95 @@ const scrollAnim = keyframes`
   50% { opacity: 0.3; transform: translateX(-50%) translateY(10px); }
 `;
 
+const SLIDES = [
+  {
+    url: 'https://naupcnnsgioimxbhhyiu.supabase.co/storage/v1/object/public/images/gallery/1770641230635-7636fbb9e356f25e.jpg',
+    animation: kenBurns1
+  },
+  {
+    url: 'https://naupcnnsgioimxbhhyiu.supabase.co/storage/v1/object/public/images/gallery/1770641230103-4bb79961713a0cfd.jpg',
+    animation: kenBurns2
+  },
+  {
+    url: 'https://naupcnnsgioimxbhhyiu.supabase.co/storage/v1/object/public/images/gallery/1770641229226-5ce4fd94e9055ff1.jpg',
+    animation: kenBurns3
+  },
+  {
+    url: 'https://naupcnnsgioimxbhhyiu.supabase.co/storage/v1/object/public/images/gallery/1770641227809-fe8f73a73029a36e.jpg',
+    animation: kenBurns1
+  }
+];
+
 const Section = styled.section`
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 2rem;
-  background: ${p => p.theme.colors.background};
   position: relative;
   overflow: hidden;
+  background: #050505;
 `;
 
-const BackgroundElements = styled.div`
+const SlideBg = styled.div`
   position: absolute;
   inset: 0;
-  pointer-events: none;
-  overflow: hidden;
+  background-image: url(${p => p.$url});
+  background-size: cover;
+  background-position: center;
+  opacity: ${p => p.$active ? 1 : 0};
+  transition: opacity 1.8s ease-in-out;
+  animation: ${p => p.$animation} 12s ease-in-out infinite alternate;
+  will-change: transform, opacity;
 `;
 
-const GoldOrb = styled.div`
+const Overlay = styled.div`
   position: absolute;
-  border-radius: 50%;
-  background: ${p => p.theme.gradients?.radialGold || 'radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.15) 0%, transparent 70%)'};
-  filter: blur(80px);
-  animation: ${pulse} ${p => p.$duration || '8s'} ease-in-out infinite;
-  animation-delay: ${p => p.$delay || '0s'};
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(5, 5, 5, 0.75) 0%,
+    rgba(5, 5, 5, 0.55) 40%,
+    rgba(5, 5, 5, 0.65) 70%,
+    rgba(5, 5, 5, 0.85) 100%
+  );
+  z-index: 1;
 `;
 
-const FloatingShape = styled.div`
+const VignetteOverlay = styled.div`
   position: absolute;
-  width: ${p => p.$size || '100px'};
-  height: ${p => p.$size || '100px'};
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  border-radius: ${p => p.$rounded ? '50%' : '0'};
-  transform: rotate(${p => p.$rotate || '0deg'});
-  animation: ${float} ${p => p.$duration || '10s'} ease-in-out infinite;
-  animation-delay: ${p => p.$delay || '0s'};
-  opacity: 0.3;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(5, 5, 5, 0.6) 100%);
+  z-index: 2;
 `;
 
-const GradientLine = styled.div`
+const GoldGlow = styled.div`
   position: absolute;
-  width: 1px;
-  height: 200px;
-  background: linear-gradient(180deg, transparent 0%, rgba(212, 175, 55, 0.3) 50%, transparent 100%);
-  left: ${p => p.$left};
-  top: ${p => p.$top};
-  animation: ${pulse} ${p => p.$duration || '4s'} ease-in-out infinite;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 60%, rgba(212, 175, 55, 0.06) 0%, transparent 60%);
+  z-index: 2;
 `;
 
 const Content = styled.div`
   position: relative;
-  max-width: 1000px;
+  max-width: 900px;
   text-align: center;
-  z-index: 2;
+  z-index: 10;
 `;
-
-const LogoContainer = styled.div`
-  opacity: 0;
-  animation: ${fadeInUp} 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  animation-delay: 0s;
-  margin-bottom: 2.5rem;
-`;
-
-const HeroLogo = styled.img`
-  height: 380px;
-  width: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 0 80px rgba(212, 175, 55, 0.5));
-  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  
-  &:hover {
-    filter: drop-shadow(0 0 120px rgba(212, 175, 55, 0.7));
-    transform: scale(1.02);
-  }
-  
-  @media (max-width: ${p => p.theme.breakpoints?.mobile || '480px'}) {
-    height: 220px;
-  }
-`
 
 const Overline = styled.span`
   display: inline-block;
   font-family: ${p => p.theme.fonts.secondary};
   font-size: 0.85rem;
   font-weight: 500;
-  letter-spacing: 4px;
+  letter-spacing: 5px;
   text-transform: uppercase;
   color: ${p => p.theme.colors.primary};
   margin-bottom: 1.5rem;
   opacity: 0;
   animation: ${fadeInUp} 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  animation-delay: 0.2s;
-  
+  animation-delay: 0.3s;
+
   &::before, &::after {
     content: '—';
     margin: 0 1rem;
@@ -147,9 +141,9 @@ const Title = styled.h1`
   background-clip: text;
   animation: ${fadeInUp} 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
              ${shimmer} 4s linear infinite;
-  animation-delay: 0.4s, 0s;
+  animation-delay: 0.5s, 0s;
   opacity: 0;
-  
+
   @media (max-width: ${p => p.theme.breakpoints.mobile}) {
     font-size: 2.5rem;
   }
@@ -159,15 +153,16 @@ const Subtitle = styled.p`
   font-size: 1.2rem;
   font-weight: 300;
   margin: 0 auto 3rem;
-  max-width: 700px;
+  max-width: 650px;
   line-height: 1.8;
-  color: ${p => p.theme.colors.textMuted || 'rgba(245, 245, 245, 0.7)'};
+  color: rgba(245, 245, 245, 0.8);
   opacity: 0;
   animation: ${fadeInUp} 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  animation-delay: 0.6s;
-  
+  animation-delay: 0.7s;
+
   @media (max-width: ${p => p.theme.breakpoints.mobile}) {
     font-size: 1rem;
+    margin-bottom: 2rem;
   }
 `;
 
@@ -178,7 +173,7 @@ const Actions = styled.div`
   flex-wrap: wrap;
   opacity: 0;
   animation: ${fadeInUp} 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  animation-delay: 0.8s;
+  animation-delay: 0.9s;
 `;
 
 const Button = styled(ScrollLink)`
@@ -195,9 +190,9 @@ const Button = styled(ScrollLink)`
   transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   background: ${p => p.$secondary ? 'transparent' : 'linear-gradient(135deg, #D4AF37 0%, #AA771C 100%)'};
   color: ${p => p.$secondary ? p.theme.colors.primary : p.theme.colors.background};
-  border: ${p => p.$secondary ? `1px solid ${p.theme.colors.primary}` : 'none'};
+  border: ${p => p.$secondary ? '1px solid rgba(212, 175, 55, 0.6)' : 'none'};
   box-shadow: ${p => p.$secondary ? 'none' : '0 4px 30px rgba(212, 175, 55, 0.3)'};
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -209,21 +204,54 @@ const Button = styled(ScrollLink)`
     transition: ${p => p.$secondary ? 'width 0.5s' : 'left 0.6s'} cubic-bezier(0.25, 0.46, 0.45, 0.94);
     z-index: -1;
   }
-  
+
   &:hover {
     transform: translateY(-3px);
-    color: ${p => p.$secondary ? p.theme.colors.background : p.theme.colors.background};
+    color: ${p => p.theme.colors.background};
     box-shadow: 0 8px 50px rgba(212, 175, 55, 0.4);
-    
+
     &::before {
       ${p => p.$secondary ? 'width: 100%;' : 'left: 100%;'}
     }
+  }
+
+  @media (max-width: ${p => p.theme.breakpoints.mobile}) {
+    padding: 1rem 2rem;
+    font-size: 0.8rem;
+  }
+`;
+
+const SlideIndicators = styled.div`
+  position: absolute;
+  bottom: 6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.75rem;
+  z-index: 10;
+  opacity: 0;
+  animation: ${fadeInUp} 1s ease forwards;
+  animation-delay: 1.5s;
+`;
+
+const Dot = styled.button`
+  width: ${p => p.$active ? '28px' : '8px'};
+  height: 8px;
+  border-radius: 4px;
+  border: none;
+  background: ${p => p.$active ? p.theme.colors.primary : 'rgba(255, 255, 255, 0.3)'};
+  cursor: pointer;
+  transition: all 0.4s ease;
+  padding: 0;
+
+  &:hover {
+    background: ${p => p.theme.colors.primary};
   }
 `;
 
 const ScrollIndicator = styled.div`
   position: absolute;
-  bottom: 3rem;
+  bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -231,25 +259,26 @@ const ScrollIndicator = styled.div`
   align-items: center;
   gap: 0.5rem;
   opacity: 0;
-  animation: ${fadeInUp} 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  animation-delay: 1.2s;
+  animation: ${fadeInUp} 1s ease forwards;
+  animation-delay: 1.8s;
+  z-index: 10;
 `;
 
 const MouseIcon = styled.div`
-  width: 26px;
-  height: 42px;
-  border: 2px solid rgba(212, 175, 55, 0.4);
+  width: 24px;
+  height: 38px;
+  border: 2px solid rgba(212, 175, 55, 0.35);
   border-radius: 20px;
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
-    top: 8px;
+    top: 7px;
     left: 50%;
     transform: translateX(-50%);
-    width: 4px;
-    height: 8px;
+    width: 3px;
+    height: 7px;
     background: ${p => p.theme.colors.primary};
     border-radius: 2px;
     animation: ${scrollAnim} 1.5s ease-in-out infinite;
@@ -257,35 +286,42 @@ const MouseIcon = styled.div`
 `;
 
 const ScrollText = styled.span`
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(212, 175, 55, 0.5);
+  color: rgba(212, 175, 55, 0.4);
 `;
 
 export default function Hero() {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrent(prev => (prev + 1) % SLIDES.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <Section id="home">
-      <BackgroundElements>
-        <GoldOrb style={{ width: '600px', height: '600px', top: '-200px', right: '-200px' }} $duration="10s" />
-        <GoldOrb style={{ width: '400px', height: '400px', bottom: '-100px', left: '-100px' }} $duration="12s" $delay="2s" />
-        <GoldOrb style={{ width: '300px', height: '300px', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} $duration="15s" $delay="4s" />
-        
-        <FloatingShape $size="150px" style={{ top: '15%', left: '10%' }} $duration="12s" $rotate="45deg" />
-        <FloatingShape $size="80px" style={{ top: '70%', right: '15%' }} $duration="10s" $delay="2s" $rounded />
-        <FloatingShape $size="120px" style={{ bottom: '20%', left: '20%' }} $duration="14s" $delay="4s" $rotate="15deg" />
-        
-        <GradientLine $left="20%" $top="10%" $duration="4s" />
-        <GradientLine $left="80%" $top="30%" $duration="5s" />
-      </BackgroundElements>
-      
+      {SLIDES.map((slide, i) => (
+        <SlideBg
+          key={i}
+          $url={slide.url}
+          $active={i === current}
+          $animation={slide.animation}
+        />
+      ))}
+      <Overlay />
+      <VignetteOverlay />
+      <GoldGlow />
+
       <Content>
-        <LogoContainer>
-          <HeroLogo src="/logo.png" alt="Fabulous - Regenerative Interiors" />
-        </LogoContainer>
+        <Overline>Design d'intérieur</Overline>
         <Title>L'Art de Sublimer Vos Espaces</Title>
         <Subtitle>
-          Où élégance intemporelle et raffinement contemporain se rencontrent.
+          Conception et réaménagement d'espaces résidentiels et commerciaux.
+          Une approche sur mesure qui allie fonctionnalité, élégance et cohérence visuelle.
         </Subtitle>
         <Actions>
           <Button to="portfolio" smooth duration={800} offset={-70}>
@@ -296,7 +332,13 @@ export default function Hero() {
           </Button>
         </Actions>
       </Content>
-      
+
+      <SlideIndicators>
+        {SLIDES.map((_, i) => (
+          <Dot key={i} $active={i === current} onClick={() => setCurrent(i)} />
+        ))}
+      </SlideIndicators>
+
       <ScrollIndicator>
         <MouseIcon />
         <ScrollText>Défiler</ScrollText>

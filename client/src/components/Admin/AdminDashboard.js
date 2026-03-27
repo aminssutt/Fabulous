@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faTrash, faSignOutAlt, faImages, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faSignOutAlt, faImages, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const DashboardContainer = styled.div`
   min-height: 100vh;
@@ -185,8 +185,15 @@ function AdminDashboard(){
 
   // Protect simple session
   useEffect(()=>{
-    const logged = localStorage.getItem('adminLogged')==='true';
-    if(!logged) navigate('/admin');
+    const token = localStorage.getItem('adminToken');
+    if(!token) { navigate('/admin'); return; }
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if(payload.exp * 1000 < Date.now()) {
+        localStorage.removeItem('adminToken');
+        navigate('/admin');
+      }
+    } catch { localStorage.removeItem('adminToken'); navigate('/admin'); }
   },[navigate]);
 
   // Load from localStorage (backward compatibility: older entries may have data: base64)
@@ -263,7 +270,7 @@ function AdminDashboard(){
     persist(images.filter(i=>i.id!==id));
   };
 
-  const logout = ()=>{ localStorage.removeItem('adminLogged'); navigate('/admin'); };
+  const logout = ()=>{ localStorage.removeItem('adminToken'); localStorage.removeItem('adminLogged'); navigate('/admin'); };
 
   // --- Export / Import / Clear helpers (static hosting strategy) ---
   const exportGallery = () => {

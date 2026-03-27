@@ -18,6 +18,8 @@ services:
         value: 10000
       - key: CLIENT_URL
         sync: false
+      - key: EMAIL_FROM
+        sync: false
       - key: EMAIL_USER
         sync: false
       - key: RESEND_API_KEY
@@ -29,7 +31,7 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: JWT_EXPIRATION
-        value: 24h
+        sync: false
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_ANON_KEY

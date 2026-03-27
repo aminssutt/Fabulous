@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLock, faSpinner, faHome } from '@fortawesome/free-solid-svg-icons';
+import { faLock, faSpinner, faHome, faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { API_URL } from '../../config';
 
 const LoginContainer = styled.div`
   min-height: 100vh;
@@ -138,41 +139,47 @@ const HomeButton = styled.button`
 
 function AdminLogin() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState({ state: 'idle', message: '' });
   const [attempts, setAttempts] = useState(0);
-  const [showHint, setShowHint] = useState(false);
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem('adminLogged') === 'true';
-    if (loggedIn) navigate('/admin/dashboard');
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.exp * 1000 > Date.now()) {
+          navigate('/admin/dashboard');
+        }
+      } catch { /* token invalide */ }
+    }
   }, [navigate]);
 
-  const ADMIN_PASSWORD = process.env.REACT_APP_ADMIN_PASSWORD || '';
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus({ state: 'loading', message: 'Vérification...' });
-    setTimeout(() => {
-      if (!ADMIN_PASSWORD) {
-        setStatus({ state: 'error', message: 'Mot de passe admin non configuré.' });
-        return;
-      }
-      const input = password.trim();
-      const expected = ADMIN_PASSWORD.trim();
-      if (input === expected) {
-        localStorage.setItem('adminLogged', 'true');
-        setStatus({ state: 'success', message: 'Connexion réussie. Redirection...' });
-        setTimeout(() => navigate('/admin/dashboard'), 600);
+
+    try {
+      const response = await fetch(`${API_URL}/api/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        sessionStorage.setItem('pendingAdminEmail', email);
+        setStatus({ state: 'success', message: 'Code de vérification envoyé par email.' });
+        setTimeout(() => navigate('/admin/verify'), 1000);
       } else {
         setAttempts(a => a + 1);
-        setStatus({ state: 'error', message: 'Mot de passe incorrect.' });
-        // Afficher un indice après 2 échecs (site vitrine uniquement)
-        if (attempts + 1 >= 2) {
-          setShowHint(true);
-        }
+        setStatus({ state: 'error', message: data.message || 'Identifiants incorrects.' });
       }
-    }, 400);
+    } catch (error) {
+      setStatus({ state: 'error', message: 'Erreur de connexion au serveur.' });
+    }
   };
 
   return (
@@ -185,12 +192,25 @@ function AdminLogin() {
         <Form onSubmit={handleSubmit}>
           <FormGroup>
             <Icon>
+              <FontAwesomeIcon icon={faEnvelope} />
+            </Icon>
+            <Input
+              type="email"
+              name="email"
+              placeholder="Email administrateur"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </FormGroup>
+          <FormGroup>
+            <Icon>
               <FontAwesomeIcon icon={faLock} />
             </Icon>
             <Input
               type="password"
               name="password"
-              placeholder="Mot de passe administrateur"
+              placeholder="Mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -203,11 +223,6 @@ function AdminLogin() {
             <StatusMessage $status={status.state === 'error' ? 'error' : status.state === 'success' ? 'success' : 'idle'}>
               {status.message}
             </StatusMessage>
-          )}
-          {showHint && status.state !== 'success' && (
-            <div style={{marginTop:'0.75rem',fontSize:'0.75rem',opacity:0.6,textAlign:'center'}}>
-              Indice: commence par <strong>Fahi</strong> et contient des chiffres à la fin.
-            </div>
           )}
         </Form>
       </LoginCard>

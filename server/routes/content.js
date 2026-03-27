@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
+const { authenticateAdmin } = require('../middleware/auth');
 
 // Récupérer tout le contenu (public)
 router.get('/', async (req, res) => {
@@ -14,7 +15,7 @@ router.get('/', async (req, res) => {
         res.json(data);
     } catch (error) {
         console.error('Error fetching content:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: 'Erreur serveur' });
     }
 });
 
@@ -31,12 +32,12 @@ router.get('/:key', async (req, res) => {
         res.json(data);
     } catch (error) {
         console.error('Error fetching content:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: 'Erreur serveur' });
     }
 });
 
 // Mettre à jour un contenu (authentifié)
-router.put('/:key', async (req, res) => {
+router.put('/:key', authenticateAdmin, async (req, res) => {
     try {
         const { title, content } = req.body;
         
@@ -55,12 +56,12 @@ router.put('/:key', async (req, res) => {
         res.json(data);
     } catch (error) {
         console.error('Error updating content:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: 'Erreur serveur' });
     }
 });
 
 // Créer un nouveau contenu (authentifié)
-router.post('/', async (req, res) => {
+router.post('/', authenticateAdmin, async (req, res) => {
     try {
         const { key, title, content } = req.body;
         
@@ -78,12 +79,12 @@ router.post('/', async (req, res) => {
         res.status(201).json(data);
     } catch (error) {
         console.error('Error creating content:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: 'Erreur serveur' });
     }
 });
 
 // Supprimer un contenu (authentifié)
-router.delete('/:key', async (req, res) => {
+router.delete('/:key', authenticateAdmin, async (req, res) => {
     try {
         const { error } = await supabase
             .from('site_content')
@@ -94,7 +95,7 @@ router.delete('/:key', async (req, res) => {
         res.json({ success: true });
     } catch (error) {
         console.error('Error deleting content:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: 'Erreur serveur' });
     }
 });
 

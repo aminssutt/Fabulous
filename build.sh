@@ -11,16 +11,7 @@ echo "Building server..."
 cd ../server
 npm install
 
-# Create production env files if they don't exist
-echo "Checking environment files..."
-if [ ! -f .env.production ]; then
-	echo "Creating server .env.production..."
-	cp .env .env.production
-fi
-
-if [ ! -f ../client/.env.production ]; then
-	echo "Creating client .env.production..."
-	cp .env .env.production
-fi
+# NOTE: Production env vars are set in the deployment platform (Render/Vercel)
+# Never copy .env files for production use
 
 echo "Build complete!"

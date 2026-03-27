@@ -9,9 +9,10 @@ Configurez ces variables dans le dashboard Render :
 PORT=5000
 NODE_ENV=production
 
-# Email (Gmail)
-EMAIL_USER=votre-email@gmail.com
-EMAIL_PASS=votre-mot-de-passe-app
+# Email (Resend sender)
+EMAIL_FROM=votre-email@votre-domaine.com
+# Legacy fallback (optional)
+EMAIL_USER=votre-email@votre-domaine.com
 
 # Admin
 ADMIN_EMAIL=admin@fabulous.com

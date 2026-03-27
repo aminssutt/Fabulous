@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner, faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { API_URL } from '../../config';
 
 const VerifyContainer = styled.div`
   min-height: 100vh;
@@ -141,8 +142,6 @@ const LoadingSpinner = styled(FontAwesomeIcon)`
     100% { transform: rotate(360deg); }
   }
 `;
-
-const API_URL = 'http://localhost:5000';
 
 function AdminVerify() {
   const navigate = useNavigate();

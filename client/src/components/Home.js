@@ -7,7 +7,7 @@ const HomeSection = styled.section`
   display: flex;
   align-items: center;
   background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-    url('/images/hero-bg.jpg') center/cover no-repeat;
+    url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000') center/cover no-repeat;
   padding: 6rem 2rem;
 `;
 
