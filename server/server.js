@@ -62,7 +62,18 @@ const verifyCodeLimiter = rateLimit({
 });
 
 // Application des middlewares de sécurité
-app.use(helmet()); // Sécurité des en-têtes HTTP
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "https://*.supabase.co", "https://images.unsplash.com", "data:", "blob:"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'", "https://*.supabase.co"],
+    }
+  }
+}));
 app.use(xss()); // Protection contre les attaques XSS
 app.use(hpp()); // Protection contre la pollution des paramètres HTTP
 
