@@ -64,7 +64,7 @@ router.post('/upload', authenticateAdmin, upload.single('image'), async (req, re
 
     // Validate actual file content (magic bytes check)
     const fileTypeResult = await FileType.fromBuffer(req.file.buffer);
-    if (!fileTypeResult || !['image/jpeg', 'image/png', 'image/webp'].includes(fileTypeResult.mime)) {
+    if (!fileTypeResult || !['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(fileTypeResult.mime)) {
       return res.status(400).json({ message: 'Le fichier n\'est pas une image valide.' });
     }
 
@@ -156,13 +156,14 @@ router.put('/:id', authenticateAdmin, async (req, res) => {
       .single();
 
     if (error) throw error;
+    if (!data) return res.status(404).json({ message: 'Image non trouvée' });
 
     res.json(data);
   } catch (error) {
     console.error('Erreur lors de la mise à jour:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Erreur lors de la mise à jour de l\'image',
-      error: error.message 
+      error: error.message
     });
   }
 });

@@ -479,7 +479,15 @@ export default function AdminDashboard() {
 
   const loadCategories = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/categories/admin/all`);
+      const res = await fetch(`${API_URL}/api/categories/admin/all`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminLogged');
+        navigate('/admin');
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setCategories(data);
@@ -490,7 +498,15 @@ export default function AdminDashboard() {
 
   const loadServices = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/services/admin/all`);
+      const res = await fetch(`${API_URL}/api/services/admin/all`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminLogged');
+        navigate('/admin');
+        return;
+      }
       if (res.ok) setServices(await res.json());
     } catch (e) { console.error('Erreur services:', e); }
   };
@@ -606,6 +622,7 @@ export default function AdminDashboard() {
       setUploadTitle('');
       setUploadDesc('');
       loadGallery();
+      window.dispatchEvent(new Event('gallery-update'));
     }
 
     if (uploadErrors.length > 0) {
@@ -629,6 +646,7 @@ export default function AdminDashboard() {
       });
       if (res.ok) {
         loadGallery();
+        window.dispatchEvent(new Event('gallery-update'));
         showMessage('Image supprimée');
       }
     } catch (e) { showMessage('Erreur de suppression', true); }
@@ -646,6 +664,7 @@ export default function AdminDashboard() {
       });
       if (res.ok) {
         loadGallery();
+        window.dispatchEvent(new Event('gallery-update'));
         setEditingImage(null);
         showMessage('Image mise à jour');
       }
