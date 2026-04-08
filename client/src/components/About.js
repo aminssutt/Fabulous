@@ -123,12 +123,23 @@ function About() {
       <Container>
         <Grid>
           <Content>
-            <h2>À Propos de Fabulous</h2>
+            <h2>À propos</h2>
+            <p>Fabulous Interior Design est né d'une conviction simple :</p>
+            <p>l'espace dans lequel vous vivez façonne profondément qui vous êtes.</p>
+            <p>Nous ne concevons pas des intérieurs pour être regardés.</p>
+            <p>Nous créons des environnements pour être ressentis.</p>
             <p>
-              Chez Fabulous, nous transformons vos espaces en véritables œuvres d'art. 
-              Notre passion pour le design d'intérieur se reflète dans chaque projet 
-              que nous réalisons, créant des environnements qui allient esthétique et fonctionnalité.
+              À la croisée de l'architecture intérieure, du design régénératif et de la psychologie
+              de l'espace, chaque projet est pensé comme un écosystème vivant capable de soutenir
+              votre bien-être, votre énergie et votre équilibre au quotidien.
             </p>
+            <p>Lumière naturelle, matières authentiques, circulation fluide, silence visuel...</p>
+            <p>Rien n'est laissé au hasard. Chaque choix est intentionnel.</p>
+            <p>
+              Parce qu'un intérieur n'est pas un décor. C'est une expérience. Un refuge.
+              Une extension invisible de vous-même.
+            </p>
+            <p>Chez Fabulous, nous traduisons votre essence en espace. Avec exigence, sensibilité et vision.</p>
             <Stats>
               <StatItem>
                 <h4>150+</h4>
@@ -148,31 +159,31 @@ function About() {
             <FeatureCard>
               <h3>
                 <FontAwesomeIcon icon={faAward} className="icon" />
-                Excellence
+                01 — Beyond Aesthetics
               </h3>
               <p>
-                Notre engagement envers l'excellence se reflète dans chaque détail 
-                de nos créations, garantissant des résultats exceptionnels.
+                Nous ne créons pas des espaces "beaux". Nous créons des lieux qui
+                influencent votre énergie et votre quotidien.
               </p>
             </FeatureCard>
             <FeatureCard>
               <h3>
                 <FontAwesomeIcon icon={faPaintBrush} className="icon" />
-                Créativité
+                02 — Designed to Be Felt
               </h3>
               <p>
-                Nous apportons une vision créative unique à chaque projet, 
-                en repoussant les limites du design conventionnel.
+                Chaque projet est pensé pour être vécu, ressenti, expérimenté.
+                Parce que le vrai luxe, c'est ce que vous ressentez chez vous.
               </p>
             </FeatureCard>
             <FeatureCard>
               <h3>
                 <FontAwesomeIcon icon={faGem} className="icon" />
-                Qualité Premium
+                03 — Conscious Design
               </h3>
               <p>
-                Nous utilisons uniquement des matériaux et des finitions de la plus 
-                haute qualité pour créer des espaces durables et luxueux.
+                Un design qui respecte votre bien-être et son environnement.
+                Plus sain, plus juste, plus durable.
               </p>
             </FeatureCard>
           </Features>

@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAward, faPaintBrush, faGem, faStar } from '@fortawesome/free-solid-svg-icons';
-import { API_URL } from '../config';
+import { faAward, faPaintBrush, faGem } from '@fortawesome/free-solid-svg-icons';
 
 // Animations
 const fadeInUp = keyframes`
@@ -226,63 +225,33 @@ const Card = styled.div`
   }
 `;
 
-// Default content fallback
-const DEFAULT_CONTENT = {
-  about_intro: {
-    title: 'Notre Histoire',
-    content: "Chez Fabulous, nous transformons vos espaces en véritables œuvres d'art. Notre passion pour le design d'intérieur se reflète dans chaque projet que nous réalisons, créant des environnements qui allient esthétique raffinée et fonctionnalité absolue."
-  },
-  about_philosophy: {
-    title: 'Notre Philosophie',
-    content: "Chaque création est une invitation au voyage sensoriel, où les textures nobles rencontrent les lignes épurées, où la lumière sculpte l'espace pour révéler sa beauté intrinsèque."
-  }
-};
-
 export default function About() {
-  const [content, setContent] = useState(DEFAULT_CONTENT);
-
-  useEffect(() => {
-    const loadContent = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/content`);
-        if (res.ok) {
-          const data = await res.json();
-          // Convert array to object keyed by 'key'
-          const contentMap = {};
-          data.forEach(item => {
-            contentMap[item.key] = {
-              title: item.title,
-              content: item.content
-            };
-          });
-          if (Object.keys(contentMap).length > 0) {
-            setContent(prev => ({ ...prev, ...contentMap }));
-          }
-        }
-      } catch (error) {
-        console.error('Erreur chargement contenu:', error);
-      }
-    };
-
-    loadContent();
-  }, []);
-
   return (
     <AboutSection id="about">
       <Container>
         <SectionHeader>
-          <Overline>{content.about_intro?.title || 'Notre Histoire'}</Overline>
-          <SectionTitle>À Propos de Fabulous</SectionTitle>
+          <Overline>Fabulous Interior Design</Overline>
+          <SectionTitle>À propos</SectionTitle>
         </SectionHeader>
         
         <Grid>
           <Content>
+            <p>Fabulous Interior Design est né d'une conviction simple :</p>
+            <p>l'espace dans lequel vous vivez façonne profondément qui vous êtes.</p>
+            <p>Nous ne concevons pas des intérieurs pour être regardés.</p>
+            <p>Nous créons des environnements pour être ressentis.</p>
             <p>
-              {content.about_intro?.content || DEFAULT_CONTENT.about_intro.content}
+              À la croisée de l'architecture intérieure, du design régénératif et de la psychologie
+              de l'espace, chaque projet est pensé comme un écosystème vivant capable de soutenir
+              votre bien-être, votre énergie et votre équilibre au quotidien.
             </p>
+            <p>Lumière naturelle, matières authentiques, circulation fluide, silence visuel...</p>
+            <p>Rien n'est laissé au hasard. Chaque choix est intentionnel.</p>
             <p>
-              {content.about_philosophy?.content || DEFAULT_CONTENT.about_philosophy.content}
+              Parce qu'un intérieur n'est pas un décor. C'est une expérience. Un refuge.
+              Une extension invisible de vous-même.
             </p>
+            <p>Chez Fabulous, nous traduisons votre essence en espace. Avec exigence, sensibilité et vision.</p>
             <Stats>
               <Stat $delay="0.2s">
                 <h4>150+</h4>
@@ -301,16 +270,16 @@ export default function About() {
           
           <Features>
             <Card>
-              <h3><FontAwesomeIcon icon={faAward} /> Excellence & Prestige</h3>
-              <p>Un engagement total dans chaque détail pour garantir un résultat irréprochable, digne des plus grands standards du luxe.</p>
+              <h3><FontAwesomeIcon icon={faAward} /> 01 — Beyond Aesthetics</h3>
+              <p>Nous ne créons pas des espaces "beaux". Nous créons des lieux qui influencent votre énergie et votre quotidien.</p>
             </Card>
             <Card>
-              <h3><FontAwesomeIcon icon={faPaintBrush} /> Créativité Signature</h3>
-              <p>Une vision unique pour sublimer chaque espace avec style, cohérence et une touche d'audace qui fait la différence.</p>
+              <h3><FontAwesomeIcon icon={faPaintBrush} /> 02 — Designed to Be Felt</h3>
+              <p>Chaque projet est pensé pour être vécu, ressenti, expérimenté. Parce que le vrai luxe, c'est ce que vous ressentez chez vous.</p>
             </Card>
             <Card>
-              <h3><FontAwesomeIcon icon={faGem} /> Matériaux Nobles</h3>
-              <p>Sélection rigoureuse de matériaux et finitions haut de gamme pour un intérieur durable, élégant et intemporel.</p>
+              <h3><FontAwesomeIcon icon={faGem} /> 03 — Conscious Design</h3>
+              <p>Un design qui respecte votre bien-être et son environnement. Plus sain, plus juste, plus durable.</p>
             </Card>
           </Features>
         </Grid>
