@@ -204,49 +204,49 @@ function About() {
       <Container>
         <Grid>
           <Content>
-            <h2>Ã€ propos</h2>
+            <h2>&Agrave; propos</h2>
             <Lead>
-              Fabulous Interior Design est nÃ© d&apos;une conviction simple : l&apos;espace dans lequel vous vivez
-              faÃ§onne profondÃ©ment qui vous Ãªtes.
+              Fabulous Interior Design est n&eacute; d&apos;une conviction simple : l&apos;espace dans lequel vous vivez
+              fa&ccedil;onne profond&eacute;ment qui vous &ecirc;tes.
             </Lead>
-            <p>Nous ne concevons pas des intÃ©rieurs pour Ãªtre regardÃ©s. Nous crÃ©ons des environnements pour Ãªtre ressentis.</p>
+            <p>Nous ne concevons pas des int&eacute;rieurs pour &ecirc;tre regard&eacute;s. Nous cr&eacute;ons des environnements pour &ecirc;tre ressentis.</p>
             <p>
-              Ã€ la croisÃ©e de l&apos;architecture intÃ©rieure, du design rÃ©gÃ©nÃ©ratif et de la psychologie de l&apos;espace,
-              chaque projet est pensÃ© comme un Ã©cosystÃ¨me vivant capable de soutenir votre bien-Ãªtre, votre Ã©nergie et
-              votre Ã©quilibre au quotidien.
+              &Agrave; la crois&eacute;e de l&apos;architecture int&eacute;rieure, du design r&eacute;g&eacute;n&eacute;ratif et de la psychologie de l&apos;espace,
+              chaque projet est pens&eacute; comme un &eacute;cosyst&egrave;me vivant capable de soutenir votre bien-&ecirc;tre, votre &eacute;nergie et
+              votre &eacute;quilibre au quotidien.
             </p>
-            <p>LumiÃ¨re naturelle, matiÃ¨res authentiques, circulation fluide, silence visuel. Rien n&apos;est laissÃ© au hasard.</p>
-            <p>Parce qu&apos;un intÃ©rieur n&apos;est pas un dÃ©cor. C&apos;est une expÃ©rience, un refuge, une extension invisible de vous-mÃªme.</p>
-            <p>Chez Fabulous, nous traduisons votre essence en espace avec exigence, sensibilitÃ© et vision.</p>
+            <p>Lumi&egrave;re naturelle, mati&egrave;res authentiques, circulation fluide, silence visuel. Rien n&apos;est laiss&eacute; au hasard.</p>
+            <p>Parce qu&apos;un int&eacute;rieur n&apos;est pas un d&eacute;cor. C&apos;est une exp&eacute;rience, un refuge, une extension invisible de vous-m&ecirc;me.</p>
+            <p>Chez Fabulous, nous traduisons votre essence en espace avec exigence, sensibilit&eacute; et vision.</p>
           </Content>
           <Features>
             <FeatureCard>
               <h3>
                 <FontAwesomeIcon icon={faAward} className="icon" />
-                <span>01 â€” Beyond Aesthetics</span>
+                <span>01 - Beyond Aesthetics</span>
               </h3>
               <p>
-                Nous ne crÃ©ons pas des espaces &quot;beaux&quot;.<br />
-                Nous crÃ©ons des lieux qui influencent votre Ã©nergie et votre quotidien.
+                Nous ne cr&eacute;ons pas des espaces &quot;beaux&quot;.<br />
+                Nous cr&eacute;ons des lieux qui influencent votre &eacute;nergie et votre quotidien.
               </p>
             </FeatureCard>
             <FeatureCard>
               <h3>
                 <FontAwesomeIcon icon={faPaintBrush} className="icon" />
-                <span>02 â€” Designed to Be Felt</span>
+                <span>02 - Designed to Be Felt</span>
               </h3>
               <p>
-                Chaque projet est pensÃ© pour Ãªtre vÃ©cu, ressenti, expÃ©rimentÃ©.<br />
+                Chaque projet est pens&eacute; pour &ecirc;tre v&eacute;cu, ressenti, exp&eacute;riment&eacute;.<br />
                 Parce que le vrai luxe, c&apos;est ce que vous ressentez chez vous.
               </p>
             </FeatureCard>
             <FeatureCard>
               <h3>
                 <FontAwesomeIcon icon={faGem} className="icon" />
-                <span>03 â€” Conscious Design</span>
+                <span>03 - Conscious Design</span>
               </h3>
               <p>
-                Un design qui respecte votre bien-Ãªtre et son environnement.<br />
+                Un design qui respecte votre bien-&ecirc;tre et son environnement.<br />
                 Plus sain, plus juste, plus durable.
               </p>
             </FeatureCard>
@@ -255,11 +255,11 @@ function About() {
         <Stats>
           <StatItem>
             <h4>150+</h4>
-            <p>Projets RÃ©alisÃ©s</p>
+            <p>Projets R&eacute;alis&eacute;s</p>
           </StatItem>
           <StatItem>
             <h4>10+</h4>
-            <p>AnnÃ©es d&apos;Excellence</p>
+            <p>Ann&eacute;es d&apos;Excellence</p>
           </StatItem>
           <StatItem>
             <h4>100%</h4>
@@ -272,4 +272,5 @@ function About() {
 }
 
 export default About;
+
 
