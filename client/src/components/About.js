@@ -161,8 +161,9 @@ const FeatureCard = styled.div`
 const Stats = styled.div`
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 900px);
   gap: 1.5rem;
-  margin-top: 2.5rem;
+  margin: 2.75rem auto 0;
   padding-top: 2rem;
   border-top: 1px solid rgba(191, 149, 63, 0.25);
   text-align: center;
@@ -203,71 +204,72 @@ function About() {
       <Container>
         <Grid>
           <Content>
-            <h2>À propos</h2>
+            <h2>Ã€ propos</h2>
             <Lead>
-              Fabulous Interior Design est né d&apos;une conviction simple : l&apos;espace dans lequel vous vivez
-              façonne profondément qui vous êtes.
+              Fabulous Interior Design est nÃ© d&apos;une conviction simple : l&apos;espace dans lequel vous vivez
+              faÃ§onne profondÃ©ment qui vous Ãªtes.
             </Lead>
-            <p>Nous ne concevons pas des intérieurs pour être regardés. Nous créons des environnements pour être ressentis.</p>
+            <p>Nous ne concevons pas des intÃ©rieurs pour Ãªtre regardÃ©s. Nous crÃ©ons des environnements pour Ãªtre ressentis.</p>
             <p>
-              À la croisée de l&apos;architecture intérieure, du design régénératif et de la psychologie de l&apos;espace,
-              chaque projet est pensé comme un écosystème vivant capable de soutenir votre bien-être, votre énergie et
-              votre équilibre au quotidien.
+              Ã€ la croisÃ©e de l&apos;architecture intÃ©rieure, du design rÃ©gÃ©nÃ©ratif et de la psychologie de l&apos;espace,
+              chaque projet est pensÃ© comme un Ã©cosystÃ¨me vivant capable de soutenir votre bien-Ãªtre, votre Ã©nergie et
+              votre Ã©quilibre au quotidien.
             </p>
-            <p>Lumière naturelle, matières authentiques, circulation fluide, silence visuel. Rien n&apos;est laissé au hasard.</p>
-            <p>Parce qu&apos;un intérieur n&apos;est pas un décor. C&apos;est une expérience, un refuge, une extension invisible de vous-même.</p>
-            <p>Chez Fabulous, nous traduisons votre essence en espace avec exigence, sensibilité et vision.</p>
-            <Stats>
-              <StatItem>
-                <h4>150+</h4>
-                <p>Projets Réalisés</p>
-              </StatItem>
-              <StatItem>
-                <h4>10+</h4>
-                <p>Années d&apos;Excellence</p>
-              </StatItem>
-              <StatItem>
-                <h4>100%</h4>
-                <p>Clients Satisfaits</p>
-              </StatItem>
-            </Stats>
+            <p>LumiÃ¨re naturelle, matiÃ¨res authentiques, circulation fluide, silence visuel. Rien n&apos;est laissÃ© au hasard.</p>
+            <p>Parce qu&apos;un intÃ©rieur n&apos;est pas un dÃ©cor. C&apos;est une expÃ©rience, un refuge, une extension invisible de vous-mÃªme.</p>
+            <p>Chez Fabulous, nous traduisons votre essence en espace avec exigence, sensibilitÃ© et vision.</p>
           </Content>
           <Features>
             <FeatureCard>
               <h3>
                 <FontAwesomeIcon icon={faAward} className="icon" />
-                <span>01 — Beyond Aesthetics</span>
+                <span>01 â€” Beyond Aesthetics</span>
               </h3>
               <p>
-                Nous ne créons pas des espaces &quot;beaux&quot;.<br />
-                Nous créons des lieux qui influencent votre énergie et votre quotidien.
+                Nous ne crÃ©ons pas des espaces &quot;beaux&quot;.<br />
+                Nous crÃ©ons des lieux qui influencent votre Ã©nergie et votre quotidien.
               </p>
             </FeatureCard>
             <FeatureCard>
               <h3>
                 <FontAwesomeIcon icon={faPaintBrush} className="icon" />
-                <span>02 — Designed to Be Felt</span>
+                <span>02 â€” Designed to Be Felt</span>
               </h3>
               <p>
-                Chaque projet est pensé pour être vécu, ressenti, expérimenté.<br />
+                Chaque projet est pensÃ© pour Ãªtre vÃ©cu, ressenti, expÃ©rimentÃ©.<br />
                 Parce que le vrai luxe, c&apos;est ce que vous ressentez chez vous.
               </p>
             </FeatureCard>
             <FeatureCard>
               <h3>
                 <FontAwesomeIcon icon={faGem} className="icon" />
-                <span>03 — Conscious Design</span>
+                <span>03 â€” Conscious Design</span>
               </h3>
               <p>
-                Un design qui respecte votre bien-être et son environnement.<br />
+                Un design qui respecte votre bien-Ãªtre et son environnement.<br />
                 Plus sain, plus juste, plus durable.
               </p>
             </FeatureCard>
           </Features>
         </Grid>
+        <Stats>
+          <StatItem>
+            <h4>150+</h4>
+            <p>Projets RÃ©alisÃ©s</p>
+          </StatItem>
+          <StatItem>
+            <h4>10+</h4>
+            <p>AnnÃ©es d&apos;Excellence</p>
+          </StatItem>
+          <StatItem>
+            <h4>100%</h4>
+            <p>Clients Satisfaits</p>
+          </StatItem>
+        </Stats>
       </Container>
     </AboutSection>
   );
 }
 
 export default About;
+
