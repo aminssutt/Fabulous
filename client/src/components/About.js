@@ -74,20 +74,29 @@ const FeatureCard = styled.div`
   h3 {
     color: ${props => props.theme.colors.primary};
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
+    align-items: flex-start;
+    gap: 0.8rem;
+    margin-bottom: 0.85rem;
+    font-size: 1.2rem;
+    line-height: 1.35;
+
+    span {
+      display: block;
+    }
   }
 
   p {
     color: ${props => props.theme.colors.text};
     opacity: 0.9;
+    margin: 0;
+    line-height: 1.75;
   }
 
   .icon {
-    font-size: 1.8rem;
+    font-size: 1.3rem;
     color: ${props => props.theme.colors.primary};
+    margin-top: 0.15rem;
+    flex-shrink: 0;
   }
 `;
 
@@ -159,30 +168,30 @@ function About() {
             <FeatureCard>
               <h3>
                 <FontAwesomeIcon icon={faAward} className="icon" />
-                01 — Beyond Aesthetics
+                <span>01 — Beyond Aesthetics</span>
               </h3>
               <p>
-                Nous ne créons pas des espaces "beaux". Nous créons des lieux qui
-                influencent votre énergie et votre quotidien.
+                Nous ne créons pas des espaces "beaux".<br />
+                Nous créons des lieux qui influencent votre énergie et votre quotidien.
               </p>
             </FeatureCard>
             <FeatureCard>
               <h3>
                 <FontAwesomeIcon icon={faPaintBrush} className="icon" />
-                02 — Designed to Be Felt
+                <span>02 — Designed to Be Felt</span>
               </h3>
               <p>
-                Chaque projet est pensé pour être vécu, ressenti, expérimenté.
+                Chaque projet est pensé pour être vécu, ressenti, expérimenté.<br />
                 Parce que le vrai luxe, c'est ce que vous ressentez chez vous.
               </p>
             </FeatureCard>
             <FeatureCard>
               <h3>
                 <FontAwesomeIcon icon={faGem} className="icon" />
-                03 — Conscious Design
+                <span>03 — Conscious Design</span>
               </h3>
               <p>
-                Un design qui respecte votre bien-être et son environnement.
+                Un design qui respecte votre bien-être et son environnement.<br />
                 Plus sain, plus juste, plus durable.
               </p>
             </FeatureCard>

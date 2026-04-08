@@ -201,25 +201,33 @@ const Card = styled.div`
   
   h3 {
     display: flex;
-    gap: 1rem;
-    align-items: center;
-    margin: 0 0 1rem;
-    font-size: 1.3rem;
+    gap: 0.8rem;
+    align-items: flex-start;
+    margin: 0 0 0.85rem;
+    font-size: 1.12rem;
     font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
     color: ${p => p.theme.colors.text};
     position: relative;
     z-index: 1;
+
+    span {
+      display: block;
+    }
     
     svg {
       color: ${p => p.theme.colors.primary};
-      font-size: 1.1rem;
+      font-size: 1rem;
+      margin-top: 0.15rem;
+      flex-shrink: 0;
     }
   }
   
   p {
     color: ${p => p.theme.colors.textMuted || 'rgba(245, 245, 245, 0.7)'};
     margin: 0;
-    line-height: 1.7;
+    line-height: 1.75;
     position: relative;
     z-index: 1;
   }
@@ -270,16 +278,16 @@ export default function About() {
           
           <Features>
             <Card>
-              <h3><FontAwesomeIcon icon={faAward} /> 01 — Beyond Aesthetics</h3>
-              <p>Nous ne créons pas des espaces "beaux". Nous créons des lieux qui influencent votre énergie et votre quotidien.</p>
+              <h3><FontAwesomeIcon icon={faAward} /> <span>01 — Beyond Aesthetics</span></h3>
+              <p>Nous ne créons pas des espaces "beaux".<br />Nous créons des lieux qui influencent votre énergie et votre quotidien.</p>
             </Card>
             <Card>
-              <h3><FontAwesomeIcon icon={faPaintBrush} /> 02 — Designed to Be Felt</h3>
-              <p>Chaque projet est pensé pour être vécu, ressenti, expérimenté. Parce que le vrai luxe, c'est ce que vous ressentez chez vous.</p>
+              <h3><FontAwesomeIcon icon={faPaintBrush} /> <span>02 — Designed to Be Felt</span></h3>
+              <p>Chaque projet est pensé pour être vécu, ressenti, expérimenté.<br />Parce que le vrai luxe, c'est ce que vous ressentez chez vous.</p>
             </Card>
             <Card>
-              <h3><FontAwesomeIcon icon={faGem} /> 03 — Conscious Design</h3>
-              <p>Un design qui respecte votre bien-être et son environnement. Plus sain, plus juste, plus durable.</p>
+              <h3><FontAwesomeIcon icon={faGem} /> <span>03 — Conscious Design</span></h3>
+              <p>Un design qui respecte votre bien-être et son environnement.<br />Plus sain, plus juste, plus durable.</p>
             </Card>
           </Features>
         </Grid>
