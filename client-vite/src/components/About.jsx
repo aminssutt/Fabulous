@@ -3,17 +3,6 @@ import styled, { keyframes } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAward, faPaintBrush, faGem } from '@fortawesome/free-solid-svg-icons';
 
-// Animations
-const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const scaleIn = keyframes`
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1); }
-`;
-
 const shimmer = keyframes`
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -29,13 +18,22 @@ const AboutSection = styled.section`
   padding: 8rem 0;
   position: relative;
   overflow: hidden;
-  
+
+  @media (max-width: ${p => p.theme.breakpoints.tablet}) {
+    padding: 5.8rem 0;
+  }
+
+  @media (max-width: ${p => p.theme.breakpoints.mobile}) {
+    padding: 4.4rem 0;
+  }
+
   &::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at 80% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 20% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+    background:
+      radial-gradient(ellipse at 80% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 20% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
     pointer-events: none;
   }
 `;
@@ -46,11 +44,19 @@ const Container = styled.div`
   padding: 0 2rem;
   position: relative;
   z-index: 1;
+
+  @media (max-width: ${p => p.theme.breakpoints.mobile}) {
+    padding: 0 1.2rem;
+  }
 `;
 
 const SectionHeader = styled.div`
   text-align: center;
-  margin-bottom: 5rem;
+  margin-bottom: 4rem;
+
+  @media (max-width: ${p => p.theme.breakpoints.mobile}) {
+    margin-bottom: 2.5rem;
+  }
 `;
 
 const Overline = styled.span`
@@ -61,13 +67,19 @@ const Overline = styled.span`
   text-transform: uppercase;
   color: ${p => p.theme.colors.primary};
   margin-bottom: 1rem;
-  
-  &::before, &::after {
-    content: '◆';
+
+  &::before,
+  &::after {
+    content: '\25C6';
     margin: 0 1rem;
     font-size: 0.5rem;
     vertical-align: middle;
     opacity: 0.5;
+  }
+
+  @media (max-width: ${p => p.theme.breakpoints.mobile}) {
+    font-size: 0.72rem;
+    letter-spacing: 2.6px;
   }
 `;
 
@@ -85,37 +97,68 @@ const SectionTitle = styled.h2`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5rem;
-  align-items: center;
-  
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap: clamp(2rem, 4.6vw, 5rem);
+  align-items: start;
+
   @media (max-width: ${p => p.theme.breakpoints.tablet}) {
     grid-template-columns: 1fr;
-    gap: 3rem;
+    gap: 2.35rem;
   }
 `;
 
 const Content = styled.div`
-  p {
-    font-size: 1.1rem;
-    line-height: 2;
-    color: ${p => p.theme.colors.textMuted || 'rgba(245, 245, 245, 0.7)'};
-    margin: 0 0 2rem;
-    font-weight: 300;
+  max-width: 66ch;
+
+  @media (max-width: ${p => p.theme.breakpoints.tablet}) {
+    max-width: 100%;
+  }
+`;
+
+const Lead = styled.p`
+  font-size: clamp(1.18rem, 1.8vw, 1.45rem);
+  line-height: 1.8;
+  color: ${p => p.theme.colors.text};
+  margin: 0 0 1.4rem;
+  font-weight: 350;
+
+  @media (max-width: ${p => p.theme.breakpoints.mobile}) {
+    line-height: 1.65;
+    margin-bottom: 1.15rem;
+  }
+`;
+
+const Narrative = styled.p`
+  font-size: 1.08rem;
+  line-height: 1.85;
+  color: ${p => p.theme.colors.textMuted || 'rgba(245, 245, 245, 0.72)'};
+  margin: 0 0 1.15rem;
+  font-weight: 320;
+
+  @media (max-width: ${p => p.theme.breakpoints.mobile}) {
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
   }
 `;
 
 const Stats = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  margin-top: 3rem;
-  padding-top: 3rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.8rem;
+  margin-top: 2.5rem;
+  padding-top: 2.4rem;
   border-top: 1px solid rgba(212, 175, 55, 0.15);
-  
+
+  @media (max-width: ${p => p.theme.breakpoints.tablet}) {
+    gap: 1.2rem;
+  }
+
   @media (max-width: ${p => p.theme.breakpoints.mobile}) {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1.4rem;
+    margin-top: 2rem;
+    padding-top: 1.8rem;
   }
 `;
 
@@ -124,46 +167,56 @@ const Stat = styled.div`
   animation: ${countUp} 0.8s ease forwards;
   animation-delay: ${p => p.$delay || '0s'};
   opacity: 0;
-  
+
   h4 {
-    font-size: 3rem;
+    font-size: 2.85rem;
     font-weight: 300;
-    margin: 0 0 0.5rem;
+    margin: 0 0 0.45rem;
     background: linear-gradient(135deg, #D4AF37, #FCF6BA);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    
+
     @media (max-width: ${p => p.theme.breakpoints.mobile}) {
-      font-size: 2.5rem;
+      font-size: 2.35rem;
     }
   }
-  
+
   p {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.86rem;
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: ${p => p.theme.colors.textMuted || 'rgba(245, 245, 245, 0.7)'};
+    color: ${p => p.theme.colors.textMuted || 'rgba(245, 245, 245, 0.72)'};
   }
 `;
 
 const Features = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.35rem;
+  align-self: start;
+
+  @media (max-width: ${p => p.theme.breakpoints.mobile}) {
+    gap: 1rem;
+  }
 `;
 
 const Card = styled.div`
   background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(10px);
-  padding: 2rem 2rem 2rem 2.5rem;
+  padding: 1.9rem 2rem 2rem 2.35rem;
   border-radius: 16px;
   border: 1px solid rgba(212, 175, 55, 0.1);
   position: relative;
   overflow: hidden;
   transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  
+
+  @media (max-width: ${p => p.theme.breakpoints.mobile}) {
+    padding: 1.35rem 1.2rem 1.45rem 1.35rem;
+    border-radius: 14px;
+  }
+
   &::before {
     content: '';
     position: absolute;
@@ -175,7 +228,7 @@ const Card = styled.div`
     opacity: 0.5;
     transition: opacity 0.3s ease;
   }
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -184,27 +237,27 @@ const Card = styled.div`
     opacity: 0;
     transition: opacity 0.5s ease;
   }
-  
+
   &:hover {
     transform: translateY(-5px) translateX(5px);
-    border-color: rgba(212, 175, 55, 0.3);
+    border-color: rgba(212, 175, 55, 0.28);
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), 0 0 30px rgba(212, 175, 55, 0.1);
-    
+
     &::before {
       opacity: 1;
     }
-    
+
     &::after {
       opacity: 1;
     }
   }
-  
+
   h3 {
     display: flex;
     gap: 0.8rem;
     align-items: flex-start;
     margin: 0 0 0.85rem;
-    font-size: 1.12rem;
+    font-size: 1.1rem;
     font-weight: 500;
     line-height: 1.35;
     letter-spacing: 0.02em;
@@ -215,21 +268,32 @@ const Card = styled.div`
     span {
       display: block;
     }
-    
+
     svg {
       color: ${p => p.theme.colors.primary};
       font-size: 1rem;
       margin-top: 0.15rem;
       flex-shrink: 0;
     }
+
+    @media (max-width: ${p => p.theme.breakpoints.mobile}) {
+      font-size: 1rem;
+      gap: 0.65rem;
+      margin-bottom: 0.72rem;
+    }
   }
-  
+
   p {
     color: ${p => p.theme.colors.textMuted || 'rgba(245, 245, 245, 0.7)'};
     margin: 0;
     line-height: 1.75;
     position: relative;
     z-index: 1;
+
+    @media (max-width: ${p => p.theme.breakpoints.mobile}) {
+      font-size: 0.97rem;
+      line-height: 1.65;
+    }
   }
 `;
 
@@ -241,25 +305,23 @@ export default function About() {
           <Overline>Fabulous Interior Design</Overline>
           <SectionTitle>À propos</SectionTitle>
         </SectionHeader>
-        
+
         <Grid>
           <Content>
-            <p>Fabulous Interior Design est né d'une conviction simple :</p>
-            <p>l'espace dans lequel vous vivez façonne profondément qui vous êtes.</p>
-            <p>Nous ne concevons pas des intérieurs pour être regardés.</p>
-            <p>Nous créons des environnements pour être ressentis.</p>
-            <p>
-              À la croisée de l'architecture intérieure, du design régénératif et de la psychologie
-              de l'espace, chaque projet est pensé comme un écosystème vivant capable de soutenir
-              votre bien-être, votre énergie et votre équilibre au quotidien.
-            </p>
-            <p>Lumière naturelle, matières authentiques, circulation fluide, silence visuel...</p>
-            <p>Rien n'est laissé au hasard. Chaque choix est intentionnel.</p>
-            <p>
-              Parce qu'un intérieur n'est pas un décor. C'est une expérience. Un refuge.
-              Une extension invisible de vous-même.
-            </p>
-            <p>Chez Fabulous, nous traduisons votre essence en espace. Avec exigence, sensibilité et vision.</p>
+            <Lead>
+              Fabulous Interior Design est né d&apos;une conviction simple : l&apos;espace dans lequel vous vivez
+              façonne profondément qui vous êtes.
+            </Lead>
+            <Narrative>Nous ne concevons pas des intérieurs pour être regardés. Nous créons des environnements pour être ressentis.</Narrative>
+            <Narrative>
+              À la croisée de l&apos;architecture intérieure, du design régénératif et de la psychologie de l&apos;espace,
+              chaque projet est pensé comme un écosystème vivant capable de soutenir votre bien-être, votre énergie et
+              votre équilibre au quotidien.
+            </Narrative>
+            <Narrative>Lumière naturelle, matières authentiques, circulation fluide, silence visuel. Chaque choix est intentionnel.</Narrative>
+            <Narrative>Parce qu&apos;un intérieur n&apos;est pas un décor : c&apos;est une expérience, un refuge, une extension invisible de vous-même.</Narrative>
+            <Narrative>Chez Fabulous, nous traduisons votre essence en espace avec exigence, sensibilité et vision.</Narrative>
+
             <Stats>
               <Stat $delay="0.2s">
                 <h4>150+</h4>
@@ -267,7 +329,7 @@ export default function About() {
               </Stat>
               <Stat $delay="0.4s">
                 <h4>10+</h4>
-                <p>Années d'Excellence</p>
+                <p>Années d&apos;Excellence</p>
               </Stat>
               <Stat $delay="0.6s">
                 <h4>100%</h4>
@@ -275,15 +337,15 @@ export default function About() {
               </Stat>
             </Stats>
           </Content>
-          
+
           <Features>
             <Card>
               <h3><FontAwesomeIcon icon={faAward} /> <span>01 — Beyond Aesthetics</span></h3>
-              <p>Nous ne créons pas des espaces "beaux".<br />Nous créons des lieux qui influencent votre énergie et votre quotidien.</p>
+              <p>Nous ne créons pas des espaces &quot;beaux&quot;.<br />Nous créons des lieux qui influencent votre énergie et votre quotidien.</p>
             </Card>
             <Card>
               <h3><FontAwesomeIcon icon={faPaintBrush} /> <span>02 — Designed to Be Felt</span></h3>
-              <p>Chaque projet est pensé pour être vécu, ressenti, expérimenté.<br />Parce que le vrai luxe, c'est ce que vous ressentez chez vous.</p>
+              <p>Chaque projet est pensé pour être vécu, ressenti, expérimenté.<br />Parce que le vrai luxe, c&apos;est ce que vous ressentez chez vous.</p>
             </Card>
             <Card>
               <h3><FontAwesomeIcon icon={faGem} /> <span>03 — Conscious Design</span></h3>
